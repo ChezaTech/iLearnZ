@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('role_id')->nullable();
+            $table->foreignId('school_id')->nullable();
+            $table->string('user_type'); // teacher, student, admin, parent, government
+            $table->string('phone_number')->nullable();
+            $table->string('profile_photo')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->json('preferences')->nullable();
+            $table->string('biometric_id')->nullable(); // For biometric login
             $table->rememberToken();
             $table->timestamps();
         });

@@ -34,17 +34,27 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'user_type' => 'required|string|in:parent,student',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'user_type' => $request->user_type,
+            'phone_number' => $request->phone_number,
+            'is_active' => true,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
+
+        // If this is a parent account, redirect to add student page
+        if ($request->user_type === 'parent') {
+            return redirect(route('parent.dashboard', absolute: false));
+        }
 
         return redirect(route('dashboard', absolute: false));
     }
