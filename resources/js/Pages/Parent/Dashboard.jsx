@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { 
+    PencilIcon, 
+    TrashIcon, 
+    EyeIcon, 
+    EyeSlashIcon,
+    AcademicCapIcon,
+    BookOpenIcon,
+    CalendarIcon,
+    ClockIcon,
+    UserGroupIcon,
+    BellIcon,
+    ChatBubbleLeftRightIcon
+} from '@heroicons/react/24/outline';
 
 // Playful color palette
 const colors = {
@@ -19,41 +32,196 @@ const colors = {
 
 export default function Dashboard({ auth, students }) {
     const [confirmingStudentDeactivation, setConfirmingStudentDeactivation] = useState(null);
+    const [activeTab, setActiveTab] = useState('overview');
 
     const toggleStudentStatus = (student) => {
         router.patch(route('parent.students.toggle-status', student.id), {}, {
             preserveScroll: true,
         });
     };
+    
+    // Mock data for dashboard stats
+    const totalCourses = students.length > 0 ? students.length * 3 : 0;
+    const upcomingEvents = 2;
+    const recentActivities = 5;
+    const unreadMessages = 3;
+
+    // Get current date for greeting
+    const currentHour = new Date().getHours();
+    let greeting = "Good morning";
+    if (currentHour >= 12 && currentHour < 17) {
+        greeting = "Good afternoon";
+    } else if (currentHour >= 17) {
+        greeting = "Good evening";
+    }
 
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                        Parent Dashboard
-                    </h2>
-                    <Link
-                        href={route('parent.students.create')}
-                        className="flex items-center rounded-lg px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        style={{ backgroundColor: colors.primary }}
-                    >
-                        <PlusIcon className="mr-2 h-5 w-5" />
-                        Add Student
-                    </Link>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">
+                            {greeting}, {auth.user.name}!
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Here's what's happening with your students' learning journey
+                        </p>
+                    </div>
+                    <div className="mt-4 flex space-x-3 sm:mt-0">
+                        <Link
+                            href={route('parent.students.create')}
+                            className="flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                            <PlusIcon className="mr-2 h-5 w-5" />
+                            Add Student
+                        </Link>
+                    </div>
                 </div>
             }
         >
             <Head title="Parent Dashboard" />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="mb-8 overflow-hidden rounded-lg bg-white p-6 shadow-sm">
-                        <h3 className="mb-4 text-lg font-medium text-gray-900">Welcome to Your Parent Dashboard</h3>
-                        <p className="text-gray-600">
-                            Here you can manage your children's accounts, monitor their progress, and help them succeed in their learning journey.
-                        </p>
+                    {/* Dashboard Stats Cards */}
+                    <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        {/* Students Card */}
+                        <div className="overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-md">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <UserGroupIcon className="h-10 w-10 rounded-full bg-indigo-100 p-2 text-indigo-600" />
+                                    </div>
+                                    <div className="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt className="truncate text-sm font-medium text-gray-500">Students</dt>
+                                            <dd>
+                                                <div className="text-lg font-semibold text-gray-900">{students.length}</div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-5 py-3">
+                                <div className="text-sm">
+                                    <Link href={route('parent.students.create')} className="font-medium text-indigo-600 hover:text-indigo-500">
+                                        Add another
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Courses Card */}
+                        <div className="overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-md">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <BookOpenIcon className="h-10 w-10 rounded-full bg-cyan-100 p-2 text-cyan-600" />
+                                    </div>
+                                    <div className="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt className="truncate text-sm font-medium text-gray-500">Active Courses</dt>
+                                            <dd>
+                                                <div className="text-lg font-semibold text-gray-900">{totalCourses}</div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-5 py-3">
+                                <div className="text-sm">
+                                    <a href="#" className="font-medium text-cyan-600 hover:text-cyan-500">
+                                        View all courses
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Upcoming Events Card */}
+                        <div className="overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-md">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <CalendarIcon className="h-10 w-10 rounded-full bg-purple-100 p-2 text-purple-600" />
+                                    </div>
+                                    <div className="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt className="truncate text-sm font-medium text-gray-500">Upcoming Events</dt>
+                                            <dd>
+                                                <div className="text-lg font-semibold text-gray-900">{upcomingEvents}</div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-5 py-3">
+                                <div className="text-sm">
+                                    <a href="#" className="font-medium text-purple-600 hover:text-purple-500">
+                                        View calendar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Messages Card */}
+                        <div className="overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-md">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <ChatBubbleLeftRightIcon className="h-10 w-10 rounded-full bg-emerald-100 p-2 text-emerald-600" />
+                                    </div>
+                                    <div className="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt className="truncate text-sm font-medium text-gray-500">Unread Messages</dt>
+                                            <dd className="flex items-center">
+                                                <div className="text-lg font-semibold text-gray-900">{unreadMessages}</div>
+                                                {unreadMessages > 0 && (
+                                                    <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">New</span>
+                                                )}
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-5 py-3">
+                                <div className="text-sm">
+                                    <a href="#" className="font-medium text-emerald-600 hover:text-emerald-500">
+                                        View messages
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Navigation Tabs */}
+                    <div className="mb-6 border-b border-gray-200">
+                        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                            <button
+                                onClick={() => setActiveTab('overview')}
+                                className={`${activeTab === 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+                            >
+                                Overview
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('students')}
+                                className={`${activeTab === 'students' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+                            >
+                                Students
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('progress')}
+                                className={`${activeTab === 'progress' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+                            >
+                                Academic Progress
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('calendar')}
+                                className={`${activeTab === 'calendar' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+                            >
+                                Calendar
+                            </button>
+                        </nav>
                     </div>
 
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">

@@ -248,12 +248,13 @@ export default function Register() {
                         
                         {data.user_type === 'parent' && (
                             <StyledInput
-                                label="Phone Number (Optional)"
+                                label="Phone Number"
                                 id="phone_number"
                                 type="tel"
                                 value={data.phone_number}
                                 onChange={(e) => setData('phone_number', e.target.value)}
                                 error={errors.phone_number}
+                                required
                             />
                         )}
                         

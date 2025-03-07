@@ -30,13 +30,21 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validationRules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'user_type' => 'required|string|in:parent,student',
-            'phone_number' => 'nullable|string|max:20',
-        ]);
+        ];
+        
+        // Make phone number required for parents
+        if ($request->user_type === 'parent') {
+            $validationRules['phone_number'] = 'required|string|max:20';
+        } else {
+            $validationRules['phone_number'] = 'nullable|string|max:20';
+        }
+        
+        $request->validate($validationRules);
 
         $user = User::create([
             'name' => $request->name,
