@@ -3,16 +3,28 @@ import { Head, Link } from "@inertiajs/react";
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     return (
         <>
-            <Head title="Welcome to iLearnZ" />
+            <Head title="Welcome to iLearn" />
             <div className="bg-white text-gray-800 dark:bg-gray-900 dark:text-white overflow-hidden font-sans selection:bg-blue-500 selection:text-white">
                 <header className="flex items-center justify-between py-6 z-20 relative bg-white px-8 lg:px-16 shadow-md dark:bg-gray-800 sticky top-0">
                     <div className="flex items-center">
                         <div className="text-3xl font-bold">
-                            <span className="text-blue-600 dark:text-blue-400 inline-block mr-1 animate-pulse">
+                            <span className="text-[#1e5091] inline-block mr-1">
                                 i
                             </span>
-                            <span className="text-blue-600 dark:text-blue-400">
-                                LearnZ
+                            <span className="text-[#1e5091]">
+                                L
+                            </span>
+                            <span className="text-[#1e5091]">
+                                e
+                            </span>
+                            <span className="text-[#ffb81c]">
+                                a
+                            </span>
+                            <span className="text-[#1e5091]">
+                                r
+                            </span>
+                            <span className="text-[#1e5091]">
+                                n
                             </span>
                         </div>
                     </div>
@@ -20,7 +32,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         {auth.user ? (
                             <Link
                                 href={route("dashboard")}
-                                className="rounded-full px-6 py-2.5 font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"
                             >
                                 Dashboard
                             </Link>
@@ -28,13 +40,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <>
                                 <Link
                                     href={route("login")}
-                                    className="rounded-full px-6 py-2.5 font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                    className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"
                                 >
                                     Log in
                                 </Link>
                                 <Link
                                     href={route("register")}
-                                    className="rounded-full bg-blue-600 px-6 py-2.5 font-medium text-white transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-blue-200 dark:hover:shadow-blue-900/50"
+                                    className="rounded-full bg-[#1e5091] px-6 py-2.5 font-medium text-white transition hover:bg-[#1e5091]/90 shadow-md hover:shadow-[#1e5091]/20"
                                 >
                                     Registration
                                 </Link>
@@ -46,49 +58,49 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <main className="w-full">
                     {/* Hero Section */}
                     <div className="relative w-full">
-                        <div className="bg-gradient-to-br from-blue-700 to-blue-900 text-white py-24 md:py-32 overflow-hidden relative">
+                        <div className="bg-[#1e5091] text-white py-24 md:py-32 overflow-hidden relative">
                             {/* Background decorative elements */}
-                            <div className="absolute top-20 right-20 w-16 h-16 bg-blue-500/20 rounded-full animate-pulse"></div>
-                            <div className="absolute top-40 left-40 w-12 h-12 bg-blue-300/20 rounded-full animate-bounce"></div>
-                            <div className="absolute bottom-20 left-20 w-14 h-14 bg-blue-400/20 rounded-full animate-pulse"></div>
-                            <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-blue-600/10 rounded-full animate-bounce"></div>
-                            <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-blue-200/20 rounded-full"></div>
-                            <div className="absolute top-1/3 right-1/3 w-10 h-10 bg-blue-300/30 rounded-full"></div>
+                            <div className="absolute top-20 right-20 w-16 h-16 bg-[#ffb81c]/20 rounded-full animate-pulse"></div>
+                            <div className="absolute top-40 left-40 w-12 h-12 bg-[#ffb81c]/30 rounded-full animate-bounce"></div>
+                            <div className="absolute bottom-20 left-20 w-14 h-14 bg-[#ffb81c]/20 rounded-full animate-pulse"></div>
+                            <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-[#ffb81c]/10 rounded-full animate-bounce"></div>
+                            <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-white/20 rounded-full"></div>
+                            <div className="absolute top-1/3 right-1/3 w-10 h-10 bg-white/30 rounded-full"></div>
 
                             <div className="container mx-auto px-10 lg:px-16">
                                 <div className="grid lg:grid-cols-5 gap-16 items-center">
                                     {/* Text Content - Takes 2 columns */}
                                     <div className="lg:col-span-2 z-10">
                                         <div className="space-y-8">
-                                            <div className="inline-block px-6 py-2 mb-4 bg-blue-600 text-white rounded-full text-sm font-medium tracking-wide shadow-md transform hover:-translate-y-1 transition-transform duration-300 animate-bounce">
+                                            <div className="inline-block px-6 py-2 mb-4 bg-[#ffb81c] text-[#1e5091] rounded-full text-sm font-medium tracking-wide shadow-md transform hover:-translate-y-1 transition-transform duration-300">
                                                 #1 Platform for Online Learning
                                             </div>
                                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
                                                 <span className="block mb-2">
                                                     Transforming
                                                 </span>
-                                                <span className="text-blue-300 inline-block transform hover:scale-105 transition-transform duration-300">
+                                                <span className="text-[#ffb81c] inline-block transform hover:scale-105 transition-transform duration-300">
                                                     Digital Learning
                                                 </span>
                                                 <span className="block mt-2">
                                                     Throughout Africa!
                                                 </span>
                                             </h1>
-                                            <p className="text-xl text-blue-100 max-w-lg leading-relaxed">
-                                                Manage your childs future
-                                                through our platform, teachers
-                                                students and more.
+                                            <p className="text-xl text-white/90 max-w-lg leading-relaxed">
+                                                Manage your child's future
+                                                through our platform, connecting teachers,
+                                                students and parents.
                                             </p>
                                             <div className="flex flex-wrap gap-6 pt-6">
                                                 <Link
                                                     href={route("register")}
-                                                    className="rounded-full bg-blue-500 px-10 py-4 font-medium text-white transition-all duration-300 hover:bg-blue-600 hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                                                    className="rounded-full bg-[#ffb81c] px-10 py-4 font-medium text-[#1e5091] transition-all duration-300 hover:bg-[#ffb81c]/90 hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#ffb81c] focus:ring-offset-2"
                                                 >
                                                     Get Started
                                                 </Link>
                                                 <a
                                                     href="#features"
-                                                    className="rounded-full border-2 border-blue-400 bg-blue-700/30 px-10 py-4 font-medium text-white transition-all duration-300 hover:bg-blue-700/50 hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                                                    className="rounded-full border-2 border-[#ffb81c]/70 bg-[#1e5091]/50 px-10 py-4 font-medium text-white transition-all duration-300 hover:bg-[#1e5091]/70 hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#ffb81c] focus:ring-offset-2"
                                                 >
                                                     Start Learning
                                                 </a>
@@ -107,7 +119,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     className="w-full h-60 object-cover"
                                                     loading="lazy"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1e5091]/70 to-transparent"></div>
                                             </div>
                                             {/* Top right image */}
                                             <div className="relative overflow-hidden rounded-2xl shadow-xl transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl">
@@ -117,7 +129,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     className="w-full h-60 object-cover"
                                                     loading="lazy"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1e5091]/70 to-transparent"></div>
                                             </div>
                                             {/* Bottom left image */}
                                             <div className="relative overflow-hidden rounded-2xl shadow-xl transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl">
@@ -127,7 +139,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     className="w-full h-60 object-cover"
                                                     loading="lazy"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1e5091]/70 to-transparent"></div>
                                             </div>
                                             {/* Bottom right image */}
                                             <div className="relative overflow-hidden rounded-2xl shadow-xl transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl">
@@ -137,12 +149,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     className="w-full h-60 object-cover"
                                                     loading="lazy"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1e5091]/70 to-transparent"></div>
                                             </div>
                                         </div>
                                         {/* Decorative elements */}
-                                        <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-blue-500 rounded-full opacity-30 animate-pulse"></div>
-                                        <div className="absolute -top-12 -left-12 w-20 h-20 bg-blue-400 rounded-full opacity-20 animate-pulse"></div>
+                                        <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-[#ffb81c] rounded-full opacity-30 animate-pulse"></div>
+                                        <div className="absolute -top-12 -left-12 w-20 h-20 bg-[#ffb81c] rounded-full opacity-20 animate-pulse"></div>
                                     </div>
                                 </div>
                             </div>
@@ -161,11 +173,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             {/* Features Section */}
                             <div id="features" className="bg-white p-16">
                                 <div className="text-center">
-                                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                                    <h2 className="text-3xl font-bold tracking-tight text-[#1e5091] sm:text-4xl">
                                         Features
                                     </h2>
-                                    <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-                                        Discover how iLearnZ can transform your
+                                    <div className="h-1 w-20 bg-[#ffb81c] mx-auto mt-2 rounded-full"></div>
+                                    <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+                                        Discover how iLearn can transform your
                                         educational experience with these
                                         powerful features
                                     </p>
@@ -173,11 +186,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                                 <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                                     {/* Feature 1 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -190,10 +203,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Interactive Learning
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Engage with interactive lessons,
                                             quizzes, and assignments designed to
                                             enhance understanding and retention.
@@ -201,11 +215,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </div>
 
                                     {/* Feature 2 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -218,10 +232,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Progress Tracking
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Monitor student progress with
                                             detailed analytics and reports,
                                             helping identify strengths and areas
@@ -230,11 +245,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </div>
 
                                     {/* Feature 3 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -247,10 +262,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Collaborative Learning
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Foster teamwork and communication
                                             with built-in collaboration tools
                                             for group projects and discussions.
@@ -258,11 +274,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </div>
 
                                     {/* Feature 4 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -275,10 +291,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Flexible Scheduling
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Access learning materials anytime,
                                             anywhere with our flexible
                                             scheduling system that adapts to
@@ -287,11 +304,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </div>
 
                                     {/* Feature 5 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -304,10 +321,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Secure Environment
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Rest easy knowing your data is
                                             protected with our state-of-the-art
                                             security measures and privacy
@@ -316,11 +334,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </div>
 
                                     {/* Feature 6 */}
-                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800">
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                                    <div className="flex flex-col rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-xl border border-[#1e5091]/10 hover:border-[#1e5091]/20">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1e5091]/10">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                                className="h-6 w-6 text-[#1e5091]"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -333,10 +351,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                 />
                                             </svg>
                                         </div>
-                                        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                        <div className="h-1 w-12 bg-[#ffb81c] mb-3 rounded-full"></div>
+                                        <h3 className="mb-2 text-xl font-semibold text-[#1e5091]">
                                             Personalized Learning
                                         </h3>
-                                        <p className="flex-grow text-gray-600 dark:text-gray-300">
+                                        <p className="flex-grow text-gray-600">
                                             Tailor the learning experience to
                                             individual needs with adaptive
                                             content and personalized
@@ -349,18 +368,19 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             {/* Testimonials Section with diagonal background */}
                             <div className="relative py-24 overflow-hidden bg-white">
                                 {/* Diagonal background */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-blue-900 -skew-y-6 transform origin-top-right -z-10"></div>
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#1e5091]/10 to-white -skew-y-6 transform origin-top-right -z-10"></div>
 
                                 <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                                     <div className="text-center mb-16">
-                                        <div className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full mb-4 dark:bg-blue-900/50 dark:text-blue-300 text-sm font-medium tracking-wide">
+                                        <div className="inline-block px-4 py-1.5 bg-[#ffb81c]/10 text-[#1e5091] rounded-full mb-4 text-sm font-medium tracking-wide border border-[#ffb81c]/20">
                                             Success Stories
                                         </div>
-                                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                                        <h2 className="text-3xl font-bold tracking-tight text-[#1e5091] sm:text-4xl">
                                             What Our Users Say
                                         </h2>
-                                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                                            Discover how iLearnZ has transformed
+                                        <div className="h-1 w-20 bg-[#ffb81c] mx-auto mt-2 mb-4 rounded-full"></div>
+                                        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                                            Discover how iLearn has transformed
                                             the learning experience for
                                             students, teachers, and
                                             administrators worldwide.
@@ -369,9 +389,9 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                                         {/* Testimonial 1 */}
-                                        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
+                                        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#1e5091]/10 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
                                             <div className="flex items-center mb-6">
-                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-blue-100 dark:ring-blue-900/50">
+                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-[#ffb81c]/30">
                                                     <img
                                                         src="https://img.freepik.com/premium-photo/happy-cheerful-american-african-black-ethnicity-female-university-student-learning-highschool_158001-9462.jpg"
                                                         alt="Amara N."
@@ -380,15 +400,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                                                    <h3 className="font-semibold text-lg text-[#1e5091]">
                                                         Amara N.
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    <p className="text-sm text-gray-500">
                                                         Parent of Two
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex mb-4 text-yellow-400">
+                                            <div className="flex mb-4 text-[#ffb81c]">
                                                 {[...Array(5)].map((_, i) => (
                                                     <svg
                                                         key={i}
@@ -401,8 +421,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     </svg>
                                                 ))}
                                             </div>
-                                            <p className="text-gray-600 dark:text-gray-300 italic">
-                                                "As a parent, iLearnZ has given
+                                            <p className="text-gray-600 italic">
+                                                "As a parent, iLearn has given
                                                 me peace of mind. I can easily
                                                 track my children's progress and
                                                 communicate with their teachers.
@@ -412,9 +432,9 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         </div>
 
                                         {/* Testimonial 2 */}
-                                        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
+                                        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#1e5091]/10 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
                                             <div className="flex items-center mb-6">
-                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-blue-100 dark:ring-blue-900/50">
+                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-[#ffb81c]/30">
                                                     <img
                                                         src="https://img.freepik.com/free-photo/portrait-smiling-african-american-businessman-wearing-suit_1262-3597.jpg"
                                                         alt="Kofi B."
@@ -423,15 +443,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                                                    <h3 className="font-semibold text-lg text-[#1e5091]">
                                                         Kofi B.
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    <p className="text-sm text-gray-500">
                                                         Father & IT Professional
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex mb-4 text-yellow-400">
+                                            <div className="flex mb-4 text-[#ffb81c]">
                                                 {[...Array(5)].map((_, i) => (
                                                     <svg
                                                         key={i}
@@ -444,22 +464,21 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     </svg>
                                                 ))}
                                             </div>
-                                            <p className="text-gray-600 dark:text-gray-300 italic">
+                                            <p className="text-gray-600 italic">
                                                 "As a tech-savvy parent, I
-                                                appreciate how iLearnZ
-                                                integrates modern technology
-                                                with education. The platform
-                                                keeps me involved in my
-                                                children's learning journey
-                                                while respecting my busy
-                                                schedule."
+                                                appreciate how iLearn integrates
+                                                modern technology with
+                                                education. The platform keeps me
+                                                involved in my children's
+                                                learning journey while
+                                                respecting my busy schedule."
                                             </p>
                                         </div>
 
                                         {/* Testimonial 3 */}
-                                        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
+                                        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#1e5091]/10 transform transition-all hover:scale-105 duration-300 hover:shadow-2xl">
                                             <div className="flex items-center mb-6">
-                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-blue-100 dark:ring-blue-900/50">
+                                                <div className="h-12 w-12 rounded-full overflow-hidden mr-4 ring-4 ring-[#ffb81c]/30">
                                                     <img
                                                         src="https://img.freepik.com/free-photo/african-american-woman-casual-portrait_23-2149143313.jpg"
                                                         alt="Zainab M."
@@ -468,15 +487,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                                                    <h3 className="font-semibold text-lg text-[#1e5091]">
                                                         Zainab M.
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    <p className="text-sm text-gray-500">
                                                         Mother of Three
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex mb-4 text-yellow-400">
+                                            <div className="flex mb-4 text-[#ffb81c]">
                                                 {[...Array(5)].map((_, i) => (
                                                     <svg
                                                         key={i}
@@ -489,8 +508,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     </svg>
                                                 ))}
                                             </div>
-                                            <p className="text-gray-600 dark:text-gray-300 italic">
-                                                "iLearnZ has been a blessing for
+                                            <p className="text-gray-600 italic">
+                                                "iLearn has been a blessing for
                                                 our family. With three children
                                                 in different grades, the
                                                 platform helps me stay organized
@@ -505,16 +524,17 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </div>
 
                             {/* Statistics Section with floating cards */}
-                            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-800 dark:to-gray-900 py-24">
+                            <div className="bg-gradient-to-b from-white to-[#1e5091]/5 py-24">
                                 <div className="max-w-7xl mx-auto px-8 lg:px-16">
                                     <div className="text-center mb-16">
-                                        <div className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full mb-4 dark:bg-blue-900/50 dark:text-blue-300 text-sm font-medium tracking-wide animate-bounce">
+                                        <div className="inline-block px-4 py-1.5 bg-[#ffb81c]/10 text-[#1e5091] rounded-full mb-4 text-sm font-medium tracking-wide border border-[#ffb81c]/20">
                                             By The Numbers
                                         </div>
-                                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                                        <h2 className="text-3xl font-bold tracking-tight text-[#1e5091] sm:text-4xl">
                                             Our Impact in African Education
                                         </h2>
-                                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                                        <div className="h-1 w-20 bg-[#ffb81c] mx-auto mt-2 mb-4 rounded-full"></div>
+                                        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
                                             We're proud of the difference we're
                                             making in educational outcomes
                                             across Africa.
@@ -579,7 +599,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         Join thousands of students, teachers,
                                         and administrators who have already
                                         revolutionized their educational journey
-                                        with iLearnZ.
+                                        with iLearn.
                                     </p>
                                     <div className="flex flex-wrap justify-center gap-6">
                                         <Link

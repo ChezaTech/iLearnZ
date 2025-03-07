@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
         // Super Admin
         User::create([
             'name' => 'System Administrator',
-            'email' => 'admin@ilearnz.com',
+            'email' => 'admin@iLearn.com',
             'password' => Hash::make('password'),
             'role_id' => 1, // Super Admin
             'user_type' => 'admin',

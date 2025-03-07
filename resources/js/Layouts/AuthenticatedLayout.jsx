@@ -37,28 +37,62 @@ export default function AuthenticatedLayout({ header, children }) {
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
             <nav
                 className={`fixed w-full z-50 transition-all duration-300 ${
-                    scrolled ? "bg-white shadow-sm pt-2" : "bg-white py-5"
+                    scrolled
+                        ? "bg-white/95 backdrop-blur-sm shadow-lg py-2"
+                        : "bg-[#1e5091]/95 backdrop-blur-sm py-3"
                 }`}
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <span className="ml-2 text-xl font-bold text-indigo-600 hidden md:inline-block">
-                                        iLearnZ
-                                    </span>
+                                <Link
+                                    href="/"
+                                    className="flex items-center gap-2"
+                                >
+                                    <div className="flex items-center bg-white">
+                                        <span className="text-2xl font-bold p-3">
+                                            <span className="text-[#1e5091]">
+                                                i
+                                            </span>
+                                            <span className="text-[#1e5091]">
+                                                L
+                                            </span>
+                                            <span className="text-[#1e5091]">
+                                                e
+                                            </span>
+                                            <span className="text-[#ffb81c]">
+                                                a
+                                            </span>
+                                            <span className="text-[#1e5091]">
+                                                r
+                                            </span>
+                                            <span className="text-[#1e5091]">
+                                                n
+                                            </span>
+                                        </span>
+                                    </div>
+                                    
                                 </Link>
                             </div>
 
-                            <div className="hidden md:flex space-x-1 ml-10">
+                            <div className="hidden md:flex space-x-2 ml-10">
                                 <NavLink
                                     href={route("dashboard")}
                                     active={route().current("dashboard")}
-                                    className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 transition-colors"
+                                    className={`px-5 py-2 text-sm font-medium transition-all border-b-2 ${
+                                        scrolled
+                                            ? "hover:text-[#1e5091] border-transparent hover:border-[#ffb81c]"
+                                            : "text-white hover:border-[#ffb81c] border-transparent"
+                                    } ${
+                                        route().current("dashboard")
+                                            ? scrolled
+                                                ? "border-[#ffb81c] text-[#1e5091]"
+                                                : "border-[#ffb81c] text-white"
+                                            : ""
+                                    }`}
                                 >
-                                    <HomeIcon className="h-5 w-5" />
-                                    <span>Dashboard</span>
+                                    Dashboard
                                 </NavLink>
 
                                 {isParent && (
@@ -68,10 +102,21 @@ export default function AuthenticatedLayout({ header, children }) {
                                             active={route().current(
                                                 "parent.dashboard"
                                             )}
-                                            className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 transition-colors"
+                                            className={`px-5 py-2 text-sm font-medium transition-all border-b-2 ${
+                                                scrolled
+                                                    ? "hover:text-[#1e5091] border-transparent hover:border-[#ffb81c]"
+                                                    : "text-white hover:border-[#ffb81c] border-transparent"
+                                            } ${
+                                                route().current(
+                                                    "parent.dashboard"
+                                                )
+                                                    ? scrolled
+                                                        ? "border-[#ffb81c] text-[#1e5091]"
+                                                        : "border-[#ffb81c] text-white"
+                                                    : ""
+                                            }`}
                                         >
-                                            <UserGroupIcon className="h-5 w-5" />
-                                            <span>My Students</span>
+                                            My Students
                                         </NavLink>
                                     </>
                                 )}
@@ -80,14 +125,22 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <>
                                         <NavLink
                                             href="#"
-                                            className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 transition-colors"
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all hover:scale-105 ${
+                                                scrolled
+                                                    ? "hover:bg-indigo-50"
+                                                    : "text-white hover:bg-white/20"
+                                            }`}
                                         >
                                             <BookOpenIcon className="h-5 w-5" />
                                             <span>My Courses</span>
                                         </NavLink>
                                         <NavLink
                                             href="#"
-                                            className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 transition-colors"
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all hover:scale-105 ${
+                                                scrolled
+                                                    ? "hover:bg-indigo-50"
+                                                    : "text-white hover:bg-white/20"
+                                            }`}
                                         >
                                             <AcademicCapIcon className="h-5 w-5" />
                                             <span>Assignments</span>
@@ -97,10 +150,13 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                 <NavLink
                                     href="#"
-                                    className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 transition-colors"
+                                    className={`px-5 py-2 text-sm font-medium transition-all border-b-2 ${
+                                        scrolled
+                                            ? "hover:text-[#1e5091] border-transparent hover:border-[#ffb81c]"
+                                            : "text-white hover:border-[#ffb81c] border-transparent"
+                                    }`}
                                 >
-                                    <CalendarIcon className="h-5 w-5" />
-                                    <span>Calendar</span>
+                                    Calendar
                                 </NavLink>
                             </div>
                         </div>
@@ -111,23 +167,43 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <Dropdown.Trigger>
                                         <button
                                             type="button"
-                                            className="flex items-center space-x-2 rounded-full bg-white p-1 text-sm transition duration-150 ease-in-out hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                            className={`flex items-center gap-2 rounded-xl ${
+                                                scrolled
+                                                    ? "bg-[#1e5091]/10"
+                                                    : "bg-white/10"
+                                            } p-2 text-sm transition-all duration-200 ease-in-out hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#ffb81c] focus:ring-offset-2`}
                                         >
-                                            <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+                                            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[#1e5091] to-[#1e5091] flex items-center justify-center text-white font-semibold shadow-md">
                                                 {user.name
                                                     .charAt(0)
                                                     .toUpperCase()}
                                             </div>
                                             <div className="flex flex-col items-start pr-2">
-                                                <span className="text-sm font-medium text-gray-700">
+                                                <span
+                                                    className={`text-sm font-medium ${
+                                                        scrolled
+                                                            ? "text-[#1e5091]"
+                                                            : "text-white"
+                                                    }`}
+                                                >
                                                     {user.name}
                                                 </span>
-                                                <span className="text-xs text-gray-500 capitalize">
+                                                <span
+                                                    className={`text-xs ${
+                                                        scrolled
+                                                            ? "text-[#1e5091]/70"
+                                                            : "text-white/80"
+                                                    } capitalize`}
+                                                >
                                                     {user.user_type}
                                                 </span>
                                             </div>
                                             <svg
-                                                className="h-4 w-4 text-gray-400"
+                                                className={`h-4 w-4 ${
+                                                    scrolled
+                                                        ? "text-[#ffb81c]"
+                                                        : "text-[#ffb81c]"
+                                                }`}
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 20 20"
                                                 fill="currentColor"
@@ -143,10 +219,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                     <Dropdown.Content
                                         width="48"
-                                        contentClasses="py-1 bg-white rounded-xl shadow-lg border border-gray-200"
+                                        contentClasses="py-2 bg-white rounded-xl shadow-xl border border-[#1e5091]/10"
                                     >
                                         <div className="px-4 py-3 border-b border-gray-100">
-                                            <p className="text-sm text-gray-700">
+                                            <p className="text-sm text-gray-600">
                                                 Signed in as
                                             </p>
                                             <p className="text-sm font-medium text-gray-900 truncate">
@@ -156,9 +232,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                         <Dropdown.Link
                                             href={route("profile.edit")}
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 transition-colors duration-150"
                                         >
-                                            <Cog6ToothIcon className="mr-2 h-5 w-5 text-gray-500" />
+                                            <Cog6ToothIcon className="mr-2 h-5 w-5 text-indigo-500" />
                                             Account Settings
                                         </Dropdown.Link>
 
@@ -166,7 +242,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             href={route("logout")}
                                             method="post"
                                             as="button"
-                                            className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                            className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
                                         >
                                             <svg
                                                 className="mr-2 h-5 w-5 text-red-500"
@@ -196,7 +272,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                         !showingNavigationDropdown
                                     )
                                 }
-                                className="inline-flex items-center justify-center rounded-full p-2 text-indigo-600 transition duration-150 ease-in-out hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className={`inline-flex items-center justify-center rounded-lg p-2 ${
+                                    scrolled
+                                        ? "text-[#1e5091] bg-[#1e5091]/10"
+                                        : "text-white bg-white/10"
+                                } transition-all duration-200 ease-in-out hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#ffb81c] focus:ring-offset-2`}
                                 aria-expanded="false"
                             >
                                 <span className="sr-only">Open main menu</span>
@@ -239,7 +319,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div
                     className={
                         (showingNavigationDropdown ? "block" : "hidden") +
-                        " md:hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-sm"
+                        " md:hidden fixed inset-0 z-40 bg-[#1e5091]/95 backdrop-blur-md"
                     }
                 >
                     <div className="pt-20 pb-6 px-4 max-h-screen overflow-y-auto">
@@ -247,7 +327,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ResponsiveNavLink
                                 href={route("dashboard")}
                                 active={route().current("dashboard")}
-                                className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                className="flex items-center px-4 py-3 text-base font-medium rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-150"
                             >
                                 <HomeIcon className="mr-3 h-6 w-6" />
                                 Dashboard
@@ -257,9 +337,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <ResponsiveNavLink
                                     href={route("parent.dashboard")}
                                     active={route().current("parent.dashboard")}
-                                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl text-white hover:bg-white/10 transition-all duration-150 border-l-4 border-transparent hover:border-[#ffb81c]"
                                 >
-                                    <UserGroupIcon className="mr-3 h-6 w-6" />
                                     My Students
                                 </ResponsiveNavLink>
                             )}
@@ -268,16 +347,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <>
                                     <ResponsiveNavLink
                                         href="#"
-                                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl text-white hover:bg-white/10 transition-all duration-150 border-l-4 border-transparent hover:border-[#ffb81c]"
                                     >
-                                        <BookOpenIcon className="mr-3 h-6 w-6" />
                                         My Courses
                                     </ResponsiveNavLink>
                                     <ResponsiveNavLink
                                         href="#"
-                                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl text-white hover:bg-white/10 transition-all duration-150 border-l-4 border-transparent hover:border-[#ffb81c]"
                                     >
-                                        <AcademicCapIcon className="mr-3 h-6 w-6" />
                                         Assignments
                                     </ResponsiveNavLink>
                                 </>
@@ -285,23 +362,22 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <ResponsiveNavLink
                                 href="#"
-                                className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                className="flex items-center px-4 py-3 text-base font-medium rounded-xl text-white hover:bg-white/10 transition-all duration-150 border-l-4 border-transparent hover:border-[#ffb81c]"
                             >
-                                <CalendarIcon className="mr-3 h-6 w-6" />
                                 Calendar
                             </ResponsiveNavLink>
                         </div>
 
-                        <div className="border-t border-gray-200 pt-6">
+                        <div className="border-t border-white/20 pt-6">
                             <div className="flex items-center px-4 mb-4">
-                                <div className="h-12 w-12 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-lg mr-3">
+                                <div className="h-12 w-12 rounded-full bg-[#1e5091] flex items-center justify-center text-white font-semibold text-lg mr-3 border-2 border-[#ffb81c]">
                                     {user.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <div className="text-base font-medium text-gray-800">
+                                    <div className="text-base font-medium text-white">
                                         {user.name}
                                     </div>
-                                    <div className="text-sm font-medium text-gray-500">
+                                    <div className="text-sm font-medium text-white/70">
                                         {user.email}
                                     </div>
                                 </div>
@@ -310,9 +386,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="space-y-2">
                                 <ResponsiveNavLink
                                     href={route("profile.edit")}
-                                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl"
+                                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl text-white hover:bg-white/10 transition-all duration-150 border-l-4 border-transparent hover:border-[#ffb81c]"
                                 >
-                                    <Cog6ToothIcon className="mr-3 h-6 w-6 text-gray-500" />
                                     Account Settings
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
@@ -363,7 +438,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Link href="/">
                                     <ApplicationLogo className="h-10 w-auto fill-current text-indigo-600" />
                                     <span className="mt-2 text-xl font-bold text-indigo-600 block">
-                                        iLearnZ
+                                        iLearn
                                     </span>
                                 </Link>
                                 <p className="mt-4 text-sm text-gray-600 max-w-md">
@@ -412,10 +487,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <ul className="mt-4 space-y-2">
                                     <li>
                                         <a
-                                            href="mailto:support@ilearnz.com"
+                                            href="mailto:support@iLearn.com"
                                             className="text-base text-gray-600 hover:text-indigo-600"
                                         >
-                                            support@ilearnz.com
+                                            support@iLearn.com
                                         </a>
                                     </li>
                                     <li>
@@ -431,7 +506,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                         <div className="mt-8 border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
                             <p className="text-sm text-gray-500">
-                                &copy; {new Date().getFullYear()} iLearnZ. All
+                                &copy; {new Date().getFullYear()} iLearn. All
                                 rights reserved.
                             </p>
                             <div className="mt-4 md:mt-0 flex space-x-6">
