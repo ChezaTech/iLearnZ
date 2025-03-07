@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class School extends Model
@@ -21,6 +22,7 @@ class School extends Model
         'address',
         'city',
         'province',
+        'district_id',
         'postal_code',
         'phone',
         'email',
@@ -44,6 +46,38 @@ class School extends Model
         'teacher_count' => 'integer',
     ];
 
+    /**
+     * Get the district that the school belongs to.
+     */
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(SchoolDistrict::class);
+    }
+    
+    /**
+     * Get the academic terms for this school.
+     */
+    public function academicTerms(): HasMany
+    {
+        return $this->hasMany(AcademicTerm::class);
+    }
+    
+    /**
+     * Get the report cards issued by this school.
+     */
+    public function reportCards(): HasMany
+    {
+        return $this->hasMany(ReportCard::class);
+    }
+    
+    /**
+     * Get the government reports for this school.
+     */
+    public function governmentReports(): HasMany
+    {
+        return $this->hasMany(GovernmentReport::class);
+    }
+    
     /**
      * Get the users associated with this school.
      */

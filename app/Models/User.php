@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -187,11 +188,23 @@ class User extends Authenticatable
     }
     
     /**
-     * Get the students associated with the parent user.
+     * Get the students associated with the parent user through the parent_student table.
      */
-    public function students(): HasMany
+    public function children(): BelongsToMany
     {
-        return $this->hasMany(Student::class, 'parent_id');
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')
+                    ->withPivot(['relationship', 'is_emergency_contact', 'can_pickup', 'receives_reports', 'receives_notifications'])
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Get the parents associated with the student user through the parent_student table.
+     */
+    public function parents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id')
+                    ->withPivot(['relationship', 'is_emergency_contact', 'can_pickup', 'receives_reports', 'receives_notifications'])
+                    ->withTimestamps();
     }
     
     /**
@@ -200,5 +213,45 @@ class User extends Authenticatable
     public function studentProfile(): HasMany
     {
         return $this->hasMany(Student::class, 'user_id');
+    }
+    
+    /**
+     * Get the report cards for the student.
+     */
+    public function reportCards(): HasMany
+    {
+        return $this->hasMany(ReportCard::class, 'student_id');
+    }
+    
+    /**
+     * Get the student performance records.
+     */
+    public function performances(): HasMany
+    {
+        return $this->hasMany(StudentPerformance::class, 'student_id');
+    }
+    
+    /**
+     * Get the parent communications sent to this parent.
+     */
+    public function receivedCommunications(): HasMany
+    {
+        return $this->hasMany(ParentCommunication::class, 'parent_id');
+    }
+    
+    /**
+     * Get the parent communications sent by this teacher.
+     */
+    public function sentCommunications(): HasMany
+    {
+        return $this->hasMany(ParentCommunication::class, 'teacher_id');
+    }
+    
+    /**
+     * Get the government reports created by this user.
+     */
+    public function createdReports(): HasMany
+    {
+        return $this->hasMany(GovernmentReport::class, 'created_by');
     }
 }
