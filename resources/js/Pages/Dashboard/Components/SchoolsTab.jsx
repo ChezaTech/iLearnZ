@@ -9,6 +9,8 @@ const route = (name, params = {}) => {
         return `/schools/${params}`;
     } else if (name === 'schools.destroy') {
         return `/schools/${params}`;
+    } else if (name === 'schools.show') {
+        return `/schools/${params}`;
     }
     return '/';
 };
@@ -252,7 +254,7 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {filteredSchools.map((school) => (
-                                <tr key={school.id} className="hover:bg-gray-50">
+                                <tr key={school.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.visit(route('schools.show', school.id))}>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">{school.name}</div>
                                     </td>
@@ -279,7 +281,7 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                                             {school.connectivity}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                                         <button 
                                             className="text-blue-600 hover:text-blue-900 mr-3"
                                             onClick={() => handleEditClick(school)}
@@ -426,10 +428,10 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
             
             {/* Edit School Modal */}
             {showEditModal && schoolToEdit && (
-                <div className="fixed w-full inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-                        <div className="p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit School</h3>
+                <div className="fixed w-full inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full md:w-4/5 lg:w-3/5 xl:w-2/5 my-4 mx-auto max-h-[90vh] relative">
+                        <div className="p-6 overflow-y-auto max-h-[80vh]">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4 sticky top-0 bg-white pb-2 z-10">Edit School</h3>
                             <form onSubmit={handleUpdate}>
                                 <div className="mb-4">
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
@@ -620,7 +622,7 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                                     />
                                 </div>
                                 
-                                <div className="flex justify-end space-x-3 mt-6">
+                                <div className="flex justify-end space-x-3 mt-6 sticky bottom-0 bg-white pt-2 z-10">
                                     <button
                                         type="button"
                                         className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"

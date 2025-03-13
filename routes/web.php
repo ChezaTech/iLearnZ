@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BookController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -47,10 +48,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/superadmin/dashboard', [\App\Http\Controllers\SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
     
     // School routes
+    Route::get('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'show'])->name('schools.show');
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
     Route::put('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
     
+    // Book routes
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+    Route::post('/books/{book}/borrow', [BookController::class, 'borrow'])->name('books.borrow');
+    Route::post('/books/{book}/return', [BookController::class, 'return'])->name('books.return');
+
+    // API routes
+    Route::get('/api/schools/{school}/books', [BookController::class, 'getSchoolBooks']);
+
     // Parent routes
     Route::middleware('parent')->group(function () {
         Route::get('/parent/dashboard', [ParentController::class, 'dashboard'])->name('parent.dashboard');

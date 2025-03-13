@@ -101,4 +101,28 @@ class School extends Model
     {
         return $this->hasMany(Device::class);
     }
+    
+    /**
+     * Get the teachers associated with this school.
+     */
+    public function teachers(): HasMany
+    {
+        return $this->hasMany(Teacher::class);
+    }
+    
+    /**
+     * Get the students associated with this school.
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+    
+    /**
+     * Get the books in the school's library.
+     */
+    public function books(): HasMany
+    {
+        return $this->hasMany(Book::class);
+    }
 }

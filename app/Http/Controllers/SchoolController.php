@@ -6,6 +6,9 @@ use App\Models\School;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Classes;
+use App\Models\Book;
 
 class SchoolController extends Controller
 {
@@ -40,6 +43,134 @@ class SchoolController extends Controller
         $school = School::create($validated);
         
         return redirect()->back()->with('success', 'School created successfully!');
+    }
+
+    /**
+     * Display the specified school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Inertia\Response
+     */
+    public function show(School $school)
+    {
+        // Load the school's district
+        $school->load('district');
+        
+        // Get students associated with this school
+        $students = User::where('school_id', $school->id)
+            ->where('user_type', 'student')
+            ->with('student')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'grade' => $user->student?->grade_level ?? 'N/A',
+                    'performance' => 'Good', // This would come from grades or other metrics
+                    'status' => $user->student?->is_active ? 'Active' : 'Inactive',
+                ];
+            });
+        
+        // Get teachers associated with this school
+        $teachers = User::where('school_id', $school->id)
+            ->where('user_type', 'teacher')
+            ->with('teacher')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'subject' => $user->teacher?->subject_specialty ?? 'N/A',
+                    'status' => $user->teacher?->employment_status ?? 'Active',
+                ];
+            });
+        
+        // Get classes for this school
+        $classes = Classes::where('school_id', $school->id)
+            ->with('teacher:id,name')
+            ->withCount('students')
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'grade' => $class->grade_level,
+                    'teacher_name' => $class->teacher?->name ?? 'Unassigned',
+                    'student_count' => $class->students_count,
+                ];
+            });
+        
+        // Get administrators for this school
+        $admins = User::where('school_id', $school->id)
+            ->whereIn('user_type', ['admin', 'school_admin'])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => ucfirst($user->user_type),
+                    'status' => 'Active',
+                ];
+            });
+        
+        // Get books in the school's library
+        $books = Book::where('school_id', $school->id)
+            ->with(['borrowings' => function($query) {
+                $query->whereNull('returned_at');
+            }])
+            ->get()
+            ->map(function ($book) {
+                // Check if the book is currently borrowed
+                $is_borrowed = $book->borrowings->count() > 0;
+                
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'isbn' => $book->isbn,
+                    'publication_year' => $book->publication_year,
+                    'category' => $book->category,
+                    'description' => $book->description,
+                    'is_borrowed' => $is_borrowed,
+                    // Get the current borrower if the book is borrowed
+                    'current_borrower' => $is_borrowed ? [
+                        'id' => $book->borrowings->first()->user_id,
+                        'due_date' => $book->borrowings->first()->due_date,
+                    ] : null,
+                ];
+            });
+        
+        // Format the school data for the frontend
+        $schoolData = [
+            'id' => $school->id,
+            'name' => $school->name,
+            'code' => $school->code,
+            'district' => $school->district->name ?? 'N/A',
+            'type' => $school->type,
+            'connectivity_status' => $school->connectivity_status,
+            'address' => $school->address,
+            'city' => $school->city,
+            'province' => $school->province,
+            'phone' => $school->phone,
+            'email' => $school->email,
+            'principal_name' => $school->principal_name,
+            'internet_provider' => $school->internet_provider,
+            'has_smartboards' => $school->has_smartboards,
+            'student_count' => $school->student_count,
+            'teacher_count' => $school->teacher_count,
+        ];
+        
+        return Inertia::render('Schools/Show', [
+            'school' => $schoolData,
+            'students' => $students,
+            'teachers' => $teachers,
+            'classes' => $classes,
+            'admins' => $admins,
+            'books' => $books,
+        ]);
     }
 
     /**
