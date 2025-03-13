@@ -149,7 +149,16 @@ class SchoolEventSeeder extends Seeder
         ];
 
         foreach ($events as $event) {
-            SchoolEvent::create($event);
+            // Check if the event already exists by title, school_id, and start_date
+            $exists = SchoolEvent::where([
+                ['title', '=', $event['title']],
+                ['school_id', '=', $event['school_id']],
+                ['start_date', '=', $event['start_date']],
+            ])->exists();
+            
+            if (!$exists) {
+                SchoolEvent::create($event);
+            }
         }
     }
 }

@@ -1,0 +1,1514 @@
+import React, { useState, useEffect } from 'react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, Link } from '@inertiajs/react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
+
+export default function SuperAdminDashboard({ auth }) {
+    const [activeTab, setActiveTab] = useState('overview');
+    const [stats, setStats] = useState({
+        totalSchools: 5,
+        totalTeachers: 15,
+        totalStudents: 25,
+        totalDistricts: 10,
+        onlineSchools: 3,
+        hybridSchools: 2,
+        offlineSchools: 0
+    });
+    
+    const [events, setEvents] = useState([
+        { id: 1, title: 'District Teacher Development Workshop', date: '2025-04-15', type: 'training' },
+        { id: 2, title: 'National Examination Preparation Conference', date: '2025-06-05', type: 'meeting' }
+    ]);
+
+    const [resources, setResources] = useState([
+        { id: 1, name: 'Mathematics Textbook Grade 10', type: 'Textbook', quantity: 150, location: 'Harare High School', status: 'Available' },
+        { id: 2, name: 'Science Lab Equipment Set', type: 'Equipment', quantity: 25, location: 'Bulawayo Primary School', status: 'Limited' },
+        { id: 3, name: 'Interactive Whiteboard', type: 'Equipment', quantity: 10, location: 'Mutare Combined School', status: 'Available' },
+        { id: 4, name: 'Educational Software License', type: 'Software', quantity: 200, location: 'Gweru Academy', status: 'Available' },
+        { id: 5, name: 'History Textbook Grade 8', type: 'Textbook', quantity: 120, location: 'Masvingo Elementary', status: 'Limited' },
+        { id: 6, name: 'Digital Learning Tablets', type: 'Digital', quantity: 50, location: 'Harare High School', status: 'Low Stock' },
+        { id: 7, name: 'Language Arts Workbooks', type: 'Textbook', quantity: 180, location: 'Bulawayo Primary School', status: 'Available' },
+        { id: 8, name: 'Computer Lab PCs', type: 'Equipment', quantity: 30, location: 'Mutare Combined School', status: 'Available' },
+        { id: 9, name: 'Virtual Reality Headsets', type: 'Digital', quantity: 15, location: 'Gweru Academy', status: 'Limited' },
+        { id: 10, name: 'Mathematics Software', type: 'Software', quantity: 100, location: 'Masvingo Elementary', status: 'Available' }
+    ]);
+
+    const [schools, setSchools] = useState([
+        { id: 1, name: 'Harare High School', district: 'Harare', type: 'Secondary', students: 120, teachers: 15, connectivity: 'Online' },
+        { id: 2, name: 'Bulawayo Primary School', district: 'Bulawayo', type: 'Primary', students: 200, teachers: 20, connectivity: 'Online' },
+        { id: 3, name: 'Mutare Combined School', district: 'Mutare', type: 'Combined', students: 150, teachers: 18, connectivity: 'Hybrid' },
+        { id: 4, name: 'Gweru Academy', district: 'Gweru', type: 'Secondary', students: 100, teachers: 12, connectivity: 'Online' },
+        { id: 5, name: 'Masvingo Elementary', district: 'Masvingo', type: 'Primary', students: 180, teachers: 16, connectivity: 'Hybrid' }
+    ]);
+
+    const [districts, setDistricts] = useState([
+        { id: 1, name: 'Harare', schools: 1, population: 1500000, region: 'Northern' },
+        { id: 2, name: 'Bulawayo', schools: 1, population: 650000, region: 'Western' },
+        { id: 3, name: 'Mutare', schools: 1, population: 180000, region: 'Eastern' },
+        { id: 4, name: 'Gweru', schools: 1, population: 150000, region: 'Central' },
+        { id: 5, name: 'Masvingo', schools: 1, population: 80000, region: 'Southern' }
+    ]);
+    
+    // Define teachers array
+    const [teachers, setTeachers] = useState([
+        { id: 1, name: 'John Doe', school: 'Harare High School', subject: 'Mathematics', experience: '5 years', digitalTraining: true },
+        { id: 2, name: 'Jane Smith', school: 'Bulawayo Primary School', subject: 'Science', experience: '8 years', digitalTraining: true },
+        { id: 3, name: 'Robert Johnson', school: 'Mutare Combined School', subject: 'English', experience: '3 years', digitalTraining: false },
+        { id: 4, name: 'Mary Williams', school: 'Gweru Academy', subject: 'History', experience: '6 years', digitalTraining: true },
+        { id: 5, name: 'David Brown', school: 'Masvingo Elementary', subject: 'Geography', experience: '4 years', digitalTraining: false },
+        { id: 6, name: 'Sarah Davis', school: 'Harare High School', subject: 'Computer Science', experience: '7 years', digitalTraining: true },
+        { id: 7, name: 'Michael Wilson', school: 'Bulawayo Primary School', subject: 'Mathematics', experience: '10 years', digitalTraining: true },
+        { id: 8, name: 'Elizabeth Taylor', school: 'Mutare Combined School', subject: 'Science', experience: '2 years', digitalTraining: false }
+    ]);
+    
+    // Define students array
+    const [students, setStudents] = useState([
+        { id: 1, name: 'Alice Johnson', school: 'Harare High School', grade: '10', age: 16, performance: 'Excellent', attendance: '95%' },
+        { id: 2, name: 'Bob Smith', school: 'Bulawayo Primary School', grade: '5', age: 11, performance: 'Good', attendance: '92%' },
+        { id: 3, name: 'Carol Williams', school: 'Mutare Combined School', grade: '8', age: 14, performance: 'Average', attendance: '88%' },
+        { id: 4, name: 'David Brown', school: 'Gweru Academy', grade: '11', age: 17, performance: 'Good', attendance: '90%' },
+        { id: 5, name: 'Emma Davis', school: 'Masvingo Elementary', grade: '4', age: 10, performance: 'Excellent', attendance: '98%' },
+        { id: 6, name: 'Frank Wilson', school: 'Harare High School', grade: '9', age: 15, performance: 'Average', attendance: '85%' },
+        { id: 7, name: 'Grace Taylor', school: 'Bulawayo Primary School', grade: '6', age: 12, performance: 'Good', attendance: '91%' },
+        { id: 8, name: 'Henry Miller', school: 'Mutare Combined School', grade: '7', age: 13, performance: 'Excellent', attendance: '96%' }
+    ]);
+    
+    // Search and filter states
+    const [schoolSearch, setSchoolSearch] = useState('');
+    const [schoolTypeFilter, setSchoolTypeFilter] = useState('');
+    const [schoolDistrictFilter, setSchoolDistrictFilter] = useState('');
+    const [schoolConnectivityFilter, setSchoolConnectivityFilter] = useState('');
+    
+    // Districts tab search and filter states
+    const [districtSearch, setDistrictSearch] = useState('');
+    const [districtRegionFilter, setDistrictRegionFilter] = useState('');
+    
+    // Teachers tab search and filter states
+    const [teacherSearch, setTeacherSearch] = useState('');
+    const [teacherSchoolFilter, setTeacherSchoolFilter] = useState('');
+    const [teacherSubjectFilter, setTeacherSubjectFilter] = useState('');
+    
+    // Students tab search and filter states
+    const [studentSearch, setStudentSearch] = useState('');
+    const [studentSchoolFilter, setStudentSchoolFilter] = useState('');
+    const [studentPerformanceFilter, setStudentPerformanceFilter] = useState('');
+    
+    // Resources tab search and filter states
+    const [resourceSearch, setResourceSearch] = useState('');
+    const [resourceTypeFilter, setResourceTypeFilter] = useState('');
+    const [resourceLocationFilter, setResourceLocationFilter] = useState('');
+    
+    // Filter schools based on search and filter values
+    const filteredSchools = schools.filter(school => {
+        return (
+            (schoolSearch === '' || 
+                school.name.toLowerCase().includes(schoolSearch.toLowerCase())) &&
+            (schoolDistrictFilter === '' || 
+                school.district === schoolDistrictFilter) &&
+            (schoolTypeFilter === '' || 
+                school.type === schoolTypeFilter) &&
+            (schoolConnectivityFilter === '' || 
+                school.connectivity === schoolConnectivityFilter)
+        );
+    });
+    
+    // Filter districts based on search and filter values
+    const filteredDistricts = districts.filter(district => {
+        return (
+            (districtSearch === '' || 
+                district.name.toLowerCase().includes(districtSearch.toLowerCase())) &&
+            (districtRegionFilter === '' || 
+                district.region === districtRegionFilter)
+        );
+    });
+    
+    // Filter teachers based on search and filter values
+    const filteredTeachers = teachers.filter(teacher => {
+        return (
+            (teacherSearch === '' || 
+                teacher.name.toLowerCase().includes(teacherSearch.toLowerCase())) &&
+            (teacherSchoolFilter === '' || 
+                teacher.school === teacherSchoolFilter) &&
+            (teacherSubjectFilter === '' || 
+                teacher.subject === teacherSubjectFilter)
+        );
+    });
+    
+    // Filter students based on search and filter values
+    const filteredStudents = students.filter(student => {
+        return (
+            (studentSearch === '' || 
+                student.name.toLowerCase().includes(studentSearch.toLowerCase())) &&
+            (studentSchoolFilter === '' || 
+                student.school === studentSchoolFilter) &&
+            (studentPerformanceFilter === '' || 
+                student.performance === studentPerformanceFilter)
+        );
+    });
+    
+    // Filter resources based on search and filter values
+    const filteredResources = resources.filter(resource => {
+        return (
+            (resourceSearch === '' || 
+                resource.name.toLowerCase().includes(resourceSearch.toLowerCase())) &&
+            (resourceTypeFilter === '' || 
+                resource.type === resourceTypeFilter) &&
+            (resourceLocationFilter === '' || 
+                resource.location === resourceLocationFilter)
+        );
+    });
+
+    const [districts, setDistricts] = useState([
+        { id: 1, name: 'Harare', schools: 1, population: 1500000, region: 'Northern' },
+        { id: 2, name: 'Bulawayo', schools: 1, population: 650000, region: 'Western' },
+        { id: 3, name: 'Mutare', schools: 1, population: 180000, region: 'Eastern' },
+        { id: 4, name: 'Gweru', schools: 1, population: 150000, region: 'Central' },
+        { id: 5, name: 'Masvingo', schools: 1, population: 80000, region: 'Southern' }
+    ]);
+
+    const schoolTypeData = [
+        { name: 'Primary', value: 2 },
+        { name: 'Secondary', value: 2 },
+        { name: 'Combined', value: 1 }
+    ];
+
+    const connectivityData = [
+        { name: 'Online', value: stats.onlineSchools },
+        { name: 'Hybrid', value: stats.hybridSchools },
+        { name: 'Offline', value: stats.offlineSchools }
+    ];
+
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+    const districtData = [
+        { name: 'Harare', schools: 1, teachers: 6, students: 10 },
+        { name: 'Bulawayo', schools: 1, teachers: 4, students: 8 },
+        { name: 'Mutare', schools: 1, teachers: 2, students: 4 },
+        { name: 'Gweru', schools: 1, teachers: 2, students: 2 },
+        { name: 'Masvingo', schools: 1, teachers: 1, students: 1 }
+    ];
+    
+    // Performance trend data over 6 months
+    const performanceTrendData = [
+        { month: 'Oct', attendance: 92, completion: 85, passing: 78 },
+        { month: 'Nov', attendance: 94, completion: 87, passing: 80 },
+        { month: 'Dec', attendance: 91, completion: 84, passing: 76 },
+        { month: 'Jan', attendance: 95, completion: 88, passing: 82 },
+        { month: 'Feb', attendance: 96, completion: 90, passing: 84 },
+        { month: 'Mar', attendance: 97, completion: 92, passing: 86 }
+    ];
+
+    return (
+        <AuthenticatedLayout
+            user={auth.user}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Super Admin Dashboard</h2>}
+        >
+            <Head title="Super Admin Dashboard" />
+
+            <div className="py-6">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {/* Tab Navigation */}
+                    <div className="bg-white shadow-md rounded-lg mb-6 overflow-hidden">
+                        <div className="flex border-b border-gray-200 overflow-x-auto">
+                            <button
+                                onClick={() => setActiveTab('overview')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'overview' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Overview
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('schools')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'schools' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Schools
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('districts')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'districts' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Districts
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('teachers')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'teachers' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Teachers
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('students')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'students' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Students
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('resources')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'resources' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Resources
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('reports')}
+                                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === 'reports' 
+                                    ? 'border-b-2 border-blue-500 text-blue-600' 
+                                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                            >
+                                Reports
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="space-y-6">
+                        {/* Overview Tab */}
+                        {activeTab === 'overview' && (
+                            <>
+                                {/* Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                    <div className="bg-blue-50 p-6 rounded-lg shadow-md transition-transform hover:scale-105">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Schools</h3>
+                                        <p className="text-3xl font-bold">{stats.totalSchools}</p>
+                                        <div className="mt-2 text-sm text-blue-600">Manage Schools →</div>
+                                    </div>
+                                    <div className="bg-green-50 p-6 rounded-lg shadow-md transition-transform hover:scale-105">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Teachers</h3>
+                                        <p className="text-3xl font-bold">{stats.totalTeachers}</p>
+                                        <div className="mt-2 text-sm text-green-600">Manage Teachers →</div>
+                                    </div>
+                                    <div className="bg-yellow-50 p-6 rounded-lg shadow-md transition-transform hover:scale-105">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Students</h3>
+                                        <p className="text-3xl font-bold">{stats.totalStudents}</p>
+                                        <div className="mt-2 text-sm text-yellow-600">View Students →</div>
+                                    </div>
+                                    <div className="bg-purple-50 p-6 rounded-lg shadow-md transition-transform hover:scale-105">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Districts</h3>
+                                        <p className="text-3xl font-bold">{stats.totalDistricts}</p>
+                                        <div className="mt-2 text-sm text-purple-600">Manage Districts →</div>
+                                    </div>
+                                </div>
+
+                                {/* Performance Trend Chart */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold text-gray-700">National Performance Trends</h3>
+                                        <div className="flex space-x-2">
+                                            <select className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                <option>Last 6 Months</option>
+                                                <option>Last Year</option>
+                                                <option>Last 2 Years</option>
+                                            </select>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="h-80">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart
+                                                data={performanceTrendData}
+                                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="month" />
+                                                <YAxis domain={[70, 100]} />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Line type="monotone" dataKey="attendance" stroke="#8884d8" activeDot={{ r: 8 }} name="Attendance %" />
+                                                <Line type="monotone" dataKey="completion" stroke="#82ca9d" name="Assignment Completion %" />
+                                                <Line type="monotone" dataKey="passing" stroke="#ffc658" name="Passing Rate %" />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                {/* District Statistics and School Connectivity */}
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+                                    <div className="md:col-span-8 bg-white p-6 rounded-lg shadow-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-lg font-semibold text-gray-700">District Statistics</h3>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                                View All Districts
+                                            </button>
+                                        </div>
+                                        <div className="h-80">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart
+                                                    data={districtData}
+                                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" />
+                                                    <XAxis dataKey="name" />
+                                                    <YAxis />
+                                                    <Tooltip />
+                                                    <Legend />
+                                                    <Bar dataKey="schools" fill="#8884d8" name="Schools" />
+                                                    <Bar dataKey="teachers" fill="#82ca9d" name="Teachers" />
+                                                    <Bar dataKey="students" fill="#ffc658" name="Students" />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+
+                                    <div className="md:col-span-4 bg-white p-6 rounded-lg shadow-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-lg font-semibold text-gray-700">School Connectivity</h3>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                                Details
+                                            </button>
+                                        </div>
+                                        <div className="h-80">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={connectivityData}
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        labelLine={false}
+                                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                        outerRadius={80}
+                                                        fill="#8884d8"
+                                                        dataKey="value"
+                                                    >
+                                                        {connectivityData.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Events and Resources */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-lg font-semibold text-gray-700">Upcoming District Events</h3>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                                View All
+                                            </button>
+                                        </div>
+                                        <ul className="divide-y divide-gray-200">
+                                            {events.map((event) => (
+                                                <li key={event.id} className="py-3">
+                                                    <div className="text-sm font-medium text-gray-900">{event.title}</div>
+                                                    <div className="text-sm text-gray-500">{`${event.date} | ${event.type}`}</div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="mt-4">
+                                            <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded">
+                                                Add New Event
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-lg font-semibold text-gray-700">District Resources</h3>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                                Manage
+                                            </button>
+                                        </div>
+                                        <ul className="divide-y divide-gray-200">
+                                            {resources.map((resource) => (
+                                                <li key={resource.id} className="py-3">
+                                                    <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                    <div className="text-sm text-gray-500">{`Type: ${resource.type} | Location: ${resource.location}`}</div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="mt-4">
+                                            <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded">
+                                                Add New Resource
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Schools Tab */}
+                        {activeTab === 'schools' && (
+                            <>
+                                {/* Search and Filter */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-800">School Management</h3>
+                                        <div className="flex space-x-2">
+                                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add New School
+                                            </button>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                        <div className="col-span-2">
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Search schools..." 
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                                                    value={schoolSearch}
+                                                    onChange={(e) => setSchoolSearch(e.target.value)}
+                                                />
+                                                <div className="absolute left-3 top-2.5 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={schoolDistrictFilter}
+                                                onChange={(e) => setSchoolDistrictFilter(e.target.value)}
+                                            >
+                                                <option value="">All Districts</option>
+                                                {districts.map(district => (
+                                                    <option key={district.id} value={district.name}>{district.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={schoolTypeFilter}
+                                                onChange={(e) => setSchoolTypeFilter(e.target.value)}
+                                            >
+                                                <option value="">All Types</option>
+                                                <option value="Primary">Primary</option>
+                                                <option value="Secondary">Secondary</option>
+                                                <option value="Combined">Combined</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={schoolConnectivityFilter}
+                                                onChange={(e) => setSchoolConnectivityFilter(e.target.value)}
+                                            >
+                                                <option value="">All Connectivity</option>
+                                                <option value="Online">Online</option>
+                                                <option value="Hybrid">Hybrid</option>
+                                                <option value="Offline">Offline</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Schools Table */}
+                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">District</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Connectivity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredSchools.map((school) => (
+                                                    <tr key={school.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{school.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{school.district}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{school.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{school.students}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{school.teachers}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                                ${school.connectivity === 'Online' ? 'bg-green-100 text-green-800' : 
+                                                                school.connectivity === 'Hybrid' ? 'bg-yellow-100 text-yellow-800' : 
+                                                                'bg-red-100 text-red-800'}`}>
+                                                                {school.connectivity}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex space-x-2">
+                                                                <button className="text-blue-600 hover:text-blue-900">View</button>
+                                                                <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                                                <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{schools.length}</span> of <span className="font-medium">{schools.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Districts Tab */}
+                        {activeTab === 'districts' && (
+                            <>
+                                {/* Search and Filter */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-800">District Management</h3>
+                                        <div className="flex space-x-2">
+                                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add New District
+                                            </button>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div className="col-span-2">
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Search districts..." 
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                                                    value={districtSearch}
+                                                    onChange={(e) => setDistrictSearch(e.target.value)}
+                                                />
+                                                <div className="absolute left-3 top-2.5 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={districtRegionFilter}
+                                                onChange={(e) => setDistrictRegionFilter(e.target.value)}
+                                            >
+                                                <option value="">All Regions</option>
+                                                <option value="Northern">Northern</option>
+                                                <option value="Southern">Southern</option>
+                                                <option value="Eastern">Eastern</option>
+                                                <option value="Western">Western</option>
+                                                <option value="Central">Central</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* District Statistics Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Districts</h3>
+                                        <p className="text-3xl font-bold text-blue-600">{districts.length}</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+2</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Average Schools per District</h3>
+                                        <p className="text-3xl font-bold text-green-600">{(stats.totalSchools / districts.length).toFixed(1)}</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+0.5</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Districts with Resource Centers</h3>
+                                        <p className="text-3xl font-bold text-purple-600">3</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+1</span> from last year
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Districts Table */}
+                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">District Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Population</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schools</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource Center</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredDistricts.map((district) => (
+                                                    <tr key={district.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{district.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{district.region}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{district.population.toLocaleString()}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{district.schools}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                                ${district.id <= 3 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {district.id <= 3 ? 'Yes' : 'No'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex space-x-2">
+                                                                <button className="text-blue-600 hover:text-blue-900">View</button>
+                                                                <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                                                <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{districts.length}</span> of <span className="font-medium">{districts.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Teachers Tab */}
+                        {activeTab === 'teachers' && (
+                            <>
+                                {/* Search and Filter */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-800">Teacher Management</h3>
+                                        <div className="flex space-x-2">
+                                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add New Teacher
+                                            </button>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                        <div className="col-span-2">
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Search teachers..." 
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                                                    value={teacherSearch}
+                                                    onChange={(e) => setTeacherSearch(e.target.value)}
+                                                />
+                                                <div className="absolute left-3 top-2.5 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={studentSchoolFilter}
+                                                onChange={(e) => setStudentSchoolFilter(e.target.value)}
+                                            >
+                                                <option value="">All Schools</option>
+                                                <option value="Harare High School">Harare High School</option>
+                                                <option value="Bulawayo Primary School">Bulawayo Primary School</option>
+                                                <option value="Mutare Combined School">Mutare Combined School</option>
+                                                <option value="Gweru Academy">Gweru Academy</option>
+                                                <option value="Masvingo Elementary">Masvingo Elementary</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={teacherSubjectFilter}
+                                                onChange={(e) => setTeacherSubjectFilter(e.target.value)}
+                                            >
+                                                <option value="">All Subjects</option>
+                                                <option value="Mathematics">Mathematics</option>
+                                                <option value="Science">Science</option>
+                                                <option value="English">English</option>
+                                                <option value="History">History</option>
+                                                <option value="Geography">Geography</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Teacher Statistics Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Teachers</h3>
+                                        <p className="text-3xl font-bold text-blue-600">{stats.totalTeachers}</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+5</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Average Students per Teacher</h3>
+                                        <p className="text-3xl font-bold text-green-600">{(stats.totalStudents / stats.totalTeachers).toFixed(1)}</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-red-500 mr-1">-0.3</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Teachers with Digital Training</h3>
+                                        <p className="text-3xl font-bold text-purple-600">10</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+4</span> from last year
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Teachers Table */}
+                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Digital Training</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredTeachers.map((teacher) => (
+                                                    <tr key={teacher.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{teacher.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{teacher.school}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{teacher.subject}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{teacher.experience}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                                ${teacher.digitalTraining ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {teacher.digitalTraining ? 'Yes' : 'No'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex space-x-2">
+                                                                <button className="text-blue-600 hover:text-blue-900">View</button>
+                                                                <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                                                <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">8</span> of <span className="font-medium">15</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Students Tab */}
+                        {activeTab === 'students' && (
+                            <>
+                                {/* Search and Filter */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-800">Student Management</h3>
+                                        <div className="flex space-x-2">
+                                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add New Student
+                                            </button>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                        <div className="col-span-2">
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Search students..." 
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                                                    value={studentSearch}
+                                                    onChange={(e) => setStudentSearch(e.target.value)}
+                                                />
+                                                <div className="absolute left-3 top-2.5 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={studentSchoolFilter}
+                                                onChange={(e) => setStudentSchoolFilter(e.target.value)}
+                                            >
+                                                <option value="">All Schools</option>
+                                                <option value="Harare High School">Harare High School</option>
+                                                <option value="Bulawayo Primary School">Bulawayo Primary School</option>
+                                                <option value="Mutare Combined School">Mutare Combined School</option>
+                                                <option value="Gweru Academy">Gweru Academy</option>
+                                                <option value="Masvingo Elementary">Masvingo Elementary</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <select 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={studentPerformanceFilter}
+                                                onChange={(e) => setStudentPerformanceFilter(e.target.value)}
+                                            >
+                                                <option value="">All Performance</option>
+                                                <option value="Excellent">Excellent</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Below Average">Below Average</option>
+                                                <option value="Poor">Poor</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Student Statistics Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Students</h3>
+                                        <p className="text-3xl font-bold text-blue-600">{stats.totalStudents}</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+8</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Average Attendance</h3>
+                                        <p className="text-3xl font-bold text-green-600">92%</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+3%</span> from last year
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-lg shadow-md">
+                                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Digital Learning Access</h3>
+                                        <p className="text-3xl font-bold text-purple-600">85%</p>
+                                        <div className="mt-4 flex items-center text-sm text-gray-500">
+                                            <span className="text-green-500 mr-1">+15%</span> from last year
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Students Table */}
+                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade/Form</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredStudents.map((student) => (
+                                                    <tr key={student.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{student.school}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{student.grade}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{student.attendance}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                                ${student.performance === 'Excellent' ? 'bg-green-100 text-green-800' : 
+                                                                student.performance === 'Very Good' ? 'bg-blue-100 text-blue-800' : 
+                                                                student.performance === 'Good' ? 'bg-yellow-100 text-yellow-800' : 
+                                                                'bg-red-100 text-red-800'}`}>
+                                                                {student.performance}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex space-x-2">
+                                                                <button className="text-blue-600 hover:text-blue-900">View</button>
+                                                                <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                                                <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of <span className="font-medium">{stats.totalStudents}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Resources Tab */}
+                        {activeTab === 'resources' && (
+                            <>
+                                {/* Search and Filter */}
+                                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-800">Resource Management</h3>
+                                        <div className="flex space-x-2">
+                                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add New Resource
+                                            </button>
+                                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label htmlFor="resourceSearch" className="block text-sm font-medium text-gray-700 mb-1">Search Resources</label>
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    id="resourceSearch"
+                                                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm"
+                                                    placeholder="Search by name..."
+                                                    value={resourceSearch}
+                                                    onChange={(e) => setResourceSearch(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label htmlFor="resourceTypeFilter" className="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
+                                            <select
+                                                id="resourceTypeFilter"
+                                                className="focus:ring-blue-500 focus:border-blue-500 block w-full py-2 px-3 border border-gray-300 rounded-md text-sm"
+                                                value={resourceTypeFilter}
+                                                onChange={(e) => setResourceTypeFilter(e.target.value)}
+                                            >
+                                                <option value="">All Types</option>
+                                                <option value="Textbook">Textbook</option>
+                                                <option value="Digital">Digital</option>
+                                                <option value="Equipment">Equipment</option>
+                                                <option value="Software">Software</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label htmlFor="resourceLocationFilter" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                            <select
+                                                id="resourceLocationFilter"
+                                                className="focus:ring-blue-500 focus:border-blue-500 block w-full py-2 px-3 border border-gray-300 rounded-md text-sm"
+                                                value={resourceLocationFilter}
+                                                onChange={(e) => setResourceLocationFilter(e.target.value)}
+                                            >
+                                                <option value="">All Locations</option>
+                                                <option value="Harare High School">Harare High School</option>
+                                                <option value="Bulawayo Primary School">Bulawayo Primary School</option>
+                                                <option value="Mutare Combined School">Mutare Combined School</option>
+                                                <option value="Gweru Academy">Gweru Academy</option>
+                                                <option value="Masvingo Elementary">Masvingo Elementary</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Resources Table */}
+                                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredResources.map((resource) => (
+                                                    <tr key={resource.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900">{resource.name}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.type}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.quantity}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500">{resource.location}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resource.status === 'Available' ? 'bg-green-100 text-green-800' : resource.status === 'Limited' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                                {resource.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-700">
+                                                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredResources.length}</span> of <span className="font-medium">{resources.length}</span> results
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                                    Previous
+                                                </button>
+                                                <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </AuthenticatedLayout>
+    );
+}

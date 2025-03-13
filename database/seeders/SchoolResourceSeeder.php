@@ -171,7 +171,15 @@ class SchoolResourceSeeder extends Seeder
         ];
 
         foreach ($resources as $resource) {
-            SchoolResource::create($resource);
+            // Check if the resource already exists by name and school_id
+            $exists = SchoolResource::where([
+                ['name', '=', $resource['name']],
+                ['school_id', '=', $resource['school_id']],
+            ])->exists();
+            
+            if (!$exists) {
+                SchoolResource::create($resource);
+            }
         }
     }
 }

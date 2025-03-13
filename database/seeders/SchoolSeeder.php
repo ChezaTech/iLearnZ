@@ -16,6 +16,7 @@ class SchoolSeeder extends Seeder
             [
                 'name' => 'Harare High School',
                 'code' => 'HHS001',
+                'district_id' => 1, // Harare Metropolitan
                 'address' => '123 Main Street',
                 'city' => 'Harare',
                 'province' => 'Harare',
@@ -33,6 +34,7 @@ class SchoolSeeder extends Seeder
             [
                 'name' => 'Bulawayo Primary School',
                 'code' => 'BPS002',
+                'district_id' => 2, // Bulawayo Metropolitan
                 'address' => '456 Oak Avenue',
                 'city' => 'Bulawayo',
                 'province' => 'Bulawayo',
@@ -50,6 +52,7 @@ class SchoolSeeder extends Seeder
             [
                 'name' => 'Mutare Combined School',
                 'code' => 'MCS003',
+                'district_id' => 4, // Mutare District
                 'address' => '789 Pine Road',
                 'city' => 'Mutare',
                 'province' => 'Manicaland',
@@ -67,6 +70,7 @@ class SchoolSeeder extends Seeder
             [
                 'name' => 'Gweru Academy',
                 'code' => 'GA004',
+                'district_id' => 3, // Gweru District
                 'address' => '101 Cedar Lane',
                 'city' => 'Gweru',
                 'province' => 'Midlands',
@@ -84,6 +88,7 @@ class SchoolSeeder extends Seeder
             [
                 'name' => 'Masvingo Elementary',
                 'code' => 'ME005',
+                'district_id' => 5, // Masvingo District
                 'address' => '202 Birch Street',
                 'city' => 'Masvingo',
                 'province' => 'Masvingo',
@@ -101,7 +106,10 @@ class SchoolSeeder extends Seeder
         ];
 
         foreach ($schools as $school) {
-            School::create($school);
+            // Check if the school already exists by code
+            if (!School::where('code', $school['code'])->exists()) {
+                School::create($school);
+            }
         }
     }
 }

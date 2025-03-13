@@ -80,7 +80,7 @@ class GovernmentReportSeeder extends Seeder
                 ]),
                 'summary' => 'Bulawayo Metropolitan District has made significant progress in technology integration in schools. Most schools now have internet connectivity, and there is increasing adoption of digital learning resources. However, teacher technology proficiency remains a challenge that needs to be addressed.',
                 'recommendations' => 'Implement comprehensive teacher technology training programs. Increase investment in digital textbooks and educational software. Establish a district-wide technology support team to assist schools with implementation and troubleshooting.',
-                'status' => 'pending_approval',
+                'status' => 'submitted',
                 'created_by' => 14, // ZIMSEC Director
                 'approved_by' => null,
                 'approved_at' => null,
