@@ -53,7 +53,8 @@ class SuperAdminDashboardController extends Controller
                     'type' => ucfirst($school->type) ?? 'Primary',
                     'students' => $school->student_count ?? 0,
                     'teachers' => $school->teacher_count ?? 0,
-                    'connectivity' => ucfirst($school->connectivity_status) ?? 'Offline',
+                    'connectivity_status' => ucfirst($school->connectivity_status) ?? 'Offline',
+                    'connectivity' => ucfirst($school->connectivity_status) ?? 'Offline', 
                     'address' => $school->address,
                     'city' => $school->city,
                     'province' => $school->province,
@@ -62,6 +63,8 @@ class SuperAdminDashboardController extends Controller
                     'principal_name' => $school->principal_name,
                     'internet_provider' => $school->internet_provider,
                     'has_smartboards' => $school->has_smartboards,
+                    'student_count' => $school->student_count ?? 0,
+                    'teacher_count' => $school->teacher_count ?? 0
                 ];
             });
         

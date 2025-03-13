@@ -82,10 +82,10 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
     const handleEditClick = (school) => {
         setSchoolToEdit(school);
         setData({
-            name: school.name,
-            district_id: school.district_id.toString(),
-            type: school.type.charAt(0).toUpperCase() + school.type.slice(1), // Capitalize first letter
-            connectivity_status: school.connectivity_status.charAt(0).toUpperCase() + school.connectivity_status.slice(1), // Capitalize first letter
+            name: school.name || '',
+            district_id: school.district_id ? school.district_id.toString() : '',
+            type: school.type || 'Primary',
+            connectivity_status: school.connectivity_status || 'Online',
             address: school.address || 'TBD',
             city: school.city || 'TBD',
             province: school.province || 'TBD',
@@ -426,7 +426,7 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
             
             {/* Edit School Modal */}
             {showEditModal && schoolToEdit && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed w-full inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
                         <div className="p-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit School</h3>
