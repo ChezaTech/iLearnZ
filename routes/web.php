@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     
     // School routes
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
+    Route::put('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
     
     // Parent routes

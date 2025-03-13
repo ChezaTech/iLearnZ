@@ -5,6 +5,8 @@ import { useForm, router } from '@inertiajs/react';
 const route = (name, params = {}) => {
     if (name === 'schools.store') {
         return '/schools';
+    } else if (name === 'schools.update') {
+        return `/schools/${params}`;
     } else if (name === 'schools.destroy') {
         return `/schools/${params}`;
     }
@@ -16,19 +18,31 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                       setSchoolConnectivityFilter, districts }) => {
     const [schools, setSchools] = useState(initialSchools || []);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [schoolToDelete, setSchoolToDelete] = useState(null);
+    const [schoolToEdit, setSchoolToEdit] = useState(null);
     
     // Update schools when initialSchools changes (after Inertia page refresh)
     useEffect(() => {
         setSchools(initialSchools || []);
     }, [initialSchools]);
     // Use Inertia form handling
-    const { data, setData, post, delete: destroy, processing, errors, reset } = useForm({
+    const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
         district_id: '',
         type: '',
-        connectivity_status: 'Online'
+        connectivity_status: 'Online',
+        address: 'TBD',
+        city: 'TBD',
+        province: 'TBD',
+        phone: 'TBD',
+        email: '',
+        principal_name: '',
+        internet_provider: '',
+        has_smartboards: false,
+        student_count: 0,
+        teacher_count: 0
     });
     
     // Handle form input changes
@@ -57,6 +71,50 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                 resetForm();
                 // Show success message
                 alert('School created successfully!');
+            },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+            }
+        });
+    };
+    
+    // Open edit modal and populate form with school data
+    const handleEditClick = (school) => {
+        setSchoolToEdit(school);
+        setData({
+            name: school.name,
+            district_id: school.district_id.toString(),
+            type: school.type.charAt(0).toUpperCase() + school.type.slice(1), // Capitalize first letter
+            connectivity_status: school.connectivity_status.charAt(0).toUpperCase() + school.connectivity_status.slice(1), // Capitalize first letter
+            address: school.address || 'TBD',
+            city: school.city || 'TBD',
+            province: school.province || 'TBD',
+            phone: school.phone || 'TBD',
+            email: school.email || '',
+            principal_name: school.principal_name || '',
+            internet_provider: school.internet_provider || '',
+            has_smartboards: school.has_smartboards || false,
+            student_count: school.student_count || 0,
+            teacher_count: school.teacher_count || 0
+        });
+        setShowEditModal(true);
+    };
+    
+    // Handle school update using Inertia
+    const handleUpdate = (e) => {
+        e.preventDefault();
+        
+        if (!schoolToEdit) return;
+        
+        put(route('schools.update', schoolToEdit.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Close the modal and reset state
+                setShowEditModal(false);
+                setSchoolToEdit(null);
+                resetForm();
+                // Show success message
+                alert('School updated successfully!');
             },
             onError: (errors) => {
                 console.error('Validation errors:', errors);
@@ -222,7 +280,12 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                        <button 
+                                            className="text-blue-600 hover:text-blue-900 mr-3"
+                                            onClick={() => handleEditClick(school)}
+                                        >
+                                            Edit
+                                        </button>
                                         <button 
                                             className="text-red-600 hover:text-red-900"
                                             onClick={() => {
@@ -244,8 +307,12 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                             Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredSchools.length}</span> of <span className="font-medium">{schools.length}</span> results
                         </div>
                         <div className="flex space-x-2">
-                            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium">Previous</button>
-                            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium">Next</button>
+                            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+                                Previous
+                            </button>
+                            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                                Next
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -325,7 +392,11 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                                     {errors.connectivity_status && <p className="text-red-500 text-xs mt-1">{errors.connectivity_status}</p>}
                                 </div>
                                 
-                                {/* Student and teacher counts will be managed automatically */}
+                                {/* Hidden fields for required database fields */}
+                                <input type="hidden" name="address" value={data.address} />
+                                <input type="hidden" name="city" value={data.city} />
+                                <input type="hidden" name="province" value={data.province} />
+                                <input type="hidden" name="phone" value={data.phone} />
                                 
                                 <div className="flex justify-end space-x-3 mt-6">
                                     <button
@@ -333,6 +404,228 @@ const SchoolsTab = ({ schools: initialSchools, schoolSearch, setSchoolSearch, sc
                                         className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                                         onClick={() => {
                                             setShowAddModal(false);
+                                            resetForm();
+                                        }}
+                                        disabled={processing}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium"
+                                        disabled={processing}
+                                    >
+                                        {processing ? 'Saving...' : 'Save School'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Edit School Modal */}
+            {showEditModal && schoolToEdit && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                        <div className="p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit School</h3>
+                            <form onSubmit={handleUpdate}>
+                                <div className="mb-4">
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={data.name}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        required
+                                    />
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="district_id" className="block text-sm font-medium text-gray-700 mb-1">District</label>
+                                    <select
+                                        id="district_id"
+                                        name="district_id"
+                                        value={data.district_id}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        required
+                                    >
+                                        <option value="">Select District</option>
+                                        {districts.map(district => (
+                                            <option key={district.id} value={district.id}>{district.name}</option>
+                                        ))}
+                                    </select>
+                                    {errors.district_id && <p className="text-red-500 text-xs mt-1">{errors.district_id}</p>}
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">School Type</label>
+                                    <select
+                                        id="type"
+                                        name="type"
+                                        value={data.type}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        required
+                                    >
+                                        <option value="">Select Type</option>
+                                        <option value="Primary">Primary</option>
+                                        <option value="Secondary">Secondary</option>
+                                        <option value="Combined">Combined</option>
+                                    </select>
+                                    {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="connectivity_status" className="block text-sm font-medium text-gray-700 mb-1">Connectivity Status</label>
+                                    <select
+                                        id="connectivity_status"
+                                        name="connectivity_status"
+                                        value={data.connectivity_status}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        required
+                                    >
+                                        <option value="Online">Online</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Offline">Offline</option>
+                                    </select>
+                                    {errors.connectivity_status && <p className="text-red-500 text-xs mt-1">{errors.connectivity_status}</p>}
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <input
+                                        type="text"
+                                        id="address"
+                                        name="address"
+                                        value={data.address}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        id="city"
+                                        name="city"
+                                        value={data.city}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">Province</label>
+                                    <input
+                                        type="text"
+                                        id="province"
+                                        name="province"
+                                        value={data.province}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input
+                                        type="text"
+                                        id="phone"
+                                        name="phone"
+                                        value={data.phone}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={data.email}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="principal_name" className="block text-sm font-medium text-gray-700 mb-1">Principal Name</label>
+                                    <input
+                                        type="text"
+                                        id="principal_name"
+                                        name="principal_name"
+                                        value={data.principal_name}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="internet_provider" className="block text-sm font-medium text-gray-700 mb-1">Internet Provider</label>
+                                    <input
+                                        type="text"
+                                        id="internet_provider"
+                                        name="internet_provider"
+                                        value={data.internet_provider}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="has_smartboards" className="block text-sm font-medium text-gray-700 mb-1">Has Smartboards</label>
+                                    <select
+                                        id="has_smartboards"
+                                        name="has_smartboards"
+                                        value={data.has_smartboards}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    >
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="student_count" className="block text-sm font-medium text-gray-700 mb-1">Student Count</label>
+                                    <input
+                                        type="number"
+                                        id="student_count"
+                                        name="student_count"
+                                        value={data.student_count}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="teacher_count" className="block text-sm font-medium text-gray-700 mb-1">Teacher Count</label>
+                                    <input
+                                        type="number"
+                                        id="teacher_count"
+                                        name="teacher_count"
+                                        value={data.teacher_count}
+                                        onChange={handleChange}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                </div>
+                                
+                                <div className="flex justify-end space-x-3 mt-6">
+                                    <button
+                                        type="button"
+                                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                        onClick={() => {
+                                            setShowEditModal(false);
                                             resetForm();
                                         }}
                                         disabled={processing}

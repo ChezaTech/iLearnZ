@@ -43,6 +43,41 @@ class SchoolController extends Controller
     }
 
     /**
+     * Update the specified school in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, School $school)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'district_id' => 'required|exists:school_districts,id',
+            'type' => 'required|in:Primary,Secondary,Combined',
+            'connectivity_status' => 'required|in:Online,Hybrid,Offline',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string',
+            'province' => 'nullable|string',
+            'phone' => 'nullable|string',
+            'email' => 'nullable|email',
+            'principal_name' => 'nullable|string',
+            'internet_provider' => 'nullable|string',
+            'has_smartboards' => 'nullable|boolean',
+            'student_count' => 'nullable|integer',
+            'teacher_count' => 'nullable|integer'
+        ]);
+        
+        // Convert type and connectivity_status to lowercase to match database enum values
+        $validated['type'] = strtolower($validated['type']);
+        $validated['connectivity_status'] = strtolower($validated['connectivity_status']);
+        
+        $school->update($validated);
+        
+        return redirect()->back()->with('success', 'School updated successfully!');
+    }
+
+    /**
      * Remove the specified school from storage.
      *
      * @param  \App\Models\School  $school

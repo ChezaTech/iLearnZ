@@ -19,26 +19,51 @@ class SuperAdminDashboardController extends Controller
      */
     public function index()
     {
-        // Get all schools
-        $schools = School::select(
-            'id', 
-            'name', 
-            'type', 
-            'student_count', 
-            'teacher_count'
-        )
-        ->get()
-        ->map(function ($school) {
-            return [
-                'id' => $school->id,
-                'name' => $school->name,
-                'district' => 'District ' . rand(1, 10), // Mock district data
-                'type' => $school->type ?? 'Primary',
-                'students' => $school->student_count ?? rand(100, 1000),
-                'teachers' => $school->teacher_count ?? rand(10, 50),
-                'connectivity' => ['Online', 'Hybrid', 'Offline'][rand(0, 2)], // Mock connectivity data
-            ];
-        });
+        // Get all school districts
+        $schoolDistricts = SchoolDistrict::all();
+        
+        // Get all schools with district relationship
+        $schools = School::with('district')
+            ->select(
+                'id', 
+                'name',
+                'code',
+                'district_id',
+                'type', 
+                'connectivity_status',
+                'student_count', 
+                'teacher_count',
+                'address',
+                'city',
+                'province',
+                'phone',
+                'email',
+                'principal_name',
+                'internet_provider',
+                'has_smartboards'
+            )
+            ->get()
+            ->map(function ($school) {
+                return [
+                    'id' => $school->id,
+                    'name' => $school->name,
+                    'code' => $school->code,
+                    'district_id' => $school->district_id,
+                    'district' => $school->district ? $school->district->name : 'Unknown District',
+                    'type' => ucfirst($school->type) ?? 'Primary',
+                    'students' => $school->student_count ?? 0,
+                    'teachers' => $school->teacher_count ?? 0,
+                    'connectivity' => ucfirst($school->connectivity_status) ?? 'Offline',
+                    'address' => $school->address,
+                    'city' => $school->city,
+                    'province' => $school->province,
+                    'phone' => $school->phone,
+                    'email' => $school->email,
+                    'principal_name' => $school->principal_name,
+                    'internet_provider' => $school->internet_provider,
+                    'has_smartboards' => $school->has_smartboards,
+                ];
+            });
         
         // Mock teachers data (since Teacher model doesn't exist)
         $teachers = collect(range(1, 50))->map(function ($i) use ($schools) {
@@ -69,17 +94,6 @@ class SuperAdminDashboardController extends Controller
                 'grade' => $student->grade ?? rand(1, 12),
                 'performance' => ['Excellent', 'Good', 'Average', 'Poor'][rand(0, 3)],
                 'status' => ['Active', 'Inactive'][rand(0, 1)],
-            ];
-        });
-        
-        // Mock districts data (since District model doesn't exist)
-        $districts = collect(range(1, 10))->map(function ($i) {
-            $regions = ['Northern', 'Southern', 'Eastern', 'Western', 'Central'];
-            return [
-                'id' => $i,
-                'name' => 'District ' . $i,
-                'region' => $regions[rand(0, count($regions) - 1)],
-                'schools' => rand(5, 20),
             ];
         });
         
@@ -122,7 +136,7 @@ class SuperAdminDashboardController extends Controller
             'initialSchools' => $schools,
             'initialTeachers' => $teachers,
             'initialStudents' => $students,
-            'initialDistricts' => $districts,
+            'initialDistricts' => $schoolDistricts,
             'initialResources' => $resources,
             'initialEvents' => $events,
         ]);
