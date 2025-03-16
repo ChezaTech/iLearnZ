@@ -160,6 +160,29 @@ class TeacherController extends Controller
     }
 
     /**
+     * Reset the password for a teacher.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function resetPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        $validated = $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+        
+        // Update user password
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+        
+        return redirect()->back()->with('success', 'Teacher password reset successfully!');
+    }
+
+    /**
      * Remove the specified teacher from storage.
      *
      * @param  int  $id

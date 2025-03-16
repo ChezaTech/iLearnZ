@@ -4,7 +4,8 @@ import {
     PlusIcon, 
     PencilIcon, 
     TrashIcon,
-    XMarkIcon
+    XMarkIcon,
+    KeyIcon
 } from '@heroicons/react/24/outline';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -13,6 +14,7 @@ export default function TeachersTab({ teachers, existingUsers }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [currentTeacher, setCurrentTeacher] = useState(null);
     const [createNewUser, setCreateNewUser] = useState(true);
     
@@ -24,6 +26,11 @@ export default function TeachersTab({ teachers, existingUsers }) {
         existing_user_id: '',
         qualification: '',
         years_of_experience: '',
+    });
+    
+    const passwordForm = useForm({
+        password: '',
+        password_confirmation: '',
     });
     
     const filteredTeachers = teachers ? teachers.filter(teacher => 
@@ -61,6 +68,18 @@ export default function TeachersTab({ teachers, existingUsers }) {
         reset();
     };
 
+    const openPasswordModal = (teacher) => {
+        setCurrentTeacher(teacher);
+        passwordForm.reset();
+        setIsPasswordModalOpen(true);
+    };
+
+    const closePasswordModal = () => {
+        setIsPasswordModalOpen(false);
+        setCurrentTeacher(null);
+        passwordForm.reset();
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         post('/teachers', {
@@ -76,6 +95,16 @@ export default function TeachersTab({ teachers, existingUsers }) {
         put(`/teachers/${currentTeacher.id}`, {
             onSuccess: () => {
                 closeEditModal();
+                window.location.reload();
+            }
+        });
+    };
+
+    const handlePasswordReset = (e) => {
+        e.preventDefault();
+        passwordForm.post(`/teachers/${currentTeacher.id}/reset-password`, {
+            onSuccess: () => {
+                closePasswordModal();
                 window.location.reload();
             }
         });
@@ -153,6 +182,12 @@ export default function TeachersTab({ teachers, existingUsers }) {
                                         className="text-blue-600 hover:text-blue-900 mr-3"
                                     >
                                         <PencilIcon className="h-5 w-5" />
+                                    </button>
+                                    <button 
+                                        onClick={() => openPasswordModal(teacher)}
+                                        className="text-blue-600 hover:text-blue-900 mr-3"
+                                    >
+                                        <KeyIcon className="h-5 w-5" />
                                     </button>
                                     <button 
                                         onClick={() => handleDelete(teacher)}
@@ -430,6 +465,63 @@ export default function TeachersTab({ teachers, existingUsers }) {
                                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 {processing ? 'Saving...' : 'Save'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
+
+            {/* Password Reset Modal */}
+            <Modal show={isPasswordModalOpen} onClose={closePasswordModal}>
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-medium text-gray-900">Reset Password</h2>
+                        <button onClick={closePasswordModal} className="text-gray-400 hover:text-gray-500">
+                            <XMarkIcon className="h-6 w-6" />
+                        </button>
+                    </div>
+                    
+                    <form onSubmit={handlePasswordReset}>
+                        <div className="mb-4">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">New Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                value={passwordForm.data.password}
+                                onChange={e => passwordForm.setData('password', e.target.value)}
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                required
+                            />
+                            {passwordForm.errors.password && <div className="text-red-500 text-xs mt-1">{passwordForm.errors.password}</div>}
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                            <input
+                                type="password"
+                                id="password_confirmation"
+                                value={passwordForm.data.password_confirmation}
+                                onChange={e => passwordForm.setData('password_confirmation', e.target.value)}
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                required
+                            />
+                            {passwordForm.errors.password_confirmation && <div className="text-red-500 text-xs mt-1">{passwordForm.errors.password_confirmation}</div>}
+                        </div>
+
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={closePasswordModal}
+                                className="mr-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={passwordForm.processing}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                {passwordForm.processing ? 'Saving...' : 'Save'}
                             </button>
                         </div>
                     </form>

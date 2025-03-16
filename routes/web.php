@@ -104,6 +104,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Teacher Management
         Route::resource('teachers', TeacherController::class);
+        Route::post('/teachers/{id}/reset-password', [TeacherController::class, 'resetPassword'])->name('teachers.reset-password');
 
         // Student Enrollment Management
         Route::get('/classes/{id}/students', [ClassController::class, 'getStudents'])->name('classes.getStudents');
