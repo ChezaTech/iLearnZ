@@ -209,6 +209,31 @@ class SchoolController extends Controller
     }
 
     /**
+     * Get teachers for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTeachers(School $school)
+    {
+        $teachers = User::where('school_id', $school->id)
+            ->where('user_type', 'teacher')
+            ->with('teacher')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'subject' => $user->teacher?->subject_specialty ?? 'N/A',
+                    'status' => $user->teacher?->employment_status ?? 'Active',
+                ];
+            });
+        
+        return response()->json($teachers);
+    }
+
+    /**
      * Remove the specified school from storage.
      *
      * @param  \App\Models\School  $school

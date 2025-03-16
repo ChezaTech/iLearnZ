@@ -26,6 +26,7 @@
         "@emotion/styled": "^11.14.0",
         "@heroicons/react": "^2.2.0",
         "@mui/material": "^6.4.7",
+        "dbal": "github:doctrine/dbal",
         "heroicons": "^2.2.0",
         "recharts": "^2.15.1"
     }

@@ -11,7 +11,7 @@ use App\Models\Teacher;
 use App\Models\Student;
 use App\Models\Book;
 use App\Models\School;
-use App\Models\Grade;
+use App\Models\Classes;
 use App\Models\SchoolEvent;
 use App\Models\SchoolResource;
 use App\Models\ReportCard;
@@ -39,7 +39,7 @@ class AdminController extends Controller
         $stats = [
             'totalTeachers' => Teacher::where('school_id', $school->id)->count(),
             'totalStudents' => Student::where('school_id', $school->id)->count(),
-            'totalClasses' => Grade::where('school_id', $school->id)->count(),
+            'totalClasses' => Classes::where('school_id', $school->id)->count(),
             'attendanceRate' => 92, // This could be calculated from actual attendance records
             'averageGrade' => 78, // This could be calculated from actual grade records
         ];
@@ -70,7 +70,7 @@ class AdminController extends Controller
             
         $teachers = Teacher::where('school_id', $school->id)->get();
         
-        $grades = Grade::where('school_id', $school->id)
+        $grades = Classes::where('school_id', $school->id)
             ->with('teacher')
             ->get()
             ->map(function($grade) {
@@ -184,6 +184,131 @@ class AdminController extends Controller
             'grades' => $grades,
             'books' => $books,
             'settings' => $settings,
+        ]);
+    }
+
+    /**
+     * Display the school admin dashboard.
+     *
+     * @return \Inertia\Response
+     */
+    public function schoolAdminDashboard()
+    {
+        $user = Auth::user();
+        
+        // Check if user is a school admin
+        if ($user->role_id != 2) { // Not a school admin
+            return redirect('/dashboard');
+        }
+        
+        $school = School::where('id', $user->school_id)->first();
+        
+        // If no school is found, return with an error
+        if (!$school) {
+            return Inertia::render('Dashboard/SchoolAdmin', [
+                'error' => 'No school associated with your account. Please contact the administrator.'
+            ]);
+        }
+        
+        // Get teachers for this school
+        $teachers = User::where('school_id', $school->id)
+            ->where('role_id', 3) // Teacher role
+            ->with('teacher') // Include teacher profile data
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'subject' => $user->teacher ? $user->teacher->subject_specialty : null,
+                    'status' => $user->teacher ? $user->teacher->employment_status : 'Active',
+                    'qualification' => $user->teacher ? $user->teacher->qualification : null,
+                    'years_of_experience' => $user->teacher ? $user->teacher->years_of_experience : null,
+                ];
+            });
+            
+        // Get existing users that are not already teachers or school admins
+        $existingUsers = User::whereNotIn('role_id', [2, 3]) // Not school admin or teacher
+            ->where(function($query) use ($school) {
+                $query->whereNull('school_id')
+                      ->orWhere('school_id', $school->id);
+            })
+            ->select('id', 'name', 'email')
+            ->get();
+            
+        // Get students for this school
+        $students = User::where('school_id', $school->id)
+            ->where('role_id', 4) // Student role
+            ->select('id', 'name', 'email')
+            ->get();
+        
+        // Get classes/grades for this school
+        $grades = Classes::where('school_id', $school->id)
+            ->with('teacher:id,name,email')
+            ->withCount('students')
+            ->get()
+            ->map(function ($class) {
+                // Calculate average score if there are grades
+                $averageScore = $class->grades()->avg('score') ?? 0;
+                
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'grade_level' => $class->grade_level,
+                    'section' => $class->section,
+                    'teacher' => $class->teacher ? $class->teacher->name : 'Unassigned',
+                    'students' => $class->students_count,
+                    'averageScore' => round($averageScore, 2),
+                ];
+            });
+            
+        // Get events
+        $events = []; // Placeholder for events
+        
+        // Get resources
+        $resources = []; // Placeholder for resources
+        
+        // Get recent report cards
+        $recentReportCards = []; // Placeholder for report cards
+        
+        // Get books
+        $books = []; // Placeholder for books
+        
+        // School stats
+        $stats = [
+            'students' => $students->count(),
+            'teachers' => $teachers->count(),
+            'classes' => $grades->count(),
+            'attendance' => 0, // Placeholder for attendance
+        ];
+        
+        // School settings
+        $settings = [
+            'name' => $school->name,
+            'code' => $school->code,
+            'address' => $school->address,
+            'city' => $school->city,
+            'province' => $school->province,
+            'postal_code' => $school->postal_code,
+            'phone' => $school->phone,
+            'email' => $school->email,
+            'principal' => $school->principal_name,
+            'academicYear' => date('Y'),
+            'terms' => $school->terms ?? 3,
+            'schoolHours' => $school->school_hours ?? '07:30 - 16:00',
+        ];
+        
+        return Inertia::render('Dashboard/SchoolAdmin', [
+            'stats' => $stats,
+            'events' => $events,
+            'resources' => $resources,
+            'recentReportCards' => $recentReportCards,
+            'teachers' => $teachers,
+            'students' => $students,
+            'grades' => $grades,
+            'books' => $books,
+            'settings' => $settings,
+            'existingUsers' => $existingUsers,
         ]);
     }
 

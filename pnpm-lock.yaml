@@ -20,6 +20,9 @@ importers:
       '@mui/material':
         specifier: ^6.4.7
         version: 6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      dbal:
+        specifier: github:doctrine/dbal
+        version: https://codeload.github.com/doctrine/dbal/tar.gz/57995f5521f4b03bfd066765326126295a7c560e
       heroicons:
         specifier: ^2.2.0
         version: 2.2.0
@@ -1000,6 +1003,10 @@ packages:
   d3-timer@3.0.1:
     resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
     engines: {node: '>=12'}
+
+  dbal@https://codeload.github.com/doctrine/dbal/tar.gz/57995f5521f4b03bfd066765326126295a7c560e:
+    resolution: {tarball: https://codeload.github.com/doctrine/dbal/tar.gz/57995f5521f4b03bfd066765326126295a7c560e}
+    version: 0.0.0
 
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
@@ -2708,6 +2715,8 @@ snapshots:
       d3-array: 3.2.4
 
   d3-timer@3.0.1: {}
+
+  dbal@https://codeload.github.com/doctrine/dbal/tar.gz/57995f5521f4b03bfd066765326126295a7c560e: {}
 
   debug@4.4.0:
     dependencies:
