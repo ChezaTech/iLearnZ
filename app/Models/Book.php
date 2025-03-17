@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Book extends Model
 {
@@ -56,5 +57,15 @@ class Book extends Model
     public function borrowings(): HasMany
     {
         return $this->hasMany(BookBorrowing::class);
+    }
+    
+    /**
+     * Get the subjects that this book is associated with.
+     */
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'book_subject', 'book_id', 'subject_id')
+            ->withPivot('relationship_type', 'notes')
+            ->withTimestamps();
     }
 }

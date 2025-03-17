@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, Link } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
-import { PlusIcon, PencilIcon, TrashIcon, UserPlusIcon, UserIcon, AcademicCapIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, UserPlusIcon, UserIcon, AcademicCapIcon, MagnifyingGlassIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -238,17 +238,24 @@ export default function GradesTab({ grades, teachers, students }) {
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <td className="px-3 py-4 flex items-center whitespace-nowrap text-sm font-medium">
+                                    <Link 
+                                        href={route('classes.show', grade.id)}
+                                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                                        title="View Grade Details"
+                                    >
+                                        <EyeIcon className="h-5 w-5" />
+                                    </Link>
                                     <button 
                                         onClick={() => openStudentsModal(grade)}
-                                        className="text-green-600 hover:text-green-900 mr-3"
+                                        className="text-green-600 hover:text-green-900 mr-2"
                                         title="Manage Students"
                                     >
                                         <UserPlusIcon className="h-5 w-5" />
                                     </button>
                                     <button 
                                         onClick={() => openEditModal(grade)}
-                                        className="text-blue-600 hover:text-blue-900 mr-3"
+                                        className="text-blue-600 hover:text-blue-900 mr-2"
                                         title="Edit Grade"
                                     >
                                         <PencilIcon className="h-5 w-5" />

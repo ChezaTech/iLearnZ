@@ -259,6 +259,7 @@ class SchoolController extends Controller
             'has_smartboards' => $school->has_smartboards,
             'student_count' => $school->student_count,
             'teacher_count' => $school->teacher_count,
+            'school_hours' => $school->school_hours ?? '',
         ];
         
         return response()->json($schoolData);
@@ -274,5 +275,46 @@ class SchoolController extends Controller
     {
         $school->delete();
         return redirect()->back()->with('success', 'School deleted successfully!');
+    }
+
+    /**
+     * Update the specified school via API.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateSchool(Request $request, School $school)
+    {
+        try {
+            // Validate the request data
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'principal_name' => 'sometimes|string|max:255|nullable',
+                'address' => 'sometimes|string|max:255|nullable',
+                'phone' => 'sometimes|string|max:20|nullable',
+                'email' => 'sometimes|email|max:255|nullable',
+                'school_hours' => 'sometimes|string|max:100|nullable',
+            ]);
+            
+            // Update the school with validated data
+            $school->update($validated);
+            
+            // Return the updated school data
+            return response()->json([
+                'message' => 'School settings updated successfully',
+                'school' => [
+                    'id' => $school->id,
+                    'name' => $school->name,
+                    'principal_name' => $school->principal_name,
+                    'address' => $school->address,
+                    'phone' => $school->phone,
+                    'email' => $school->email,
+                    'school_hours' => $school->school_hours,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update school settings', 'error' => $e->getMessage()], 500);
+        }
     }
 }

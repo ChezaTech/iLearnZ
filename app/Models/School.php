@@ -33,6 +33,7 @@ class School extends Model
         'has_smartboards',
         'student_count',
         'teacher_count',
+        'school_hours',
     ];
 
     /**

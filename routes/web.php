@@ -7,6 +7,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SubjectController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -101,6 +102,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Classes/Grades Management
         Route::resource('classes', ClassController::class);
+
+        // Subject Management for Classes
+        Route::get('/classes/{class}/subjects', [SubjectController::class, 'index'])->name('classes.subjects.index');
+        Route::post('/classes/{class}/subjects', [SubjectController::class, 'store'])->name('classes.subjects.store');
+        Route::get('/classes/{class}/subjects/{subject}', [SubjectController::class, 'show'])->name('classes.subjects.show');
+        Route::put('/classes/{class}/subjects/{subject}', [SubjectController::class, 'update'])->name('classes.subjects.update');
+        Route::delete('/classes/{class}/subjects/{subject}', [SubjectController::class, 'destroy'])->name('classes.subjects.destroy');
 
         // Teacher Management
         Route::resource('teachers', TeacherController::class);

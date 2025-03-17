@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Enrollment;
+use App\Models\Book;
 
 class ClassController extends Controller
 {
@@ -131,7 +132,8 @@ class ClassController extends Controller
      */
     public function show($id)
     {
-        $class = Classes::with(['teacher:id,name,email', 'students:id,name,email'])->findOrFail($id);
+        $class = Classes::with(['teacher:id,name,email', 'students:id,name,email', 'subjects.teacher', 'subjects.books'])
+            ->findOrFail($id);
         
         $user = Auth::user();
         
@@ -170,6 +172,26 @@ class ClassController extends Controller
             ->select('id', 'name', 'email')
             ->get();
             
+        // Get available books for the school
+        $books = Book::where('school_id', $school->id)
+            ->select('id', 'title', 'author', 'category')
+            ->get();
+            
+        // Format subjects with their related data
+        $formattedSubjects = $class->subjects->map(function ($subject) {
+            return [
+                'id' => $subject->id,
+                'name' => $subject->name,
+                'code' => $subject->code,
+                'description' => $subject->description,
+                'teacher_id' => $subject->pivot->teacher_id,
+                'teacher' => $subject->teacher->first(),
+                'books' => $subject->books,
+                'schedule' => $subject->pivot->schedule,
+                'notes' => $subject->pivot->notes,
+            ];
+        });
+            
         return Inertia::render('SchoolAdmin/Classes/Show', [
             'class' => [
                 'id' => $class->id,
@@ -184,9 +206,11 @@ class ClassController extends Controller
                 'end_date' => $class->end_date,
                 'is_active' => $class->is_active,
                 'max_students' => $class->max_students,
+                'subjects' => $formattedSubjects,
             ],
             'availableTeachers' => $availableTeachers,
             'availableStudents' => $availableStudents,
+            'books' => $books,
         ]);
     }
 

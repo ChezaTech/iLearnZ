@@ -11,7 +11,7 @@ class SchoolAdminController {
             return response.data;
         } catch (error) {
             console.error('Error fetching current user:', error);
-            throw error;
+            return { school_id: null };
         }
     }
 
@@ -41,7 +41,7 @@ class SchoolAdminController {
             return response.data;
         } catch (error) {
             console.error('Error fetching school admins:', error);
-            throw error;
+            return [];
         }
     }
 
@@ -53,7 +53,7 @@ class SchoolAdminController {
      */
     static async searchExistingUsers(searchTerm, schoolId) {
         try {
-            const response = await axios.get(`/admins/existing-users?search=${searchTerm}&school_id=${schoolId}`);
+            const response = await axios.get(`/api/admins/existing-users?search=${searchTerm}&school_id=${schoolId}`);
             return response.data;
         } catch (error) {
             console.error('Error searching users:', error);
@@ -68,7 +68,7 @@ class SchoolAdminController {
      */
     static async addExistingUserAsAdmin(userData) {
         try {
-            const response = await axios.post('/admins/add-existing', userData);
+            const response = await axios.post('/api/admins/add-existing', userData);
             return response.data;
         } catch (error) {
             console.error('Error adding admin:', error);
@@ -83,7 +83,7 @@ class SchoolAdminController {
      */
     static async createNewAdmin(adminData) {
         try {
-            const response = await axios.post('/admins/create-new', adminData);
+            const response = await axios.post('/api/admins/create-new', adminData);
             return response.data;
         } catch (error) {
             console.error('Error creating admin:', error);
@@ -92,14 +92,28 @@ class SchoolAdminController {
     }
 
     /**
+     * Delete an admin
+     * @param {number} adminId - The admin ID
+     * @returns {Promise<void>}
+     */
+    static async deleteAdmin(adminId) {
+        try {
+            await axios.delete(`/api/admins/${adminId}`);
+        } catch (error) {
+            console.error('Error deleting admin:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Update school settings
      * @param {number} schoolId - The school ID
-     * @param {Object} schoolData - The school data
-     * @returns {Promise<Object>} The updated school
+     * @param {Object} schoolData - The school data to update
+     * @returns {Promise<Object>} Updated school data
      */
     static async updateSchoolSettings(schoolId, schoolData) {
         try {
-            const response = await axios.put(`/schools/${schoolId}`, schoolData);
+            const response = await axios.put(`/api/schools/${schoolId}`, schoolData);
             return response.data;
         } catch (error) {
             console.error('Error updating school settings:', error);

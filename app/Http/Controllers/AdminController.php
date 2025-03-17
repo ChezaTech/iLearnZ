@@ -16,6 +16,7 @@ use App\Models\SchoolEvent;
 use App\Models\SchoolResource;
 use App\Models\ReportCard;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -481,9 +482,9 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
             'school_id' => 'required|exists:schools,id',
             'admin_role' => 'required|in:admin,school_admin',
-            'password' => 'required|string|min:8',
         ]);
         
         // Determine the role_id based on the admin_role
@@ -540,5 +541,71 @@ class AdminController extends Controller
             });
         
         return response()->json($admins);
+    }
+
+    /**
+     * Delete an admin user.
+     *
+     * @param  int  $admin
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAdmin($admin)
+    {
+        try {
+            $user = \App\Models\User::findOrFail($admin);
+            
+            // Only allow deleting users with admin or school_admin role
+            if (!in_array($user->user_type, ['admin', 'school_admin'])) {
+                return response()->json(['message' => 'User is not an administrator'], 400);
+            }
+            
+            // Change user_type to 'user' instead of actually deleting
+            $user->user_type = 'user';
+            $user->save();
+            
+            return response()->json(['message' => 'Administrator removed successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to remove administrator', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Search for existing users.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchExistingUsers(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+            $schoolId = $request->input('school_id');
+            
+            if (!$search || !$schoolId) {
+                return response()->json(['message' => 'Search term and school_id are required'], 400);
+            }
+            
+            // Search for users that are not already admins
+            $users = User::where(function($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%");
+                })
+                ->where('school_id', $schoolId)
+                ->whereNotIn('user_type', ['admin', 'school_admin'])
+                ->limit(10)
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => ucfirst($user->user_type),
+                    ];
+                });
+            
+            return response()->json($users);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to search users', 'error' => $e->getMessage()], 500);
+        }
     }
 }

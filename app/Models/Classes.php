@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Classes extends Model
 {
@@ -106,5 +107,23 @@ class Classes extends Model
             ->where('user_type', 'student')
             ->withPivot('enrollment_date', 'status', 'notes')
             ->withTimestamps();
+    }
+    
+    /**
+     * Get the subjects taught in this class.
+     */
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'class_subject', 'class_id', 'subject_id')
+            ->withPivot('teacher_id', 'schedule', 'notes')
+            ->withTimestamps();
+    }
+    
+    /**
+     * Get the reading materials associated with this class.
+     */
+    public function readingMaterials(): HasMany
+    {
+        return $this->hasMany(ReadingMaterial::class, 'class_id');
     }
 }
