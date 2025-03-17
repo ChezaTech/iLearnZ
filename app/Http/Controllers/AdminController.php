@@ -442,10 +442,19 @@ class AdminController extends Controller
         
         $user = User::findOrFail($validated['user_id']);
         
+        // Determine the role_id based on the admin_role
+        $role_id = null;
+        if ($validated['admin_role'] === 'admin') {
+            $role_id = 1; // Admin role_id
+        } elseif ($validated['admin_role'] === 'school_admin') {
+            $role_id = 2; // School Admin role_id
+        }
+        
         // Update user to be an admin
         $user->update([
             'user_type' => $validated['admin_role'],
             'school_id' => $validated['school_id'],
+            'role_id' => $role_id, // Set the role_id
         ]);
         
         return response()->json([
@@ -477,6 +486,14 @@ class AdminController extends Controller
             'password' => 'required|string|min:8',
         ]);
         
+        // Determine the role_id based on the admin_role
+        $role_id = null;
+        if ($validated['admin_role'] === 'admin') {
+            $role_id = 1; // Admin role_id
+        } elseif ($validated['admin_role'] === 'school_admin') {
+            $role_id = 2; // School Admin role_id
+        }
+        
         // Create new admin user
         $user = User::create([
             'name' => $validated['name'],
@@ -484,6 +501,7 @@ class AdminController extends Controller
             'password' => Hash::make($validated['password']),
             'school_id' => $validated['school_id'],
             'user_type' => $validated['admin_role'],
+            'role_id' => $role_id, // Set the role_id
             'is_active' => true,
         ]);
         
@@ -498,5 +516,29 @@ class AdminController extends Controller
                 'status' => 'Active',
             ]
         ]);
+    }
+
+    /**
+     * Get administrators for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getSchoolAdmins(\App\Models\School $school)
+    {
+        $admins = \App\Models\User::where('school_id', $school->id)
+            ->whereIn('user_type', ['admin', 'school_admin'])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => ucfirst($user->user_type),
+                    'status' => 'Active',
+                ];
+            });
+        
+        return response()->json($admins);
     }
 }

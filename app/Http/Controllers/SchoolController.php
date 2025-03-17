@@ -234,6 +234,37 @@ class SchoolController extends Controller
     }
 
     /**
+     * Get school data for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getSchool(\App\Models\School $school)
+    {
+        // Format the school data for the frontend
+        $schoolData = [
+            'id' => $school->id,
+            'name' => $school->name,
+            'code' => $school->code,
+            'district' => $school->district->name ?? 'N/A',
+            'type' => $school->type,
+            'connectivity_status' => $school->connectivity_status,
+            'address' => $school->address,
+            'city' => $school->city,
+            'province' => $school->province,
+            'phone' => $school->phone,
+            'email' => $school->email,
+            'principal_name' => $school->principal_name,
+            'internet_provider' => $school->internet_provider,
+            'has_smartboards' => $school->has_smartboards,
+            'student_count' => $school->student_count,
+            'teacher_count' => $school->teacher_count,
+        ];
+        
+        return response()->json($schoolData);
+    }
+
+    /**
      * Remove the specified school from storage.
      *
      * @param  \App\Models\School  $school

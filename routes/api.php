@@ -37,3 +37,7 @@ Route::controller(SuperAdminController::class)->group(function () {
 Route::middleware('auth:sanctum')->get('user', function (Request $request) {
     return $request->user();
 });
+
+// School admin routes
+Route::get('schools/{school}/admins', [\App\Http\Controllers\AdminController::class, 'getSchoolAdmins']);
+Route::get('schools/{school}', [\App\Http\Controllers\SchoolController::class, 'getSchool']);
