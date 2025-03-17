@@ -5,7 +5,8 @@ import {
     PlusIcon, 
     PencilIcon, 
     TrashIcon, 
-    ArrowLeftIcon 
+    ArrowLeftIcon, 
+    EyeIcon 
 } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
 
@@ -99,7 +100,12 @@ export default function Index({ auth, class: classData, subjects, teachers, book
                                             {filteredSubjects.map((subject) => (
                                                 <tr key={subject.id}>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm font-medium text-gray-900">{subject.name}</div>
+                                                        <Link
+                                                            href={route('classes.subjects.show', [classData.id, subject.id])}
+                                                            className="text-sm font-medium text-blue-600 hover:text-blue-900"
+                                                        >
+                                                            {subject.name}
+                                                        </Link>
                                                         <div className="text-sm text-gray-500">{subject.description}</div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -118,6 +124,13 @@ export default function Index({ auth, class: classData, subjects, teachers, book
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-4 flex items-center whitespace-nowrap text-sm font-medium">
+                                                        <Link
+                                                            href={route('classes.subjects.show', [classData.id, subject.id])}
+                                                            className="text-blue-600 hover:text-blue-900 mr-2"
+                                                            title="View Subject"
+                                                        >
+                                                            <EyeIcon className="h-5 w-5" />
+                                                        </Link>
                                                         <button
                                                             onClick={() => openEditModal(subject)}
                                                             className="text-blue-600 hover:text-blue-900 mr-2"
