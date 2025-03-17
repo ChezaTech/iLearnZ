@@ -40,6 +40,11 @@ export default function Index({ auth, class: classData, subjects, teachers, book
         setCurrentSubject(null);
     };
 
+    // Function to navigate to subject details
+    const navigateToSubject = (classId, subjectId) => {
+        window.location.href = route('classes.subjects.show', [classId, subjectId]);
+    };
+
     return (
         <AuthenticatedLayout>
             <>
@@ -98,13 +103,14 @@ export default function Index({ auth, class: classData, subjects, teachers, book
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {filteredSubjects.map((subject) => (
-                                                <tr key={subject.id}>
+                                                <tr key={subject.id} style={{cursor: 'pointer'}} onClick={() => navigateToSubject(classData.id, subject.id)}>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <Link
                                                             href={route('classes.subjects.show', [classData.id, subject.id])}
-                                                            className="text-sm font-medium text-blue-600 hover:text-blue-900"
+                                                            className="text-sm font-medium text-blue-600 hover:text-blue-900 flex items-center"
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            {subject.name}
+                                                            {subject.name} <EyeIcon className="h-4 w-4 ml-1" />
                                                         </Link>
                                                         <div className="text-sm text-gray-500">{subject.description}</div>
                                                     </td>
@@ -128,11 +134,15 @@ export default function Index({ auth, class: classData, subjects, teachers, book
                                                             href={route('classes.subjects.show', [classData.id, subject.id])}
                                                             className="text-blue-600 hover:text-blue-900 mr-2"
                                                             title="View Subject"
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <EyeIcon className="h-5 w-5" />
                                                         </Link>
                                                         <button
-                                                            onClick={() => openEditModal(subject)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openEditModal(subject);
+                                                            }}
                                                             className="text-blue-600 hover:text-blue-900 mr-2"
                                                             title="Edit Subject"
                                                         >
@@ -144,6 +154,7 @@ export default function Index({ auth, class: classData, subjects, teachers, book
                                                             as="button"
                                                             className="text-red-600 hover:text-red-900"
                                                             title="Delete Subject"
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <TrashIcon className="h-5 w-5" />
                                                         </Link>
