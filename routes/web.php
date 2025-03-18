@@ -112,11 +112,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/classes/{class}/subjects/{subject}', [SubjectController::class, 'destroy'])->name('classes.subjects.destroy');
 
         // Material Management for Subjects
-        Route::get('/classes/{class}/subjects/{subject}/materials', [MaterialController::class, 'index'])->name('classes.subjects.materials.index');
-        Route::post('/classes/{class}/subjects/{subject}/materials', [MaterialController::class, 'store'])->name('classes.subjects.materials.store');
-        Route::put('/classes/{class}/subjects/{subject}/materials/{material}', [MaterialController::class, 'update'])->name('classes.subjects.materials.update');
-        Route::delete('/classes/{class}/subjects/{subject}/materials/{material}', [MaterialController::class, 'destroy'])->name('classes.subjects.materials.destroy');
-        Route::post('/classes/{class}/subjects/{subject}/materials/batch-delete', [MaterialController::class, 'batchDelete'])->name('classes.subjects.materials.batchDelete');
+        Route::prefix('classes/{class}/subjects/{subject}/materials')->name('classes.subjects.materials.')->group(function () {
+            Route::get('/', [MaterialController::class, 'index'])->name('index');
+            Route::post('/', [MaterialController::class, 'store'])->name('store');
+            Route::get('/{material}', [MaterialController::class, 'show'])->name('show');
+            Route::post('/{material}', [MaterialController::class, 'update'])->name('update');
+            Route::delete('/{material}', [MaterialController::class, 'destroy'])->name('destroy');
+            Route::post('/batch-delete', [MaterialController::class, 'batchDelete'])->name('batchDelete');
+            
+            // New category management routes
+            Route::get('/categories', [MaterialController::class, 'getCategories'])->name('getCategories');
+            Route::post('/categories', [MaterialController::class, 'storeCategory'])->name('storeCategory');
+        });
 
         // Teacher Management
         Route::resource('teachers', TeacherController::class);

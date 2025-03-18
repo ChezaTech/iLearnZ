@@ -332,4 +332,88 @@ class MaterialController extends Controller
         // Default
         return 'other';
     }
+    
+    /**
+     * Create a new category for materials.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $classId
+     * @param  int  $subjectId
+     * @return \Illuminate\Http\Response
+     */
+    public function storeCategory(Request $request, $classId, $subjectId)
+    {
+        $user = Auth::user();
+        $class = Classes::findOrFail($classId);
+        $subject = Subject::findOrFail($subjectId);
+        
+        // Validate user has access to this class
+        if ($class->school_id != $user->school_id) {
+            return response()->json(['error' => 'You do not have permission to modify this class.'], 403);
+        }
+        
+        // Validate the request
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+        ]);
+        
+        // Get existing categories from subject metadata or create new
+        $metadata = $subject->metadata ?? [];
+        $categories = $metadata['material_categories'] ?? [];
+        
+        // Add new category if it doesn't already exist
+        if (!in_array($validated['name'], $categories)) {
+            $categories[] = $validated['name'];
+            $metadata['material_categories'] = $categories;
+            
+            // Update subject metadata
+            $subject->metadata = $metadata;
+            $subject->save();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Category created successfully',
+            'categories' => $categories
+        ]);
+    }
+    
+    /**
+     * Get all categories for a subject.
+     *
+     * @param  int  $classId
+     * @param  int  $subjectId
+     * @return \Illuminate\Http\Response
+     */
+    public function getCategories($classId, $subjectId)
+    {
+        $user = Auth::user();
+        $class = Classes::findOrFail($classId);
+        $subject = Subject::findOrFail($subjectId);
+        
+        // Validate user has access to this class
+        if ($class->school_id != $user->school_id) {
+            return response()->json(['error' => 'You do not have permission to access this class.'], 403);
+        }
+        
+        // Get categories from subject metadata
+        $metadata = $subject->metadata ?? [];
+        $categories = $metadata['material_categories'] ?? [];
+        
+        // Also get unique categories from existing materials
+        $materialCategories = ReadingMaterial::where('subject_id', $subject->id)
+            ->where('class_id', $class->id)
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category')
+            ->toArray();
+        
+        // Merge both arrays and remove duplicates
+        $allCategories = array_unique(array_merge($categories, $materialCategories));
+        
+        return response()->json([
+            'success' => true,
+            'categories' => $allCategories
+        ]);
+    }
 }

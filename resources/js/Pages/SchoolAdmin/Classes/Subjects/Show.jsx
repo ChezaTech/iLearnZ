@@ -235,13 +235,18 @@ function MaterialsTab({ subject, classData }) {
     // Fetch materials on component mount
     useEffect(() => {
         fetchMaterials();
+        fetchCategories();
     }, []);
 
     // Extract unique categories from materials
     useEffect(() => {
         if (materials.length > 0) {
             const uniqueCategories = [...new Set(materials.map(material => material.category).filter(Boolean))];
-            setCategories(uniqueCategories);
+            // Merge with existing categories and remove duplicates
+            const mergedCategories = [...new Set([...categories, ...uniqueCategories])];
+            if (JSON.stringify(mergedCategories) !== JSON.stringify(categories)) {
+                setCategories(mergedCategories);
+            }
         }
     }, [materials]);
 
@@ -261,6 +266,22 @@ function MaterialsTab({ subject, classData }) {
             console.error('Error fetching materials:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Fetch categories from the server
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(route('classes.subjects.materials.getCategories', {
+                class: classData.id,
+                subject: subject.id
+            }));
+            
+            if (response.data.success) {
+                setCategories(response.data.categories);
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
         }
     };
 
@@ -316,14 +337,28 @@ function MaterialsTab({ subject, classData }) {
     };
 
     // Handle creating a new category folder
-    const handleCreateFolder = () => {
+    const handleCreateFolder = async () => {
         if (!newFolderName.trim()) return;
         
-        // Add the new category to the list
-        setCategories([...categories, newFolderName]);
-        setCurrentCategory(newFolderName);
-        setNewFolderName('');
-        setShowNewFolderModal(false);
+        try {
+            const response = await axios.post(route('classes.subjects.materials.storeCategory', {
+                class: classData.id,
+                subject: subject.id
+            }), {
+                name: newFolderName.trim()
+            });
+            
+            if (response.data.success) {
+                // Update categories with the response from server
+                setCategories(response.data.categories);
+                setCurrentCategory(newFolderName.trim());
+                setNewFolderName('');
+                setShowNewFolderModal(false);
+            }
+        } catch (error) {
+            console.error('Error creating folder:', error);
+            alert('Failed to create folder. Please try again.');
+        }
     };
 
     // Get icon based on material type
@@ -690,6 +725,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
         schedule: subject.pivot.schedule || '',
         notes: subject.pivot.notes || '',
         book_ids: subject.books.map(book => book.id) || [],
+        category: subject.category || '',
     });
 
     // State for selected days and times
@@ -798,6 +834,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
             schedule: data.schedule, // Already a string
             notes: data.notes,
             book_ids: selectedBooks,
+            category: data.category,
         };
 
         put(route('classes.subjects.update', { class: classData.id, subject: subject.id }), formData, {
@@ -927,6 +964,22 @@ function SettingsTab({ subject, classData, teachers, books }) {
                         {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
                     </div>
                     <div className="md:col-span-2">
+                        <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                        <select
+                            id="category"
+                            name="category"
+                            value={data.category}
+                            onChange={(e) => setData('category', e.target.value)}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        >
+                            <option value="">Select a category</option>
+                            {subject.categories.map((category, index) => (
+                                <option key={index} value={category}>{category}</option>
+                            ))}
+                        </select>
+                        {errors.category && <div className="text-red-500 text-xs mt-1">{errors.category}</div>}
+                    </div>
+                    <div className="md:col-span-2">
                         <label htmlFor="books" className="block text-sm font-medium text-gray-700">Books</label>
                         <select
                             id="books"
@@ -969,7 +1022,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
                 <div className="flex justify-end">
                     <button
                         type="submit"
-                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         disabled={processing}
                     >
                         {processing ? (
@@ -1163,20 +1216,19 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                                 <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                                     Category
                                 </label>
-                                <div className="mt-1 flex rounded-md shadow-sm">
-                                    <select
-                                        name="category"
-                                        id="category"
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                    >
-                                        <option value="">No category</option>
-                                        {categories.map((category) => (
-                                            <option key={category} value={category}>
-                                                {category}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <select
+                                    id="category"
+                                    name="category"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                >
+                                    <option value="">Select a category</option>
+                                    {categories.map((category, index) => (
+                                        <option key={index} value={category}>{category}</option>
+                                    ))}
+                                </select>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Select a category to organize your materials
+                                </p>
                             </div>
                             
                             <div>
