@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Tab } from '@headlessui/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
@@ -752,7 +752,7 @@ function AssessmentsTab({ subject, classData }) {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Assessments</h3>
-                {auth.user.role === 'teacher' && (
+                {(auth.user.role_id === 2 || auth.user.role_id === 3) && (
                     <button 
                         onClick={() => setShowCreateModal(true)}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700"
@@ -791,7 +791,7 @@ function AssessmentsTab({ subject, classData }) {
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             {getStatusBadge(assessment)}
-                                            {auth.user.role === 'student' && assessment.is_available && (
+                                            {auth.user.role_id === 4 && assessment.is_available && (
                                                 <button
                                                     onClick={() => handleSubmitAssessment(assessment)}
                                                     className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
@@ -799,7 +799,7 @@ function AssessmentsTab({ subject, classData }) {
                                                     Submit
                                                 </button>
                                             )}
-                                            {auth.user.role === 'teacher' && (
+                                            {(auth.user.role_id === 2 || auth.user.role_id === 3) && (
                                                 <div className="flex items-center">
                                                     <span className="text-xs text-gray-500 mr-2">
                                                         {assessment.submission_count} submissions
@@ -823,7 +823,19 @@ function AssessmentsTab({ subject, classData }) {
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
                     <ClipboardDocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No assessments</h3>
-                    <p className="mt-1 text-sm text-gray-500">Create assessments to evaluate student progress.</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                        {(auth.user.role_id === 2 || auth.user.role_id === 3) 
+                            ? "Create assessments to evaluate student progress."
+                            : "No assessments have been created yet."}
+                    </p>
+                    {(auth.user.role_id === 2 || auth.user.role_id === 3) && (
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700"
+                        >
+                            Create Assessment
+                        </button>
+                    )}
                 </div>
             )}
             
@@ -895,7 +907,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
         teacher_id: subject.pivot.teacher_id || '',
         schedule: subject.pivot.schedule || '',
         notes: subject.pivot.notes || '',
-        book_ids: subject.books.map(book => book.id) || [],
+        book_ids: subject.books && subject.books.length ? subject.books.map(book => book.id) : [],
         category: subject.category || '',
     });
 
@@ -947,7 +959,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
         }
     }, [subject.pivot.schedule]);
 
-    const [selectedBooks, setSelectedBooks] = useState(subject.books.map(book => book.id) || []);
+    const [selectedBooks, setSelectedBooks] = useState(subject.books && subject.books.length ? subject.books.map(book => book.id) : []);
     const [successMessage, setSuccessMessage] = useState('');
 
     // Toggle day selection
@@ -1144,7 +1156,7 @@ function SettingsTab({ subject, classData, teachers, books }) {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         >
                             <option value="">Select a category</option>
-                            {subject.categories.map((category, index) => (
+                            {subject.categories && subject.categories.map((category, index) => (
                                 <option key={index} value={category}>{category}</option>
                             ))}
                         </select>
@@ -1525,7 +1537,7 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                             <button
                                 type="submit"
                                 disabled={isUploading || (fileError && !formData?.get('url'))}
-                                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                                     isUploading || (fileError && !formData?.get('url'))
                                         ? 'bg-indigo-300 cursor-not-allowed'
                                         : ''
@@ -1969,8 +1981,21 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     
+    const resetForm = () => {
+        setTitle('');
+        setInstructions('');
+        setDueDate('');
+        setAvailableFrom('');
+        setMaxScore(100);
+        setIsPublished(false);
+        setAllowLateSubmissions(false);
+        setAttachment(null);
+        setErrors({});
+    };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
         setLoading(true);
         setErrors({});
         
@@ -2004,25 +2029,13 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                 resetForm();
             }
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.errors) {
+            console.error('Error creating assessment:', error);
+            if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
-            } else {
-                console.error('Error creating assessment:', error);
             }
         } finally {
             setLoading(false);
         }
-    };
-    
-    const resetForm = () => {
-        setTitle('');
-        setInstructions('');
-        setDueDate('');
-        setAvailableFrom('');
-        setMaxScore(100);
-        setIsPublished(false);
-        setAllowLateSubmissions(false);
-        setAttachment(null);
     };
     
     const handleClose = () => {
@@ -2057,6 +2070,7 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                         <input
                                             type="text"
                                             id="title"
+                                            name="title"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
                                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -2069,6 +2083,7 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                         <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
                                         <textarea
                                             id="instructions"
+                                            name="instructions"
                                             value={instructions}
                                             onChange={(e) => setInstructions(e.target.value)}
                                             rows="4"
@@ -2083,6 +2098,7 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                             <input
                                                 type="datetime-local"
                                                 id="dueDate"
+                                                name="due_date"
                                                 value={dueDate}
                                                 onChange={(e) => setDueDate(e.target.value)}
                                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -2096,6 +2112,7 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                             <input
                                                 type="datetime-local"
                                                 id="availableFrom"
+                                                name="available_from"
                                                 value={availableFrom}
                                                 onChange={(e) => setAvailableFrom(e.target.value)}
                                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -2109,10 +2126,11 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                         <input
                                             type="number"
                                             id="maxScore"
+                                            name="max_score"
                                             value={maxScore}
                                             onChange={(e) => setMaxScore(e.target.value)}
                                             min="1"
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         />
                                         {errors.max_score && <p className="mt-1 text-sm text-red-600">{errors.max_score}</p>}
                                     </div>
@@ -2122,14 +2140,17 @@ function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, c
                                         <input
                                             type="file"
                                             id="attachment"
-                                            onChange={handleFileChange}
-                                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            name="attachment"
+                                            onChange={(e) => setAttachment(e.target.files[0])}
+                                            className="mt-1 block w-full text-sm text-gray-500
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-md file:border-0
+                                                file:text-sm file:font-medium
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100"
                                         />
-                                        {errors.attachment && <p className="mt-1 text-sm text-red-600">{errors.attachment}</p>}
-                                        {attachment && (
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                Selected file: {attachment.name}
-                                            </p>
+                                        {errors.attachment && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.attachment}</p>
                                         )}
                                     </div>
                                     
@@ -2205,15 +2226,16 @@ function ViewAssessmentModal({ showViewModal, setShowViewModal, assessment, subj
                 }));
                 
                 if (response.data.success) {
-                    if (auth.user.role === 'teacher') {
-                        setSubmissions(response.data.submissions || []);
-                    } else if (auth.user.role === 'student') {
+                    if (auth.user.role_id === 4) {
                         // For students, we only show their own submission
                         if (response.data.submission) {
                             setSubmissions([response.data.submission]);
                         } else {
                             setSubmissions([]);
                         }
+                    } else {
+                        // For teachers and admins
+                        setSubmissions(response.data.submissions || []);
                     }
                 }
             } catch (error) {
@@ -2292,7 +2314,7 @@ function ViewAssessmentModal({ showViewModal, setShowViewModal, assessment, subj
                                     
                                     <div className="border-t border-gray-200 pt-4">
                                         <h4 className="text-sm font-medium text-gray-900">
-                                            {auth.user.role === 'teacher' ? 'Submissions' : 'Your Submission'}
+                                            {auth.user.role_id === 4 ? 'Your Submission' : 'Submissions'}
                                         </h4>
                                         
                                         {loading ? (
@@ -2308,7 +2330,7 @@ function ViewAssessmentModal({ showViewModal, setShowViewModal, assessment, subj
                                                     <div key={submission.id} className="bg-gray-50 p-3 rounded-md">
                                                         <div className="flex justify-between items-center">
                                                             <div>
-                                                                {auth.user.role === 'teacher' && (
+                                                                {auth.user.role_id !== 4 && (
                                                                     <p className="text-sm font-medium text-gray-900">{submission.student.name}</p>
                                                                 )}
                                                                 <p className="text-xs text-gray-500">
@@ -2325,7 +2347,7 @@ function ViewAssessmentModal({ showViewModal, setShowViewModal, assessment, subj
                                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                                         Score: {submission.score}/{assessment.max_score || 100}
                                                                     </span>
-                                                                ) : auth.user.role === 'teacher' ? (
+                                                                ) : auth.user.role_id !== 4 ? (
                                                                     <button
                                                                         onClick={() => handleGradeSubmission(submission)}
                                                                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"

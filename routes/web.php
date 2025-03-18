@@ -34,7 +34,7 @@ Route::get('/dashboard', function () {
         case 2: // School Admin
             return redirect()->route('school-admin.dashboard');
         case 3: // Teacher
-            return Inertia::render('Dashboard/Teacher');
+            return redirect()->route('teacher.dashboard');
         case 4: // Student
             return Inertia::render('Dashboard/Student');
         case 5: // Parent
@@ -156,6 +156,43 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/parent/students/{student}/edit', [ParentController::class, 'editStudent'])->name('parent.students.edit');
         Route::put('/parent/students/{student}', [ParentController::class, 'updateStudent'])->name('parent.students.update');
         Route::patch('/parent/students/{student}/toggle-status', [ParentController::class, 'toggleStudentStatus'])->name('parent.students.toggle-status');
+    });
+
+    // Teacher routes
+    Route::middleware('auth')->group(function () {
+        Route::get('/teacher/dashboard', function () {
+            $user = Auth::user();
+            
+            // Get classes taught by the teacher
+            $classes = \App\Models\Classes::where('teacher_id', $user->id)->with(['subjects', 'students'])->get();
+            
+            // Get subjects taught by the teacher
+            $subjects = \App\Models\Subject::whereHas('classes', function ($query) use ($user) {
+                $query->where('classes.teacher_id', $user->id);
+            })->get();
+            
+            // Get assessments created by the teacher
+            $assessments = \App\Models\Assessment::where('created_by', $user->id)
+                ->with(['class', 'subject'])
+                ->orderBy('due_date', 'asc')
+                ->get();
+            
+            // Get announcements
+            $announcements = \App\Models\Notification::where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereNull('user_id');
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+            
+            return Inertia::render('Teacher/Dashboard', [
+                'classes' => $classes,
+                'subjects' => $subjects,
+                'assessments' => $assessments,
+                'announcements' => $announcements
+            ]);
+        })->name('teacher.dashboard');
     });
 });
 
