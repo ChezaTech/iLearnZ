@@ -20,9 +20,9 @@ import {
     MusicalNoteIcon,
     PhotoIcon,
     ArchiveBoxIcon,
+    FolderPlusIcon,
     XMarkIcon,
-    ArrowUpTrayIcon,
-    FolderPlusIcon
+    ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
 
@@ -582,275 +582,26 @@ function MaterialsTab({ subject, classData }) {
             
             {/* Edit Material Modal */}
             {showEditModal && currentMaterial && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-medium text-gray-900">Edit Material</h3>
-                                <button
-                                    onClick={() => {
-                                        setShowEditModal(false);
-                                        setCurrentMaterial(null);
-                                    }}
-                                    className="text-gray-400 hover:text-gray-500"
-                                >
-                                    <XMarkIcon className="h-6 w-6" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="px-6 py-4">
-                            <form id="edit-material-form" onSubmit={async (e) => {
-                                e.preventDefault();
-                                
-                                const formData = new FormData(e.target);
-                                formData.append('_method', 'PUT');
-                                
-                                try {
-                                    await axios.post(
-                                        route('classes.subjects.materials.update', {
-                                            class: classData.id,
-                                            subject: subject.id,
-                                            material: currentMaterial.id
-                                        }),
-                                        formData,
-                                        {
-                                            headers: {
-                                                'Content-Type': 'multipart/form-data'
-                                            }
-                                        }
-                                    );
-                                    
-                                    setShowEditModal(false);
-                                    setCurrentMaterial(null);
-                                    fetchMaterials();
-                                } catch (error) {
-                                    console.error('Error updating material:', error);
-                                    alert('Error updating material. Please try again.');
-                                }
-                            }}>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700">
-                                            Title *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="title"
-                                            id="edit-title"
-                                            required
-                                            defaultValue={currentMaterial.title}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700">
-                                            Description
-                                        </label>
-                                        <textarea
-                                            name="description"
-                                            id="edit-description"
-                                            rows={3}
-                                            defaultValue={currentMaterial.description}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="edit-type" className="block text-sm font-medium text-gray-700">
-                                            Material Type *
-                                        </label>
-                                        <select
-                                            name="type"
-                                            id="edit-type"
-                                            required
-                                            defaultValue={currentMaterial.type}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        >
-                                            <option value="">Select type</option>
-                                            <option value="document">Document</option>
-                                            <option value="video">Video</option>
-                                            <option value="audio">Audio</option>
-                                            <option value="image">Image</option>
-                                            <option value="lesson">Lesson</option>
-                                            <option value="book">Book</option>
-                                            <option value="archive">Archive</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700">
-                                            Category
-                                        </label>
-                                        <div className="mt-1 flex rounded-md shadow-sm">
-                                            <select
-                                                name="category"
-                                                id="edit-category"
-                                                defaultValue={currentMaterial.category || ''}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                            >
-                                                <option value="">No category</option>
-                                                {categories.map((category) => (
-                                                    <option key={category} value={category}>
-                                                        {category}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="edit-tags" className="block text-sm font-medium text-gray-700">
-                                            Tags (comma separated)
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="tags"
-                                            id="edit-tags"
-                                            defaultValue={currentMaterial.tags}
-                                            placeholder="e.g. homework, chapter 1, important"
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Current File
-                                        </label>
-                                        <div className="mt-1 flex items-center space-x-2">
-                                            {getMaterialIcon(currentMaterial.type, "h-5 w-5 text-gray-500")}
-                                            <span className="text-sm text-gray-500">
-                                                {currentMaterial.file_path ? getFileExtension(currentMaterial.file_path) : 'No file'}
-                                                {currentMaterial.file_size && ` (${formatFileSize(currentMaterial.file_size)})`}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Replace File (optional)
-                                        </label>
-                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                            <div className="space-y-1 text-center">
-                                                <svg
-                                                    className="mx-auto h-12 w-12 text-gray-400"
-                                                    stroke="currentColor"
-                                                    fill="none"
-                                                    viewBox="0 0 48 48"
-                                                    aria-hidden="true"
-                                                >
-                                                    <path
-                                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                        strokeWidth={2}
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    />
-                                                </svg>
-                                                <div className="flex text-sm text-gray-600">
-                                                    <label
-                                                        htmlFor="file-replace"
-                                                        className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                                                    >
-                                                        <span>Upload a new file</span>
-                                                        <input
-                                                            id="file-replace"
-                                                            name="file"
-                                                            type="file"
-                                                            className="sr-only"
-                                                        />
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs text-gray-500">
-                                                    PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, JPG, PNG up to 50MB
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="mt-6 flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowEditModal(false);
-                                            setCurrentMaterial(null);
-                                        }}
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                <EditMaterialModal 
+                    showEditModal={showEditModal} 
+                    setShowEditModal={setShowEditModal} 
+                    material={currentMaterial} 
+                    subject={subject} 
+                    classData={classData} 
+                    fetchMaterials={fetchMaterials} 
+                    categories={categories} 
+                />
             )}
             
             {/* New Folder Modal */}
             {showNewFolderModal && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-medium text-gray-900">Create New Folder</h3>
-                                <button
-                                    onClick={() => setShowNewFolderModal(false)}
-                                    className="text-gray-400 hover:text-gray-500"
-                                >
-                                    <XMarkIcon className="h-6 w-6" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="px-6 py-4">
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700">
-                                        Folder Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="folder-name"
-                                        value={newFolderName}
-                                        onChange={(e) => setNewFolderName(e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        placeholder="e.g. Homework, Exams, Lessons"
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div className="mt-6 flex justify-end space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowNewFolderModal(false)}
-                                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCreateFolder}
-                                    disabled={!newFolderName.trim()}
-                                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                                        newFolderName.trim()
-                                            ? 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                                            : 'bg-indigo-300 cursor-not-allowed'
-                                    }`}
-                                >
-                                    Create
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <NewFolderModal 
+                    showNewFolderModal={showNewFolderModal} 
+                    setShowNewFolderModal={setShowNewFolderModal} 
+                    newFolderName={newFolderName} 
+                    setNewFolderName={setNewFolderName} 
+                    handleCreateFolder={handleCreateFolder} 
+                />
             )}
             
             {/* Upload Material Modal */}
@@ -1562,6 +1313,421 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// Edit Material Modal Component
+function EditMaterialModal({ showEditModal, setShowEditModal, material, subject, classData, fetchMaterials, categories }) {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [type, setType] = useState('');
+    const [category, setCategory] = useState('');
+    const [tags, setTags] = useState('');
+    const [file, setFile] = useState(null);
+    const [author, setAuthor] = useState('');
+    const [publisher, setPublisher] = useState('');
+    const [publicationYear, setPublicationYear] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+    const [error, setError] = useState('');
+    const [newCategory, setNewCategory] = useState('');
+    const fileInputRef = useRef(null);
+
+    // Initialize form with material data when modal opens
+    useEffect(() => {
+        if (material && showEditModal) {
+            setTitle(material.title || '');
+            setDescription(material.description || '');
+            setType(material.type || 'document');
+            setCategory(material.category || '');
+            setTags(material.tags || '');
+            setAuthor(material.author || '');
+            setPublisher(material.publisher || '');
+            setPublicationYear(material.publication_year || '');
+            setFile(null);
+            setUploadProgress(0);
+            setError('');
+        }
+    }, [material, showEditModal]);
+
+    // Handle file selection
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            // Validate file size (max 50MB)
+            if (selectedFile.size > 50 * 1024 * 1024) {
+                setError('File size exceeds the maximum limit of 50MB.');
+                return;
+            }
+            setFile(selectedFile);
+            setError('');
+        }
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setIsUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('type', type);
+            formData.append('category', category);
+            formData.append('tags', tags);
+            formData.append('author', author);
+            formData.append('publisher', publisher);
+            formData.append('publication_year', publicationYear);
+            
+            if (file) {
+                formData.append('file', file);
+            }
+
+            // Use axios to upload the file with progress tracking
+            const response = await axios.post(
+                route('classes.subjects.materials.update', {
+                    class: classData.id,
+                    subject: subject.id,
+                    material: material.id
+                }),
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-HTTP-Method-Override': 'PUT'
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted);
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                // Reset form and close modal
+                setTitle('');
+                setDescription('');
+                setType('document');
+                setCategory('');
+                setTags('');
+                setFile(null);
+                setAuthor('');
+                setPublisher('');
+                setPublicationYear('');
+                setUploadProgress(0);
+                setShowEditModal(false);
+                
+                // Refresh the materials list
+                fetchMaterials();
+            }
+        } catch (error) {
+            console.error('Error updating material:', error);
+            setError(error.response?.data?.error || 'An error occurred while updating the material.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // Handle adding a new category
+    const handleAddCategory = () => {
+        if (newCategory.trim()) {
+            setCategory(newCategory.trim());
+            setNewCategory('');
+        }
+    };
+
+    return (
+        <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full ${showEditModal ? 'block' : 'hidden'}`}>
+            <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Edit Material</h3>
+                    <button
+                        onClick={() => setShowEditModal(false)}
+                        className="text-gray-400 hover:text-gray-500"
+                    >
+                        <XMarkIcon className="h-6 w-6" />
+                    </button>
+                </div>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                                Title *
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                                Material Type *
+                            </label>
+                            <select
+                                id="type"
+                                value={type}
+                                onChange={(e) => setType(e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                required
+                            >
+                                <option value="document">Document</option>
+                                <option value="book">Book</option>
+                                <option value="lesson">Lesson</option>
+                                <option value="video">Video</option>
+                                <option value="audio">Audio</option>
+                                <option value="image">Image</option>
+                                <option value="archive">Archive</option>
+                            </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows="3"
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                                Category
+                            </label>
+                            <div className="flex items-center space-x-2">
+                                <select
+                                    id="category"
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                >
+                                    <option value="">Select a category</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat} value={cat}>
+                                            {cat}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="mt-2 flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    placeholder="Add new category"
+                                    value={newCategory}
+                                    onChange={(e) => setNewCategory(e.target.value)}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAddCategory}
+                                    className="inline-flex items-center px-2 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                                Tags (comma separated)
+                            </label>
+                            <input
+                                type="text"
+                                id="tags"
+                                value={tags}
+                                onChange={(e) => setTags(e.target.value)}
+                                placeholder="e.g. math, algebra, equations"
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+                                Author
+                            </label>
+                            <input
+                                type="text"
+                                id="author"
+                                value={author}
+                                onChange={(e) => setAuthor(e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="publisher" className="block text-sm font-medium text-gray-700">
+                                Publisher
+                            </label>
+                            <input
+                                type="text"
+                                id="publisher"
+                                value={publisher}
+                                onChange={(e) => setPublisher(e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="publicationYear" className="block text-sm font-medium text-gray-700">
+                                Publication Year
+                            </label>
+                            <input
+                                type="number"
+                                id="publicationYear"
+                                value={publicationYear}
+                                onChange={(e) => setPublicationYear(e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Replace File (Optional)
+                            </label>
+                            <div className="mt-1 flex items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current.click()}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    <ArrowUpTrayIcon className="h-5 w-5 mr-2 text-gray-500" />
+                                    Select File
+                                </button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                                <span className="ml-3 text-sm text-gray-500">
+                                    {file ? file.name : 'No file selected (keep existing file)'}
+                                </span>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">
+                                Supported file types: PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, images, etc. (Max 50MB)
+                            </p>
+                        </div>
+                    </div>
+
+                    {isUploading && (
+                        <div className="mb-4">
+                            <div className="relative pt-1">
+                                <div className="flex mb-2 items-center justify-between">
+                                    <div>
+                                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                            Uploading
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-xs font-semibold inline-block text-indigo-600">
+                                            {uploadProgress}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                                    <div
+                                        style={{ width: `${uploadProgress}%` }}
+                                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-300"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowEditModal(false)}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isUploading}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                        >
+                            {isUploading ? 'Updating...' : 'Update Material'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// New Folder Modal Component
+function NewFolderModal({ showNewFolderModal, setShowNewFolderModal, newFolderName, setNewFolderName, handleCreateFolder }) {
+    return (
+        <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full ${showNewFolderModal ? 'block' : 'hidden'}`}>
+            <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Create New Folder</h3>
+                    <button
+                        onClick={() => setShowNewFolderModal(false)}
+                        className="text-gray-400 hover:text-gray-500"
+                    >
+                        <XMarkIcon className="h-6 w-6" />
+                    </button>
+                </div>
+
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    handleCreateFolder();
+                }}>
+                    <div className="mb-4">
+                        <label htmlFor="folderName" className="block text-sm font-medium text-gray-700">
+                            Folder Name
+                        </label>
+                        <input
+                            type="text"
+                            id="folderName"
+                            value={newFolderName}
+                            onChange={(e) => setNewFolderName(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            placeholder="Enter folder name"
+                            required
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                            Folders help you organize materials by category.
+                        </p>
+                    </div>
+
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowNewFolderModal(false)}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            Create Folder
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
