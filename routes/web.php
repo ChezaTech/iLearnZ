@@ -9,6 +9,7 @@ use App\Http\Controllers\ClassController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\AssessmentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -123,6 +124,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // New category management routes
             Route::get('/categories', [MaterialController::class, 'getCategories'])->name('getCategories');
             Route::post('/categories', [MaterialController::class, 'storeCategory'])->name('storeCategory');
+        });
+
+        // Assessment Management for Subjects
+        Route::prefix('classes/{class}/subjects/{subject}/assessments')->name('classes.subjects.assessments.')->group(function () {
+            Route::get('/', [AssessmentController::class, 'index'])->name('index');
+            Route::post('/', [AssessmentController::class, 'store'])->name('store');
+            Route::get('/{assessment}', [AssessmentController::class, 'show'])->name('show');
+            Route::put('/{assessment}', [AssessmentController::class, 'update'])->name('update');
+            Route::delete('/{assessment}', [AssessmentController::class, 'destroy'])->name('destroy');
+            Route::post('/{assessment}/submit', [AssessmentController::class, 'submitAssessment'])->name('submit');
+            Route::post('/{assessment}/submissions/{submission}/grade', [AssessmentController::class, 'gradeSubmission'])->name('grade');
         });
 
         // Teacher Management

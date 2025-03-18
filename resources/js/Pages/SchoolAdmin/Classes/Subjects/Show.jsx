@@ -676,20 +676,191 @@ function GradesTab({ subject, classData }) {
 
 // Assessments Tab Component
 function AssessmentsTab({ subject, classData }) {
+    const [assessments, setAssessments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedAssessment, setSelectedAssessment] = useState(null);
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
+    const { auth } = usePage().props;
+    
+    const fetchAssessments = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(route('classes.subjects.assessments.index', {
+                class: classData.id,
+                subject: subject.id
+            }));
+            
+            if (response.data.success) {
+                setAssessments(response.data.assessments);
+            }
+        } catch (error) {
+            console.error('Error fetching assessments:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        fetchAssessments();
+    }, [subject.id, classData.id]);
+    
+    const handleViewAssessment = (assessment) => {
+        setSelectedAssessment(assessment);
+        setShowViewModal(true);
+    };
+    
+    const handleSubmitAssessment = (assessment) => {
+        setSelectedAssessment(assessment);
+        setShowSubmitModal(true);
+    };
+    
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+    
+    const getStatusBadge = (assessment) => {
+        if (assessment.is_past_due) {
+            return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    Past Due
+                </span>
+            );
+        } else if (assessment.is_published) {
+            return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Active
+                </span>
+            );
+        } else {
+            return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    Draft
+                </span>
+            );
+        }
+    };
+    
     return (
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Assessments</h3>
-                <button className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                    Create Assessment
-                </button>
+                {auth.user.role === 'teacher' && (
+                    <button 
+                        onClick={() => setShowCreateModal(true)}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700"
+                    >
+                        Create Assessment
+                    </button>
+                )}
             </div>
             
-            <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <ClipboardDocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No assessments</h3>
-                <p className="mt-1 text-sm text-gray-500">Create assessments to evaluate student progress.</p>
-            </div>
+            {loading ? (
+                <div className="flex justify-center py-8">
+                    <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            ) : assessments.length > 0 ? (
+                <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                    <ul className="divide-y divide-gray-200">
+                        {assessments.map((assessment) => (
+                            <li key={assessment.id}>
+                                <div className="px-4 py-4 sm:px-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <div className="flex-shrink-0">
+                                                <ClipboardDocumentCheckIcon className="h-6 w-6 text-blue-600" />
+                                            </div>
+                                            <div className="ml-4">
+                                                <p className="text-sm font-medium text-blue-600 cursor-pointer hover:underline" onClick={() => handleViewAssessment(assessment)}>
+                                                    {assessment.title}
+                                                </p>
+                                                <p className="text-sm text-gray-500 truncate">
+                                                    Due: {formatDate(assessment.due_date)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            {getStatusBadge(assessment)}
+                                            {auth.user.role === 'student' && assessment.is_available && (
+                                                <button
+                                                    onClick={() => handleSubmitAssessment(assessment)}
+                                                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                                                >
+                                                    Submit
+                                                </button>
+                                            )}
+                                            {auth.user.role === 'teacher' && (
+                                                <div className="flex items-center">
+                                                    <span className="text-xs text-gray-500 mr-2">
+                                                        {assessment.submission_count} submissions
+                                                    </span>
+                                                    <button
+                                                        onClick={() => handleViewAssessment(assessment)}
+                                                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                                                    >
+                                                        View
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <ClipboardDocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No assessments</h3>
+                    <p className="mt-1 text-sm text-gray-500">Create assessments to evaluate student progress.</p>
+                </div>
+            )}
+            
+            {/* Create Assessment Modal */}
+            {showCreateModal && (
+                <CreateAssessmentModal
+                    showCreateModal={showCreateModal}
+                    setShowCreateModal={setShowCreateModal}
+                    subject={subject}
+                    classData={classData}
+                    fetchAssessments={fetchAssessments}
+                />
+            )}
+            
+            {/* View Assessment Modal */}
+            {showViewModal && selectedAssessment && (
+                <ViewAssessmentModal
+                    showViewModal={showViewModal}
+                    setShowViewModal={setShowViewModal}
+                    assessment={selectedAssessment}
+                    subject={subject}
+                    classData={classData}
+                    fetchAssessments={fetchAssessments}
+                />
+            )}
+            
+            {/* Submit Assessment Modal */}
+            {showSubmitModal && selectedAssessment && (
+                <SubmitAssessmentModal
+                    showSubmitModal={showSubmitModal}
+                    setShowSubmitModal={setShowSubmitModal}
+                    assessment={selectedAssessment}
+                    subject={subject}
+                    classData={classData}
+                    fetchAssessments={fetchAssessments}
+                />
+            )}
         </div>
     );
 }
@@ -1089,8 +1260,8 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (isUploading) return;
+        setError('');
+        setIsUploading(true);
         
         const form = e.target;
         const formData = new FormData(form);
@@ -1173,7 +1344,7 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                                     name="title"
                                     id="title"
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     placeholder="e.g. Chapter 1 Notes"
                                 />
                             </div>
@@ -1186,7 +1357,7 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                                     name="description"
                                     id="description"
                                     rows={3}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     placeholder="Provide a brief description of this material"
                                 />
                             </div>
@@ -1354,10 +1525,10 @@ function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, cla
                             <button
                                 type="submit"
                                 disabled={isUploading || (fileError && !formData?.get('url'))}
-                                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                                     isUploading || (fileError && !formData?.get('url'))
                                         ? 'bg-indigo-300 cursor-not-allowed'
-                                        : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                        : ''
                                 }`}
                             >
                                 {isUploading ? 'Uploading...' : 'Upload Material'}
@@ -1661,7 +1832,7 @@ function EditMaterialModal({ showEditModal, setShowEditModal, material, subject,
                                     onClick={() => fileInputRef.current.click()}
                                     className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                 >
-                                    <ArrowUpTrayIcon className="h-5 w-5 mr-2 text-gray-500" />
+                                    <ArrowUpTrayIcon className="h-5 w-5 text-gray-500 mr-2" />
                                     Select File
                                 </button>
                                 <input
@@ -1780,6 +1951,826 @@ function NewFolderModal({ showNewFolderModal, setShowNewFolderModal, newFolderNa
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    );
+}
+
+// Create Assessment Modal Component
+function CreateAssessmentModal({ showCreateModal, setShowCreateModal, subject, classData, fetchAssessments }) {
+    const [title, setTitle] = useState('');
+    const [instructions, setInstructions] = useState('');
+    const [dueDate, setDueDate] = useState('');
+    const [availableFrom, setAvailableFrom] = useState('');
+    const [maxScore, setMaxScore] = useState(100);
+    const [isPublished, setIsPublished] = useState(false);
+    const [allowLateSubmissions, setAllowLateSubmissions] = useState(false);
+    const [attachment, setAttachment] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setErrors({});
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('instructions', instructions);
+        formData.append('due_date', dueDate);
+        if (availableFrom) formData.append('available_from', availableFrom);
+        formData.append('max_score', maxScore);
+        formData.append('is_published', isPublished ? 1 : 0);
+        formData.append('allow_late_submissions', allowLateSubmissions ? 1 : 0);
+        if (attachment) formData.append('attachment', attachment);
+        
+        try {
+            const response = await axios.post(
+                route('classes.subjects.assessments.store', {
+                    class: classData.id,
+                    subject: subject.id
+                }),
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            
+            if (response.data.success) {
+                setShowCreateModal(false);
+                fetchAssessments();
+                resetForm();
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            } else {
+                console.error('Error creating assessment:', error);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const resetForm = () => {
+        setTitle('');
+        setInstructions('');
+        setDueDate('');
+        setAvailableFrom('');
+        setMaxScore(100);
+        setIsPublished(false);
+        setAllowLateSubmissions(false);
+        setAttachment(null);
+    };
+    
+    const handleClose = () => {
+        resetForm();
+        setShowCreateModal(false);
+    };
+    
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setAttachment(e.target.files[0]);
+        }
+    };
+    
+    return (
+        <div className={`fixed inset-0 overflow-y-auto ${showCreateModal ? '' : 'hidden'}`}>
+            <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                
+                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="sm:flex sm:items-start">
+                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900">Create Assessment</h3>
+                                
+                                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                                    <div>
+                                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                                        <input
+                                            type="text"
+                                            id="title"
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            required
+                                        />
+                                        {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
+                                        <textarea
+                                            id="instructions"
+                                            value={instructions}
+                                            onChange={(e) => setInstructions(e.target.value)}
+                                            rows="4"
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        ></textarea>
+                                        {errors.instructions && <p className="mt-1 text-sm text-red-600">{errors.instructions}</p>}
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">Due Date</label>
+                                            <input
+                                                type="datetime-local"
+                                                id="dueDate"
+                                                value={dueDate}
+                                                onChange={(e) => setDueDate(e.target.value)}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required
+                                            />
+                                            {errors.due_date && <p className="mt-1 text-sm text-red-600">{errors.due_date}</p>}
+                                        </div>
+                                        
+                                        <div>
+                                            <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700">Available From (Optional)</label>
+                                            <input
+                                                type="datetime-local"
+                                                id="availableFrom"
+                                                value={availableFrom}
+                                                onChange={(e) => setAvailableFrom(e.target.value)}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            />
+                                            {errors.available_from && <p className="mt-1 text-sm text-red-600">{errors.available_from}</p>}
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="maxScore" className="block text-sm font-medium text-gray-700">Maximum Score</label>
+                                        <input
+                                            type="number"
+                                            id="maxScore"
+                                            value={maxScore}
+                                            onChange={(e) => setMaxScore(e.target.value)}
+                                            min="1"
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                        {errors.max_score && <p className="mt-1 text-sm text-red-600">{errors.max_score}</p>}
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="attachment" className="block text-sm font-medium text-gray-700">Attachment (Optional)</label>
+                                        <input
+                                            type="file"
+                                            id="attachment"
+                                            onChange={handleFileChange}
+                                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                        {errors.attachment && <p className="mt-1 text-sm text-red-600">{errors.attachment}</p>}
+                                        {attachment && (
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Selected file: {attachment.name}
+                                            </p>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="flex items-center">
+                                        <input
+                                            id="isPublished"
+                                            type="checkbox"
+                                            checked={isPublished}
+                                            onChange={(e) => setIsPublished(e.target.checked)}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <label htmlFor="isPublished" className="ml-2 block text-sm text-gray-900">
+                                            Publish immediately
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="flex items-center">
+                                        <input
+                                            id="allowLateSubmissions"
+                                            type="checkbox"
+                                            checked={allowLateSubmissions}
+                                            onChange={(e) => setAllowLateSubmissions(e.target.checked)}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <label htmlFor="allowLateSubmissions" className="ml-2 block text-sm text-gray-900">
+                                            Allow late submissions
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            {loading ? 'Creating...' : 'Create Assessment'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// View Assessment Modal Component
+function ViewAssessmentModal({ showViewModal, setShowViewModal, assessment, subject, classData, fetchAssessments }) {
+    const [submissions, setSubmissions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showGradeModal, setShowGradeModal] = useState(false);
+    const [selectedSubmission, setSelectedSubmission] = useState(null);
+    const { auth } = usePage().props;
+    
+    useEffect(() => {
+        const fetchAssessmentDetails = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(route('classes.subjects.assessments.show', {
+                    class: classData.id,
+                    subject: subject.id,
+                    assessment: assessment.id
+                }));
+                
+                if (response.data.success) {
+                    if (auth.user.role === 'teacher') {
+                        setSubmissions(response.data.submissions || []);
+                    } else if (auth.user.role === 'student') {
+                        // For students, we only show their own submission
+                        if (response.data.submission) {
+                            setSubmissions([response.data.submission]);
+                        } else {
+                            setSubmissions([]);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching assessment details:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchAssessmentDetails();
+    }, [assessment.id]);
+    
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+    
+    const handleDownload = (filePath) => {
+        window.open(`/storage/${filePath}`, '_blank');
+    };
+    
+    const handleGradeSubmission = (submission) => {
+        setSelectedSubmission(submission);
+        setShowGradeModal(true);
+    };
+    
+    return (
+        <div className="fixed inset-0 overflow-y-auto z-50">
+            <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                
+                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                    <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="sm:flex sm:items-start">
+                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                    {assessment.title}
+                                </h3>
+                                
+                                <div className="mt-4 space-y-4">
+                                    <div>
+                                        <div className="flex justify-between">
+                                            <span className="text-sm text-gray-500">Due: {formatDate(assessment.due_date)}</span>
+                                            <span className="text-sm text-gray-500">Max Score: {assessment.max_score || 100}</span>
+                                        </div>
+                                        
+                                        <div className="mt-2">
+                                            <h4 className="text-sm font-medium text-gray-900">Instructions:</h4>
+                                            <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">{assessment.instructions || 'No instructions provided.'}</p>
+                                        </div>
+                                        
+                                        {assessment.attachment_path && (
+                                            <div className="mt-4">
+                                                <h4 className="text-sm font-medium text-gray-900">Attachment:</h4>
+                                                <div className="mt-1 flex items-center">
+                                                    <DocumentIcon className="h-5 w-5 text-gray-400 mr-2" />
+                                                    <button 
+                                                        onClick={() => handleDownload(assessment.attachment_path)}
+                                                        className="text-sm text-blue-600 hover:text-blue-800"
+                                                    >
+                                                        {assessment.attachment_path.split('/').pop()}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="border-t border-gray-200 pt-4">
+                                        <h4 className="text-sm font-medium text-gray-900">
+                                            {auth.user.role === 'teacher' ? 'Submissions' : 'Your Submission'}
+                                        </h4>
+                                        
+                                        {loading ? (
+                                            <div className="flex justify-center py-4">
+                                                <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+                                        ) : submissions.length > 0 ? (
+                                            <div className="mt-2 space-y-4">
+                                                {submissions.map((submission) => (
+                                                    <div key={submission.id} className="bg-gray-50 p-3 rounded-md">
+                                                        <div className="flex justify-between items-center">
+                                                            <div>
+                                                                {auth.user.role === 'teacher' && (
+                                                                    <p className="text-sm font-medium text-gray-900">{submission.student.name}</p>
+                                                                )}
+                                                                <p className="text-xs text-gray-500">
+                                                                    Submitted: {formatDate(submission.submitted_at)}
+                                                                    {submission.is_late && (
+                                                                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                                            Late
+                                                                        </span>
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                {submission.isGraded ? (
+                                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                        Score: {submission.score}/{assessment.max_score || 100}
+                                                                    </span>
+                                                                ) : auth.user.role === 'teacher' ? (
+                                                                    <button
+                                                                        onClick={() => handleGradeSubmission(submission)}
+                                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+                                                                    >
+                                                                        Grade
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                        Not Graded
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className="mt-2 flex items-center">
+                                                            <DocumentIcon className="h-5 w-5 text-gray-400 mr-2" />
+                                                            <button 
+                                                                onClick={() => handleDownload(submission.submission_path)}
+                                                                className="text-sm text-blue-600 hover:text-blue-800"
+                                                            >
+                                                                {submission.submission_path.split('/').pop()}
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        {submission.comments && (
+                                                            <div className="mt-2">
+                                                                <p className="text-xs text-gray-500">Comments:</p>
+                                                                <p className="text-sm text-gray-700">{submission.comments}</p>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {submission.isGraded && (
+                                                            <div className="mt-2">
+                                                                <p className="text-xs text-gray-500">Teacher Feedback:</p>
+                                                                <p className="text-sm text-gray-700">{submission.feedback || 'No feedback provided.'}</p>
+                                                                <p className="text-xs text-gray-500 mt-1">
+                                                                    Graded by: {submission.graded_by?.name || 'Unknown'} on {formatDate(submission.graded_at)}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-4">
+                                                <p className="text-sm text-gray-500">No submissions yet.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button
+                            type="button"
+                            onClick={() => setShowViewModal(false)}
+                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Grade Submission Modal */}
+            {showGradeModal && selectedSubmission && (
+                <GradeSubmissionModal
+                    showGradeModal={showGradeModal}
+                    setShowGradeModal={setShowGradeModal}
+                    submission={selectedSubmission}
+                    assessment={assessment}
+                    subject={subject}
+                    classData={classData}
+                    fetchAssessmentDetails={() => {
+                        // Refresh the assessment details after grading
+                        const fetchAssessmentDetails = async () => {
+                            setLoading(true);
+                            try {
+                                const response = await axios.get(route('classes.subjects.assessments.show', {
+                                    class: classData.id,
+                                    subject: subject.id,
+                                    assessment: assessment.id
+                                }));
+                                
+                                if (response.data.success) {
+                                    setSubmissions(response.data.submissions || []);
+                                }
+                            } catch (error) {
+                                console.error('Error fetching assessment details:', error);
+                            } finally {
+                                setLoading(false);
+                            }
+                        };
+                        
+                        fetchAssessmentDetails();
+                    }}
+                />
+            )}
+        </div>
+    );
+}
+
+// Submit Assessment Modal Component
+function SubmitAssessmentModal({ showSubmitModal, setShowSubmitModal, assessment, subject, classData, fetchAssessments }) {
+    const [file, setFile] = useState(null);
+    const [comments, setComments] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const fileInputRef = useRef(null);
+    
+    // Handle file selection
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            // Validate file size (max 50MB)
+            if (selectedFile.size > 50 * 1024 * 1024) {
+                setError('File size exceeds the maximum limit of 50MB.');
+                return;
+            }
+            setFile(selectedFile);
+            setError('');
+        }
+    };
+    
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setUploading(true);
+        
+        const formData = new FormData();
+        formData.append('comments', comments);
+        if (file) formData.append('file', file);
+        
+        try {
+            const response = await axios.post(
+                route('classes.subjects.assessments.submit', {
+                    class: classData.id,
+                    subject: subject.id,
+                    assessment: assessment.id
+                }),
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            
+            if (response.data.success) {
+                setShowSubmitModal(false);
+                fetchAssessments();
+                setSuccess('Assessment submitted successfully!');
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccess('');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error submitting assessment:', error);
+            setError(error.response?.data?.error || 'An error occurred while submitting the assessment.');
+        } finally {
+            setUploading(false);
+        }
+    };
+    
+    return (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">Submit Assessment</h3>
+                        <button
+                            onClick={() => setShowSubmitModal(false)}
+                            className="text-gray-400 hover:text-gray-500"
+                        >
+                            <XMarkIcon className="h-6 w-6" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="px-6 py-4">
+                    <form id="submit-assessment-form" onSubmit={handleSubmit}>
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="comments" className="block text-sm font-medium text-gray-700">
+                                    Comments (Optional)
+                                </label>
+                                <textarea
+                                    id="comments"
+                                    name="comments"
+                                    rows="4"
+                                    value={comments}
+                                    onChange={(e) => setComments(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Upload File
+                                </label>
+                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div className="space-y-1 text-center">
+                                        <svg
+                                            className="mx-auto h-12 w-12 text-gray-400"
+                                            stroke="currentColor"
+                                            fill="none"
+                                            viewBox="0 0 48 48"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        </svg>
+                                        <div className="flex text-sm text-gray-600">
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                            >
+                                                <span>Upload a file</span>
+                                                <input
+                                                    id="file-upload"
+                                                    name="file"
+                                                    type="file"
+                                                    className="sr-only"
+                                                    onChange={handleFileChange}
+                                                    ref={fileInputRef}
+                                                />
+                                            </label>
+                                            <p className="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, images, etc. (Max 50MB)
+                                        </p>
+                                        
+                                        {file && (
+                                            <div className="mt-2 text-sm text-gray-900">
+                                                Selected: {file.name} ({Math.round(file.size / 1024)} KB)
+                                            </div>
+                                        )}
+                                        
+                                        {error && (
+                                            <div className="mt-2 text-sm text-red-600">
+                                                {error}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {uploading && (
+                            <div className="mt-4">
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                                Uploading
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold inline-block text-indigo-600">
+                                                Uploading...
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                                        <div
+                                            style={{ width: '100%' }}
+                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowSubmitModal(false)}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={uploading}
+                                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                                    uploading
+                                        ? 'bg-indigo-300 cursor-not-allowed'
+                                        : ''
+                                }`}
+                            >
+                                {uploading ? 'Submitting...' : 'Submit Assessment'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Grade Submission Modal Component
+function GradeSubmissionModal({ showGradeModal, setShowGradeModal, submission, assessment, subject, classData, fetchAssessmentDetails }) {
+    const [score, setScore] = useState('');
+    const [feedback, setFeedback] = useState('');
+    const [grading, setGrading] = useState(false);
+    const [error, setError] = useState('');
+    
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setGrading(true);
+        
+        try {
+            const response = await axios.post(
+                route('classes.subjects.assessments.grade', {
+                    class: classData.id,
+                    subject: subject.id,
+                    assessment: assessment.id,
+                    submission: submission.id
+                }),
+                {
+                    score,
+                    feedback
+                }
+            );
+            
+            if (response.data.success) {
+                setShowGradeModal(false);
+                fetchAssessmentDetails();
+            }
+        } catch (error) {
+            console.error('Error grading submission:', error);
+            setError(error.response?.data?.error || 'An error occurred while grading the submission.');
+        } finally {
+            setGrading(false);
+        }
+    };
+    
+    return (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">Grade Submission</h3>
+                        <button
+                            onClick={() => setShowGradeModal(false)}
+                            className="text-gray-400 hover:text-gray-500"
+                        >
+                            <XMarkIcon className="h-6 w-6" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="px-6 py-4">
+                    <form id="grade-submission-form" onSubmit={handleSubmit}>
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="score" className="block text-sm font-medium text-gray-700">
+                                    Score
+                                </label>
+                                <input
+                                    type="number"
+                                    id="score"
+                                    value={score}
+                                    onChange={(e) => setScore(e.target.value)}
+                                    min="0"
+                                    max={assessment.max_score || 100}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="feedback" className="block text-sm font-medium text-gray-700">
+                                    Feedback (Optional)
+                                </label>
+                                <textarea
+                                    id="feedback"
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    rows="4"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                        </div>
+                        
+                        {grading && (
+                            <div className="mt-4">
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                                Grading
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold inline-block text-indigo-600">
+                                                Grading...
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                                        <div
+                                            style={{ width: '100%' }}
+                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowGradeModal(false)}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={grading}
+                                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                                    grading
+                                        ? 'bg-indigo-300 cursor-not-allowed'
+                                        : ''
+                                }`}
+                            >
+                                {grading ? 'Grading...' : 'Grade Submission'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );
