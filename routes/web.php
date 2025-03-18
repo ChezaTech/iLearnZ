@@ -8,6 +8,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\MaterialController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -109,6 +110,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/classes/{class}/subjects/{subject}', [SubjectController::class, 'show'])->name('classes.subjects.show');
         Route::put('/classes/{class}/subjects/{subject}', [SubjectController::class, 'update'])->name('classes.subjects.update');
         Route::delete('/classes/{class}/subjects/{subject}', [SubjectController::class, 'destroy'])->name('classes.subjects.destroy');
+
+        // Material Management for Subjects
+        Route::get('/classes/{class}/subjects/{subject}/materials', [MaterialController::class, 'index'])->name('classes.subjects.materials.index');
+        Route::post('/classes/{class}/subjects/{subject}/materials', [MaterialController::class, 'store'])->name('classes.subjects.materials.store');
+        Route::put('/classes/{class}/subjects/{subject}/materials/{material}', [MaterialController::class, 'update'])->name('classes.subjects.materials.update');
+        Route::delete('/classes/{class}/subjects/{subject}/materials/{material}', [MaterialController::class, 'destroy'])->name('classes.subjects.materials.destroy');
+        Route::post('/classes/{class}/subjects/{subject}/materials/batch-delete', [MaterialController::class, 'batchDelete'])->name('classes.subjects.materials.batchDelete');
 
         // Teacher Management
         Route::resource('teachers', TeacherController::class);

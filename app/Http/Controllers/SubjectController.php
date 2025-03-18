@@ -196,6 +196,8 @@ class SubjectController extends Controller
             'code' => 'required|string|max:50|unique:subjects,code,'.$subject->id,
             'description' => 'nullable|string',
             'teacher_id' => 'nullable|exists:users,id',
+            'schedule' => 'nullable|string',
+            'notes' => 'nullable|string',
             'book_ids' => 'nullable|array',
             'book_ids.*' => 'exists:books,id',
             'reading_materials' => 'nullable|array',
@@ -215,6 +217,8 @@ class SubjectController extends Controller
         // Update the teacher assignment in the pivot table
         $class->subjects()->updateExistingPivot($subject->id, [
             'teacher_id' => $validated['teacher_id'] ?? null,
+            'schedule' => $validated['schedule'] ?? null,
+            'notes' => $validated['notes'] ?? null,
             'updated_at' => now(),
         ]);
         

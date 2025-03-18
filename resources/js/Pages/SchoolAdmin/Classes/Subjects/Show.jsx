@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { Tab } from '@headlessui/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
@@ -9,8 +9,22 @@ import {
     CogIcon, 
     ClipboardDocumentCheckIcon,
     QuestionMarkCircleIcon,
-    ArrowLeftIcon 
+    ArrowLeftIcon,
+    CheckCircleIcon,
+    PlusIcon,
+    FolderIcon,
+    TrashIcon,
+    PencilIcon,
+    DocumentIcon,
+    FilmIcon,
+    MusicalNoteIcon,
+    PhotoIcon,
+    ArchiveBoxIcon,
+    XMarkIcon,
+    ArrowUpTrayIcon,
+    FolderPlusIcon
 } from '@heroicons/react/24/outline';
+import axios from 'axios';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -203,30 +217,344 @@ export default function Show({ auth, class: classData, subject, teachers, books 
 
 // Materials Tab Component
 function MaterialsTab({ subject, classData }) {
+    const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [currentMaterial, setCurrentMaterial] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [showBulkActions, setShowBulkActions] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [currentCategory, setCurrentCategory] = useState('all');
+    const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const fileInputRef = useRef(null);
+
+    // Fetch materials on component mount
+    useEffect(() => {
+        fetchMaterials();
+    }, []);
+
+    // Extract unique categories from materials
+    useEffect(() => {
+        if (materials.length > 0) {
+            const uniqueCategories = [...new Set(materials.map(material => material.category).filter(Boolean))];
+            setCategories(uniqueCategories);
+        }
+    }, [materials]);
+
+    // Fetch materials from the server
+    const fetchMaterials = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(route('classes.subjects.materials.index', {
+                class: classData.id,
+                subject: subject.id
+            }));
+            
+            if (response.data.success) {
+                setMaterials(response.data.materials);
+            }
+        } catch (error) {
+            console.error('Error fetching materials:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Filter materials based on category and search query
+    const filteredMaterials = materials.filter(material => {
+        const matchesCategory = currentCategory === 'all' || material.category === currentCategory;
+        const matchesSearch = searchQuery === '' || 
+            material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (material.description && material.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (material.tags && material.tags.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        return matchesCategory && matchesSearch;
+    });
+
+    // Handle file selection
+    const handleFileSelect = (e) => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    // Handle material selection for bulk actions
+    const toggleMaterialSelection = (materialId) => {
+        if (selectedMaterials.includes(materialId)) {
+            setSelectedMaterials(selectedMaterials.filter(id => id !== materialId));
+        } else {
+            setSelectedMaterials([...selectedMaterials, materialId]);
+        }
+    };
+
+    // Handle bulk delete
+    const handleBulkDelete = async () => {
+        if (selectedMaterials.length === 0) return;
+        
+        if (confirm(`Are you sure you want to delete ${selectedMaterials.length} selected materials?`)) {
+            try {
+                const response = await axios.post(route('classes.subjects.materials.batchDelete', {
+                    class: classData.id,
+                    subject: subject.id
+                }), {
+                    material_ids: selectedMaterials
+                });
+                
+                if (response.data.success) {
+                    fetchMaterials();
+                    setSelectedMaterials([]);
+                    setShowBulkActions(false);
+                }
+            } catch (error) {
+                console.error('Error deleting materials:', error);
+            }
+        }
+    };
+
+    // Handle creating a new category folder
+    const handleCreateFolder = () => {
+        if (!newFolderName.trim()) return;
+        
+        // Add the new category to the list
+        setCategories([...categories, newFolderName]);
+        setCurrentCategory(newFolderName);
+        setNewFolderName('');
+        setShowNewFolderModal(false);
+    };
+
+    // Get icon based on material type
+    const getMaterialIcon = (type, className = "h-6 w-6") => {
+        switch (type) {
+            case 'document':
+                return <DocumentIcon className={className} />;
+            case 'video':
+                return <FilmIcon className={className} />;
+            case 'audio':
+                return <MusicalNoteIcon className={className} />;
+            case 'image':
+                return <PhotoIcon className={className} />;
+            case 'archive':
+                return <ArchiveBoxIcon className={className} />;
+            case 'lesson':
+                return <DocumentTextIcon className={className} />;
+            case 'book':
+                return <BookOpenIcon className={className} />;
+            default:
+                return <DocumentIcon className={className} />;
+        }
+    };
+
+    // Format file size
+    const formatFileSize = (bytes) => {
+        if (!bytes) return 'Unknown size';
+        
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes === 0) return '0 Byte';
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+    };
+
+    // Get file extension from path
+    const getFileExtension = (path) => {
+        if (!path) return '';
+        return path.split('.').pop().toUpperCase();
+    };
+
     return (
-        <div>
-            <div className="flex justify-between items-center mb-4">
+        <div className="space-y-6">
+            {/* Header with search and actions */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
                 <h3 className="text-lg font-medium text-gray-900">Learning Materials</h3>
-                <button className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                    Add Material
-                </button>
+                
+                <div className="flex items-center space-x-2">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search materials..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 pl-8 pr-4 py-2 text-sm"
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <button
+                        onClick={() => setShowNewFolderModal(true)}
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        <FolderPlusIcon className="h-4 w-4 mr-1" />
+                        New Folder
+                    </button>
+                    
+                    {selectedMaterials.length > 0 ? (
+                        <button
+                            onClick={handleBulkDelete}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                            <TrashIcon className="h-4 w-4 mr-1" />
+                            Delete Selected ({selectedMaterials.length})
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setShowUploadModal(true)}
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <PlusIcon className="h-4 w-4 mr-1" />
+                            Add Material
+                        </button>
+                    )}
+                </div>
             </div>
             
-            {subject.readingMaterials && subject.readingMaterials.length > 0 ? (
+            {/* Category tabs */}
+            <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+                    <button
+                        onClick={() => setCurrentCategory('all')}
+                        className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                            currentCategory === 'all'
+                                ? 'border-indigo-500 text-indigo-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        All Materials
+                    </button>
+                    
+                    {categories.map((category) => (
+                        <button
+                            key={category}
+                            onClick={() => setCurrentCategory(category)}
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                                currentCategory === category
+                                    ? 'border-indigo-500 text-indigo-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                        >
+                            <div className="flex items-center">
+                                <FolderIcon className="h-4 w-4 mr-1" />
+                                {category}
+                            </div>
+                        </button>
+                    ))}
+                </nav>
+            </div>
+            
+            {/* Materials grid or empty state */}
+            {loading ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <div className="animate-pulse flex justify-center">
+                        <div className="h-12 w-12 bg-gray-300 rounded-full"></div>
+                    </div>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">Loading materials...</h3>
+                </div>
+            ) : filteredMaterials.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {subject.readingMaterials.map((material) => (
-                        <div key={material.id} className="bg-white shadow rounded-lg p-4 border border-gray-200">
-                            <h4 className="font-medium text-gray-900">{material.title}</h4>
-                            <p className="text-sm text-gray-500 mt-1">{material.description || 'No description'}</p>
-                            {material.url && (
-                                <a 
-                                    href={material.url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="mt-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-                                >
-                                    View Material
-                                </a>
+                    {filteredMaterials.map((material) => (
+                        <div 
+                            key={material.id} 
+                            className={`bg-white shadow rounded-lg p-4 border ${
+                                selectedMaterials.includes(material.id) 
+                                    ? 'border-indigo-500 ring-2 ring-indigo-200' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                            } transition-all duration-200`}
+                        >
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-start space-x-3">
+                                    <div className="flex-shrink-0 mt-1">
+                                        {getMaterialIcon(material.type)}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-medium text-gray-900">{material.title}</h4>
+                                        <p className="text-sm text-gray-500 mt-1">{material.description || 'No description'}</p>
+                                        
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {material.tags && material.tags.split(',').map((tag, index) => (
+                                                <span 
+                                                    key={index} 
+                                                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                                                >
+                                                    {tag.trim()}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        
+                                        <div className="mt-3 flex items-center text-xs text-gray-500">
+                                            <span className="bg-gray-100 px-2 py-1 rounded">
+                                                {getFileExtension(material.file_path)}
+                                            </span>
+                                            <span className="mx-2">•</span>
+                                            <span>{formatFileSize(material.file_size)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex flex-col space-y-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedMaterials.includes(material.id)}
+                                        onChange={() => toggleMaterialSelection(material.id)}
+                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                    />
+                                    
+                                    <button
+                                        onClick={() => {
+                                            setCurrentMaterial(material);
+                                            setShowEditModal(true);
+                                        }}
+                                        className="text-gray-400 hover:text-gray-500"
+                                    >
+                                        <PencilIcon className="h-4 w-4" />
+                                    </button>
+                                    
+                                    <button
+                                        onClick={async () => {
+                                            if (confirm('Are you sure you want to delete this material?')) {
+                                                try {
+                                                    await axios.delete(route('classes.subjects.materials.destroy', {
+                                                        class: classData.id,
+                                                        subject: subject.id,
+                                                        material: material.id
+                                                    }));
+                                                    fetchMaterials();
+                                                } catch (error) {
+                                                    console.error('Error deleting material:', error);
+                                                }
+                                            }
+                                        }}
+                                        className="text-gray-400 hover:text-red-500"
+                                    >
+                                        <TrashIcon className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {material.file_path && (
+                                <div className="mt-3 flex justify-between">
+                                    <a 
+                                        href={`/storage/${material.file_path}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+                                    >
+                                        View Material
+                                    </a>
+                                    
+                                    <a 
+                                        href={`/storage/${material.file_path}`} 
+                                        download
+                                        className="inline-flex items-center text-sm text-gray-600 hover:text-gray-800"
+                                    >
+                                        Download
+                                    </a>
+                                </div>
                             )}
                         </div>
                     ))}
@@ -234,9 +562,307 @@ function MaterialsTab({ subject, classData }) {
             ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
                     <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No materials</h3>
-                    <p className="mt-1 text-sm text-gray-500">Get started by adding learning materials for this subject.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No materials found</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                        {searchQuery 
+                            ? 'Try adjusting your search or category filter.' 
+                            : 'Get started by adding learning materials for this subject.'}
+                    </p>
+                    {!searchQuery && (
+                        <button
+                            onClick={() => setShowUploadModal(true)}
+                            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            <PlusIcon className="h-4 w-4 mr-1" />
+                            Add Material
+                        </button>
+                    )}
                 </div>
+            )}
+            
+            {/* Edit Material Modal */}
+            {showEditModal && currentMaterial && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="px-6 py-4 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-medium text-gray-900">Edit Material</h3>
+                                <button
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setCurrentMaterial(null);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <XMarkIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="px-6 py-4">
+                            <form id="edit-material-form" onSubmit={async (e) => {
+                                e.preventDefault();
+                                
+                                const formData = new FormData(e.target);
+                                formData.append('_method', 'PUT');
+                                
+                                try {
+                                    await axios.post(
+                                        route('classes.subjects.materials.update', {
+                                            class: classData.id,
+                                            subject: subject.id,
+                                            material: currentMaterial.id
+                                        }),
+                                        formData,
+                                        {
+                                            headers: {
+                                                'Content-Type': 'multipart/form-data'
+                                            }
+                                        }
+                                    );
+                                    
+                                    setShowEditModal(false);
+                                    setCurrentMaterial(null);
+                                    fetchMaterials();
+                                } catch (error) {
+                                    console.error('Error updating material:', error);
+                                    alert('Error updating material. Please try again.');
+                                }
+                            }}>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700">
+                                            Title *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            id="edit-title"
+                                            required
+                                            defaultValue={currentMaterial.title}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700">
+                                            Description
+                                        </label>
+                                        <textarea
+                                            name="description"
+                                            id="edit-description"
+                                            rows={3}
+                                            defaultValue={currentMaterial.description}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="edit-type" className="block text-sm font-medium text-gray-700">
+                                            Material Type *
+                                        </label>
+                                        <select
+                                            name="type"
+                                            id="edit-type"
+                                            required
+                                            defaultValue={currentMaterial.type}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        >
+                                            <option value="">Select type</option>
+                                            <option value="document">Document</option>
+                                            <option value="video">Video</option>
+                                            <option value="audio">Audio</option>
+                                            <option value="image">Image</option>
+                                            <option value="lesson">Lesson</option>
+                                            <option value="book">Book</option>
+                                            <option value="archive">Archive</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700">
+                                            Category
+                                        </label>
+                                        <div className="mt-1 flex rounded-md shadow-sm">
+                                            <select
+                                                name="category"
+                                                id="edit-category"
+                                                defaultValue={currentMaterial.category || ''}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            >
+                                                <option value="">No category</option>
+                                                {categories.map((category) => (
+                                                    <option key={category} value={category}>
+                                                        {category}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="edit-tags" className="block text-sm font-medium text-gray-700">
+                                            Tags (comma separated)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="tags"
+                                            id="edit-tags"
+                                            defaultValue={currentMaterial.tags}
+                                            placeholder="e.g. homework, chapter 1, important"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Current File
+                                        </label>
+                                        <div className="mt-1 flex items-center space-x-2">
+                                            {getMaterialIcon(currentMaterial.type, "h-5 w-5 text-gray-500")}
+                                            <span className="text-sm text-gray-500">
+                                                {currentMaterial.file_path ? getFileExtension(currentMaterial.file_path) : 'No file'}
+                                                {currentMaterial.file_size && ` (${formatFileSize(currentMaterial.file_size)})`}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Replace File (optional)
+                                        </label>
+                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                            <div className="space-y-1 text-center">
+                                                <svg
+                                                    className="mx-auto h-12 w-12 text-gray-400"
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    viewBox="0 0 48 48"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                        strokeWidth={2}
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    />
+                                                </svg>
+                                                <div className="flex text-sm text-gray-600">
+                                                    <label
+                                                        htmlFor="file-replace"
+                                                        className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                                    >
+                                                        <span>Upload a new file</span>
+                                                        <input
+                                                            id="file-replace"
+                                                            name="file"
+                                                            type="file"
+                                                            className="sr-only"
+                                                        />
+                                                    </label>
+                                                    <p className="pl-1">or drag and drop</p>
+                                                </div>
+                                                <p className="text-xs text-gray-500">
+                                                    PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, JPG, PNG up to 50MB
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowEditModal(false);
+                                            setCurrentMaterial(null);
+                                        }}
+                                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* New Folder Modal */}
+            {showNewFolderModal && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                        <div className="px-6 py-4 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-medium text-gray-900">Create New Folder</h3>
+                                <button
+                                    onClick={() => setShowNewFolderModal(false)}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <XMarkIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="px-6 py-4">
+                            <div className="space-y-4">
+                                <div>
+                                    <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700">
+                                        Folder Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="folder-name"
+                                        value={newFolderName}
+                                        onChange={(e) => setNewFolderName(e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        placeholder="e.g. Homework, Exams, Lessons"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNewFolderModal(false)}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleCreateFolder}
+                                    disabled={!newFolderName.trim()}
+                                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                                        newFolderName.trim()
+                                            ? 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                            : 'bg-indigo-300 cursor-not-allowed'
+                                    }`}
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Upload Material Modal */}
+            {showUploadModal && (
+                <UploadMaterialModal 
+                    showUploadModal={showUploadModal} 
+                    setShowUploadModal={setShowUploadModal} 
+                    subject={subject} 
+                    classData={classData} 
+                    fetchMaterials={fetchMaterials} 
+                    categories={categories} 
+                />
             )}
         </div>
     );
@@ -304,11 +930,162 @@ function QuizzesTab({ subject, classData }) {
 
 // Settings Tab Component
 function SettingsTab({ subject, classData, teachers, books }) {
+    // Initialize form data with all fields as their native types
+    const { data, setData, put, processing, errors } = useForm({
+        name: subject.name || '',
+        code: subject.code || '',
+        description: subject.description || '',
+        teacher_id: subject.pivot.teacher_id || '',
+        schedule: subject.pivot.schedule || '',
+        notes: subject.pivot.notes || '',
+        book_ids: subject.books.map(book => book.id) || [],
+    });
+
+    // State for selected days and times
+    const [selectedDays, setSelectedDays] = useState({
+        Monday: false,
+        Tuesday: false,
+        Wednesday: false,
+        Thursday: false,
+        Friday: false,
+        Saturday: false,
+        Sunday: false
+    });
+    
+    const [dayTimes, setDayTimes] = useState({
+        Monday: '08:00',
+        Tuesday: '08:00',
+        Wednesday: '08:00',
+        Thursday: '08:00',
+        Friday: '08:00',
+        Saturday: '08:00',
+        Sunday: '08:00'
+    });
+
+    // Parse existing schedule on component mount
+    useEffect(() => {
+        if (subject.pivot.schedule) {
+            const newSelectedDays = { ...selectedDays };
+            const newDayTimes = { ...dayTimes };
+            
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const scheduleItems = subject.pivot.schedule.split(',').map(item => item.trim());
+            
+            scheduleItems.forEach(item => {
+                days.forEach(day => {
+                    if (item.includes(day)) {
+                        newSelectedDays[day] = true;
+                        
+                        const timeMatch = item.match(/(\d{1,2}:\d{2}(?:\s*[AP]M)?)/);
+                        if (timeMatch) {
+                            newDayTimes[day] = timeMatch[1];
+                        }
+                    }
+                });
+            });
+            
+            setSelectedDays(newSelectedDays);
+            setDayTimes(newDayTimes);
+        }
+    }, [subject.pivot.schedule]);
+
+    const [selectedBooks, setSelectedBooks] = useState(subject.books.map(book => book.id) || []);
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Toggle day selection
+    const toggleDay = (day) => {
+        setSelectedDays({
+            ...selectedDays,
+            [day]: !selectedDays[day]
+        });
+        
+        // Update schedule string whenever days change
+        updateScheduleString({
+            ...selectedDays,
+            [day]: !selectedDays[day]
+        }, dayTimes);
+    };
+
+    // Update time for a day
+    const updateDayTime = (day, time) => {
+        setDayTimes({
+            ...dayTimes,
+            [day]: time
+        });
+        
+        // Update schedule string whenever times change
+        updateScheduleString(selectedDays, {
+            ...dayTimes,
+            [day]: time
+        });
+    };
+
+    // Create schedule string from selected days and times
+    const updateScheduleString = (days, times) => {
+        const scheduleItems = [];
+        
+        Object.keys(days).forEach(day => {
+            if (days[day]) {
+                scheduleItems.push(`${day} ${times[day]}`);
+            }
+        });
+        
+        const scheduleString = scheduleItems.join(', ');
+        setData('schedule', scheduleString);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setSuccessMessage('');
+
+        // Create form data with schedule as string and selected books
+        const formData = {
+            name: data.name,
+            code: data.code,
+            description: data.description,
+            teacher_id: data.teacher_id,
+            schedule: data.schedule, // Already a string
+            notes: data.notes,
+            book_ids: selectedBooks,
+        };
+
+        put(route('classes.subjects.update', { class: classData.id, subject: subject.id }), formData, {
+            onSuccess: () => {
+                setSuccessMessage('Subject updated successfully!');
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            },
+            preserveScroll: true,
+        });
+    };
+
+    const handleBookSelection = (e) => {
+        const options = e.target.options;
+        const selectedValues = [];
+        
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                selectedValues.push(parseInt(options[i].value));
+            }
+        }
+        
+        setSelectedBooks(selectedValues);
+    };
+
     return (
         <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Subject Settings</h3>
             
-            <form className="space-y-6">
+            {successMessage && (
+                <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
+                    {successMessage}
+                </div>
+            )}
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">Subject Name</label>
@@ -316,9 +1093,12 @@ function SettingsTab({ subject, classData, teachers, books }) {
                             type="text"
                             id="name"
                             name="name"
-                            defaultValue={subject.name}
+                            value={data.name}
+                            onChange={e => setData('name', e.target.value)}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            required
                         />
+                        {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
                     </div>
                     <div>
                         <label htmlFor="code" className="block text-sm font-medium text-gray-700">Subject Code</label>
@@ -326,16 +1106,20 @@ function SettingsTab({ subject, classData, teachers, books }) {
                             type="text"
                             id="code"
                             name="code"
-                            defaultValue={subject.code}
+                            value={data.code}
+                            onChange={e => setData('code', e.target.value)}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            required
                         />
+                        {errors.code && <div className="text-red-500 text-xs mt-1">{errors.code}</div>}
                     </div>
                     <div>
                         <label htmlFor="teacher_id" className="block text-sm font-medium text-gray-700">Teacher</label>
                         <select
                             id="teacher_id"
                             name="teacher_id"
-                            defaultValue={subject.pivot.teacher_id}
+                            value={data.teacher_id}
+                            onChange={e => setData('teacher_id', e.target.value)}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         >
                             <option value="">Select a teacher</option>
@@ -343,27 +1127,53 @@ function SettingsTab({ subject, classData, teachers, books }) {
                                 <option key={teacher.id} value={teacher.id}>{teacher.name}</option>
                             ))}
                         </select>
+                        {errors.teacher_id && <div className="text-red-500 text-xs mt-1">{errors.teacher_id}</div>}
                     </div>
                     <div>
-                        <label htmlFor="schedule" className="block text-sm font-medium text-gray-700">Schedule</label>
-                        <input
-                            type="text"
-                            id="schedule"
-                            name="schedule"
-                            defaultValue={subject.pivot.schedule}
-                            placeholder="e.g., Mon, Wed, Fri 10:00 AM - 11:30 AM"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
+                        <label htmlFor="schedule" className="block text-sm font-medium text-gray-700 mb-2">Schedule</label>
+                        <div className="space-y-3 border border-gray-200 rounded-md p-4">
+                            <p className="text-sm text-gray-500 mb-2">Select days and set specific times for each day</p>
+                            
+                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                                <div key={day} className="flex items-center space-x-4">
+                                    <div className="w-28">
+                                        <label className="inline-flex items-center">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={selectedDays[day]} 
+                                                onChange={(e) => toggleDay(day)}
+                                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            />
+                                            <span className="ml-2 text-sm text-gray-600">{day}</span>
+                                        </label>
+                                    </div>
+                                    
+                                    {selectedDays[day] && (
+                                        <div className="flex-1">
+                                            <input
+                                                type="time"
+                                                value={dayTimes[day]}
+                                                onChange={(e) => updateDayTime(day, e.target.value)}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        {errors.schedule && <div className="text-red-500 text-xs mt-1">{errors.schedule}</div>}
                     </div>
                     <div className="md:col-span-2">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
                         <textarea
                             id="description"
                             name="description"
-                            rows="3"
-                            defaultValue={subject.description}
+                            rows={3}
+                            value={data.description}
+                            onChange={e => setData('description', e.target.value)}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         ></textarea>
+                        {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
                     </div>
                     <div className="md:col-span-2">
                         <label htmlFor="books" className="block text-sm font-medium text-gray-700">Books</label>
@@ -373,18 +1183,35 @@ function SettingsTab({ subject, classData, teachers, books }) {
                             multiple
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             style={{ height: '150px' }}
+                            onChange={handleBookSelection}
+                            value={selectedBooks}
                         >
                             {books.map((book) => (
                                 <option 
                                     key={book.id} 
                                     value={book.id}
-                                    selected={subject.books.some(b => b.id === book.id)}
                                 >
                                     {book.title} by {book.author}
                                 </option>
                             ))}
                         </select>
-                        <p className="mt-1 text-xs text-gray-500">Hold Ctrl (or Cmd) to select multiple books</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Hold Ctrl (or Cmd) to select multiple books
+                        </p>
+                        {errors.book_ids && <div className="text-red-500 text-xs mt-1">{errors.book_ids}</div>}
+                    </div>
+                    <div className="md:col-span-2">
+                        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea
+                            id="notes"
+                            name="notes"
+                            rows={3}
+                            value={data.notes}
+                            onChange={e => setData('notes', e.target.value)}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Any additional notes about this subject..."
+                        ></textarea>
+                        {errors.notes && <div className="text-red-500 text-xs mt-1">{errors.notes}</div>}
                     </div>
                 </div>
                 
@@ -392,11 +1219,350 @@ function SettingsTab({ subject, classData, teachers, books }) {
                     <button
                         type="submit"
                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                        disabled={processing}
                     >
-                        Save Changes
+                        {processing ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Saving...
+                            </>
+                        ) : 'Save Changes'}
                     </button>
                 </div>
             </form>
+        </div>
+    );
+}
+
+// Upload Material Modal Component
+function UploadMaterialModal({ showUploadModal, setShowUploadModal, subject, classData, fetchMaterials, categories }) {
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [fileError, setFileError] = useState(null);
+    
+    // Handle file change
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            setSelectedFile(null);
+            return;
+        }
+        
+        // Check file size (50MB max)
+        if (file.size > 50 * 1024 * 1024) {
+            setFileError('File size exceeds 50MB limit');
+            setSelectedFile(null);
+            return;
+        }
+        
+        // Check file type
+        const allowedTypes = [
+            'application/pdf', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
+            'text/plain',
+            'video/mp4',
+            'audio/mpeg',
+            'application/zip',
+            'image/jpeg',
+            'image/png'
+        ];
+        
+        if (!allowedTypes.includes(file.type)) {
+            setFileError('File type not supported. Please upload PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, JPG, or PNG files.');
+            setSelectedFile(null);
+            return;
+        }
+        
+        setFileError(null);
+        setSelectedFile(file);
+    };
+    
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (isUploading) return;
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        
+        // Validate required fields
+        const title = formData.get('title');
+        const type = formData.get('type');
+        const file = formData.get('file');
+        
+        if (!title || !type) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        if (!file && !formData.get('url')) {
+            alert('Please upload a file or provide a URL');
+            return;
+        }
+        
+        setIsUploading(true);
+        setUploadProgress(0);
+        
+        try {
+            await axios.post(
+                route('classes.subjects.materials.store', {
+                    class: classData.id,
+                    subject: subject.id
+                }),
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted);
+                    }
+                }
+            );
+            
+            setShowUploadModal(false);
+            fetchMaterials();
+            
+            // Reset form
+            form.reset();
+            setSelectedFile(null);
+            
+        } catch (error) {
+            console.error('Error uploading material:', error);
+            alert('Error uploading material. Please try again.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+    
+    return (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">Upload Material</h3>
+                        <button
+                            onClick={() => setShowUploadModal(false)}
+                            className="text-gray-400 hover:text-gray-500"
+                        >
+                            <XMarkIcon className="h-6 w-6" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="px-6 py-4">
+                    <form id="upload-material-form" onSubmit={handleSubmit}>
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                                    Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    id="title"
+                                    required
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    placeholder="e.g. Chapter 1 Notes"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                    Description
+                                </label>
+                                <textarea
+                                    name="description"
+                                    id="description"
+                                    rows={3}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    placeholder="Provide a brief description of this material"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                                    Material Type *
+                                </label>
+                                <select
+                                    name="type"
+                                    id="type"
+                                    required
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                >
+                                    <option value="">Select type</option>
+                                    <option value="document">Document</option>
+                                    <option value="video">Video</option>
+                                    <option value="audio">Audio</option>
+                                    <option value="image">Image</option>
+                                    <option value="lesson">Lesson</option>
+                                    <option value="book">Book</option>
+                                    <option value="archive">Archive</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                                    Category
+                                </label>
+                                <div className="mt-1 flex rounded-md shadow-sm">
+                                    <select
+                                        name="category"
+                                        id="category"
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    >
+                                        <option value="">No category</option>
+                                        {categories.map((category) => (
+                                            <option key={category} value={category}>
+                                                {category}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                                    Tags (comma separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    name="tags"
+                                    id="tags"
+                                    placeholder="e.g. homework, chapter 1, important"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Upload File
+                                </label>
+                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div className="space-y-1 text-center">
+                                        <svg
+                                            className="mx-auto h-12 w-12 text-gray-400"
+                                            stroke="currentColor"
+                                            fill="none"
+                                            viewBox="0 0 48 48"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        </svg>
+                                        <div className="flex text-sm text-gray-600">
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                            >
+                                                <span>Upload a file</span>
+                                                <input
+                                                    id="file-upload"
+                                                    name="file"
+                                                    type="file"
+                                                    className="sr-only"
+                                                    onChange={handleFileChange}
+                                                />
+                                            </label>
+                                            <p className="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            PDF, DOCX, PPTX, TXT, MP4, MP3, ZIP, JPG, PNG up to 50MB
+                                        </p>
+                                        
+                                        {selectedFile && (
+                                            <div className="mt-2 text-sm text-gray-900">
+                                                Selected: {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                                            </div>
+                                        )}
+                                        
+                                        {fileError && (
+                                            <div className="mt-2 text-sm text-red-600">
+                                                {fileError}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                                    Or External URL
+                                </label>
+                                <div className="mt-1 flex rounded-md shadow-sm">
+                                    <input
+                                        type="url"
+                                        name="url"
+                                        id="url"
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                        placeholder="https://example.com/resource"
+                                    />
+                                </div>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    You can either upload a file or provide an external URL
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {isUploading && (
+                            <div className="mt-4">
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                                Uploading
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold inline-block text-indigo-600">
+                                                {uploadProgress}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                                        <div
+                                            style={{ width: `${uploadProgress}%` }}
+                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowUploadModal(false)}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isUploading || (fileError && !formData?.get('url'))}
+                                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                                    isUploading || (fileError && !formData?.get('url'))
+                                        ? 'bg-indigo-300 cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                }`}
+                            >
+                                {isUploading ? 'Uploading...' : 'Upload Material'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 }

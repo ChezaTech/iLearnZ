@@ -22,7 +22,11 @@ class ReadingMaterial extends Model
         'description',
         'url',
         'file_path',
+        'file_type',
+        'file_size',
         'type',
+        'category',
+        'tags',
         'author',
         'publisher',
         'publication_year',
@@ -35,6 +39,7 @@ class ReadingMaterial extends Model
      */
     protected $casts = [
         'publication_year' => 'integer',
+        'file_size' => 'integer',
     ];
 
     /**
