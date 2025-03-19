@@ -3,9 +3,23 @@
 use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\AssignmentController;
+use App\Models\Classes;
+use App\Models\Subject;
+use App\Models\Assessment;
+use App\Models\Announcement;
+use App\Models\Notification;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -27,7 +41,7 @@ Route::get('/dashboard', function () {
         case 2: // School Admin
             return Inertia::render('Dashboard/SchoolAdmin');
         case 3: // Teacher
-            return Inertia::render('Dashboard/Teacher');
+            return redirect()->route('teacher.dashboard');
         case 4: // Student
             return Inertia::render('Dashboard/Student');
         case 5: // Parent
@@ -71,6 +85,99 @@ Route::middleware('auth')->group(function () {
         Route::get('/parent/students/{student}/edit', [ParentController::class, 'editStudent'])->name('parent.students.edit');
         Route::put('/parent/students/{student}', [ParentController::class, 'updateStudent'])->name('parent.students.update');
         Route::patch('/parent/students/{student}/toggle-status', [ParentController::class, 'toggleStudentStatus'])->name('parent.students.toggle-status');
+    });
+
+    // Teacher routes
+    Route::middleware(['auth', 'verified'])->group(function () {
+        // Teacher Dashboard
+        Route::get('/teacher/dashboard', function () {
+            $user = Auth::user();
+            
+            // Get classes taught by this teacher with students and subjects
+            $classes = Classes::where('teacher_id', $user->id)
+                ->with(['students', 'subjects'])
+                ->get();
+                
+            // Get subjects taught by this teacher with class info
+            $subjects = Subject::whereHas('classes', function ($query) use ($user) {
+                $query->where('classes.teacher_id', $user->id);
+            })
+            ->with(['classes' => function ($query) use ($user) {
+                $query->where('classes.teacher_id', $user->id);
+            }])
+            ->get();
+            
+            // Add student count to each subject
+            foreach ($subjects as $subject) {
+                $studentIds = [];
+                foreach ($subject->classes as $class) {
+                    foreach ($class->students as $student) {
+                        $studentIds[$student->id] = true;
+                    }
+                }
+                $subject->students_count = count($studentIds);
+            }
+            
+            // Get assessments created by this teacher
+            $assessments = Assessment::where('created_by', $user->id)
+                ->with(['class', 'subject'])
+                ->withCount(['submissions as submissions_count' => function ($query) {
+                    $query->where('status', 'submitted')->whereNull('grade');
+                }])
+                ->withCount(['submissions as graded_count' => function ($query) {
+                    $query->whereNotNull('grade');
+                }])
+                ->orderBy('due_date', 'asc')
+                ->take(5)
+                ->get();
+                
+            // Get announcements relevant to this teacher
+            $announcements = Announcement::where(function ($query) use ($user) {
+                    $query->where('target_type', 'all')
+                        ->orWhere('target_type', 'teachers')
+                        ->orWhere(function ($q) use ($user) {
+                            $q->where('target_type', 'specific')
+                                ->whereJsonContains('target_ids', $user->id);
+                        });
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+                
+            // Get today's schedule
+            $today = strtolower(date('l')); // Get current day of week
+            $schedule = [];
+            
+            foreach ($classes as $class) {
+                $todaySubjects = $class->subjects->filter(function ($subject) use ($today) {
+                    $schedule = strtolower($subject->pivot->schedule ?? '');
+                    return str_contains($schedule, $today);
+                });
+                
+                if ($todaySubjects->count() > 0) {
+                    $schedule[] = [
+                        'class' => $class,
+                        'todaySubjects' => $todaySubjects
+                    ];
+                }
+            }
+            
+            return Inertia::render('Teacher/Dashboard', [
+                'classes' => $classes,
+                'subjects' => $subjects,
+                'assessments' => $assessments,
+                'announcements' => $announcements,
+                'schedule' => $schedule
+            ]);
+        })->middleware(['auth', 'verified', \App\Http\Middleware\CheckRole::class.':teacher'])->name('teacher.dashboard');
+        
+        // Assignment routes - only accessible to teachers
+        Route::middleware(['auth', 'verified'])->group(function () {
+            Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
+            Route::get('/assignments/{id}', [AssignmentController::class, 'show'])->name('assignments.show');
+            Route::put('/assignments/{id}', [AssignmentController::class, 'update'])->name('assignments.update');
+            Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
+        });
     });
 });
 
