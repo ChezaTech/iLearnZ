@@ -12,10 +12,16 @@ import {
     ClockIcon,
     ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import CreateAssignmentForm from '@/Components/Teacher/CreateAssignmentForm';
+import ScheduleCalendar from '@/Components/Teacher/ScheduleCalendar';
+import StudentManagement from '@/Components/Teacher/StudentManagement';
 
-export default function TeacherDashboard({ auth, classes, subjects, assessments, announcements }) {
+export default function TeacherDashboard({ auth, classes, subjects, assessments, announcements, schedule }) {
     const { user } = auth;
     const [activeTab, setActiveTab] = useState('classes');
+    const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [showStudentManagement, setShowStudentManagement] = useState(false);
 
     // Extract last name for personalized greeting
     const nameParts = user.name.split(' ');
@@ -69,21 +75,44 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
 
                     {/* Quick Action Buttons */}
                     <div className="mt-6 flex flex-wrap gap-3">
-                        <button className="inline-flex items-center px-4 py-2 bg-[#1e5091] text-white rounded-lg text-sm font-medium hover:bg-[#1e5091]/90 transition-all">
+                        <button 
+                            className="inline-flex items-center px-4 py-2 bg-[#1e5091] text-white rounded-lg text-sm font-medium hover:bg-[#1e5091]/90 transition-all"
+                            onClick={() => setShowCreateAssignmentModal(true)}
+                        >
                             <DocumentPlusIcon className="h-5 w-5 mr-2" />
                             Create Assignment
                         </button>
-                        <button className="inline-flex items-center px-4 py-2 bg-[#ffb81c] text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#ffb81c]/90 transition-all">
+                        <button 
+                            className="inline-flex items-center px-4 py-2 bg-[#ffb81c] text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#ffb81c]/90 transition-all"
+                            onClick={() => setShowScheduleModal(!showScheduleModal)}
+                        >
                             <CalendarIcon className="h-5 w-5 mr-2" />
-                            View Schedule
+                            {showScheduleModal ? 'Hide Schedule' : 'View Schedule'}
                         </button>
-                        <button className="inline-flex items-center px-4 py-2 bg-white border border-[#1e5091]/20 text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#1e5091]/5 transition-all">
+                        <button 
+                            className="inline-flex items-center px-4 py-2 bg-white border border-[#1e5091]/20 text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#1e5091]/5 transition-all"
+                            onClick={() => setShowStudentManagement(!showStudentManagement)}
+                        >
                             <ClipboardDocumentCheckIcon className="h-5 w-5 mr-2" />
-                            Grade Submissions
+                            {showStudentManagement ? 'Hide Students' : 'Manage Students'}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Schedule Calendar (Conditionally Rendered) */}
+            {showScheduleModal && (
+                <div className="mb-6">
+                    <ScheduleCalendar classes={classes || []} />
+                </div>
+            )}
+
+            {/* Student Management (Conditionally Rendered) */}
+            {showStudentManagement && (
+                <div className="mb-6">
+                    <StudentManagement classes={classes || []} />
+                </div>
+            )}
 
             {/* Main Dashboard Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -179,65 +208,79 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {/* Sample student data - replace with actual data */}
-                                        <tr>
-                                            <td className="px-3 py-2 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="h-8 w-8 rounded-full bg-[#1e5091]/20 flex items-center justify-center text-[#1e5091] font-medium">
-                                                        JS
-                                                    </div>
-                                                    <div className="ml-3">
-                                                        <div className="text-sm font-medium text-gray-900">John Smith</div>
-                                                        <div className="text-xs text-gray-500">ID: STD-001</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
-                                                Grade 10-A
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="w-16 bg-gray-200 rounded-full h-2.5">
-                                                        <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '85%' }}></div>
-                                                    </div>
-                                                    <span className="ml-2 text-xs font-medium text-gray-600">85%</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap text-sm">
-                                                <Link href="#" className="text-[#1e5091] hover:text-[#ffb81c]">
-                                                    View
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="px-3 py-2 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="h-8 w-8 rounded-full bg-[#1e5091]/20 flex items-center justify-center text-[#1e5091] font-medium">
-                                                        MJ
-                                                    </div>
-                                                    <div className="ml-3">
-                                                        <div className="text-sm font-medium text-gray-900">Mary Johnson</div>
-                                                        <div className="text-xs text-gray-500">ID: STD-002</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
-                                                Grade 10-A
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="w-16 bg-gray-200 rounded-full h-2.5">
-                                                        <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '72%' }}></div>
-                                                    </div>
-                                                    <span className="ml-2 text-xs font-medium text-gray-600">72%</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 whitespace-nowrap text-sm">
-                                                <Link href="#" className="text-[#1e5091] hover:text-[#ffb81c]">
-                                                    View
-                                                </Link>
-                                            </td>
-                                        </tr>
+                                        {classes && classes.length > 0 ? (
+                                            classes.flatMap(classItem => 
+                                                classItem.students && classItem.students.length > 0 ? 
+                                                classItem.students.map(student => {
+                                                    // Get student's latest performance if available
+                                                    const performance = student.performances && student.performances.length > 0 
+                                                        ? student.performances[0].average_score 
+                                                        : null;
+                                                    
+                                                    // Calculate color based on performance
+                                                    let performanceColor = 'gray';
+                                                    if (performance !== null) {
+                                                        if (performance >= 80) performanceColor = 'green';
+                                                        else if (performance >= 60) performanceColor = 'yellow';
+                                                        else performanceColor = 'red';
+                                                    }
+                                                    
+                                                    // Get student initials for avatar
+                                                    const nameParts = student.name.split(' ');
+                                                    const initials = nameParts.length > 1 
+                                                        ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
+                                                        : student.name.substring(0, 2);
+                                                    
+                                                    return (
+                                                        <tr key={student.id}>
+                                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                                <div className="flex items-center">
+                                                                    <div className="h-8 w-8 rounded-full bg-[#1e5091]/20 flex items-center justify-center text-[#1e5091] font-medium">
+                                                                        {initials.toUpperCase()}
+                                                                    </div>
+                                                                    <div className="ml-3">
+                                                                        <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                                                                        <div className="text-xs text-gray-500">
+                                                                            ID: {student.student ? student.student.student_id_number : 'N/A'}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
+                                                                Grade {classItem.grade_level}-{classItem.section}
+                                                            </td>
+                                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                                {performance !== null ? (
+                                                                    <div className="flex items-center">
+                                                                        <div className="w-16 bg-gray-200 rounded-full h-2.5">
+                                                                            <div 
+                                                                                className={`bg-${performanceColor}-500 h-2.5 rounded-full`} 
+                                                                                style={{ width: `${performance}%` }}
+                                                                            ></div>
+                                                                        </div>
+                                                                        <span className="ml-2 text-xs font-medium text-gray-600">{performance}%</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-500">No data</span>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-3 py-2 whitespace-nowrap text-sm">
+                                                                <Link href="#" className="text-[#1e5091] hover:text-[#ffb81c]">
+                                                                    View
+                                                                </Link>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                                : []
+                                            )
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="4" className="px-3 py-4 text-center text-sm text-gray-500">
+                                                    No students found
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -261,45 +304,73 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-sm font-medium text-gray-900">Today's Classes</h3>
-                                <span className="text-xs text-gray-500">Monday, March 18, 2025</span>
+                                <span className="text-xs text-gray-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                             </div>
                             <div className="space-y-3">
-                                <div className="flex items-center p-3 bg-[#1e5091]/5 rounded-lg border-l-4 border-[#1e5091]">
-                                    <div className="mr-3 flex-shrink-0">
-                                        <ClockIcon className="h-5 w-5 text-[#1e5091]" />
+                                {schedule && schedule.length > 0 ? (
+                                    schedule.flatMap((item, index) => 
+                                        item.todaySubjects.map((subject, subIndex) => {
+                                            // Parse schedule to get time if available
+                                            const scheduleInfo = subject.pivot.schedule || '';
+                                            const timeMatch = scheduleInfo.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+                                            const timeSlot = timeMatch ? `${timeMatch[1]} - ${timeMatch[2]}` : 'Scheduled today';
+                                            
+                                            // Determine if class is current, upcoming, or past
+                                            const now = new Date();
+                                            const currentHour = now.getHours();
+                                            const currentMinute = now.getMinutes();
+                                            
+                                            let status = 'upcoming';
+                                            let statusColor = 'yellow';
+                                            
+                                            if (timeMatch) {
+                                                const [startHour, startMinute] = timeMatch[1].split(':').map(Number);
+                                                const [endHour, endMinute] = timeMatch[2].split(':').map(Number);
+                                                
+                                                const isStarted = (currentHour > startHour || (currentHour === startHour && currentMinute >= startMinute));
+                                                const isEnded = (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute));
+                                                
+                                                if (isStarted && !isEnded) {
+                                                    status = 'current';
+                                                    statusColor = 'red';
+                                                } else if (isEnded) {
+                                                    status = 'past';
+                                                    statusColor = 'gray';
+                                                }
+                                            }
+                                            
+                                            return (
+                                                <div 
+                                                    key={`${item.class.id}-${subject.id}-${subIndex}`} 
+                                                    className={`flex items-center p-3 bg-${statusColor}-50 rounded-lg border border-${statusColor}-100`}
+                                                >
+                                                    <div className="mr-3 flex-shrink-0">
+                                                        <ClockIcon className={`h-5 w-5 text-${statusColor}-600`} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-gray-900">{subject.name}</p>
+                                                        <p className="text-xs text-gray-600">
+                                                            Grade {item.class.grade_level}-{item.class.section} • {timeSlot}
+                                                        </p>
+                                                    </div>
+                                                    <button 
+                                                        className={`px-3 py-1 ${status === 'past' 
+                                                            ? 'bg-gray-200 text-gray-700' 
+                                                            : 'bg-[#1e5091] text-white'} rounded text-xs`}
+                                                    >
+                                                        {status === 'current' ? 'Join' : status === 'upcoming' ? 'Upcoming' : 'Completed'}
+                                                    </button>
+                                                </div>
+                                            );
+                                        })
+                                    )
+                                ) : (
+                                    <div className="text-center py-4">
+                                        <CalendarIcon className="h-10 w-10 text-gray-400 mx-auto" />
+                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No classes scheduled</h3>
+                                        <p className="mt-1 text-xs text-gray-500">You don't have any classes scheduled for today.</p>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">Mathematics</p>
-                                        <p className="text-xs text-gray-600">Grade 10-A • 08:00 - 09:30</p>
-                                    </div>
-                                    <button className="px-3 py-1 bg-[#1e5091] text-white rounded text-xs">
-                                        Join
-                                    </button>
-                                </div>
-                                <div className="flex items-center p-3 bg-[#ffb81c]/5 rounded-lg border-l-4 border-[#ffb81c]">
-                                    <div className="mr-3 flex-shrink-0">
-                                        <ClockIcon className="h-5 w-5 text-[#ffb81c]" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">Physics</p>
-                                        <p className="text-xs text-gray-600">Grade 11-B • 10:00 - 11:30</p>
-                                    </div>
-                                    <button className="px-3 py-1 bg-[#1e5091] text-white rounded text-xs">
-                                        Join
-                                    </button>
-                                </div>
-                                <div className="flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
-                                    <div className="mr-3 flex-shrink-0">
-                                        <ClockIcon className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">Chemistry</p>
-                                        <p className="text-xs text-gray-600">Grade 10-B • 13:00 - 14:30</p>
-                                    </div>
-                                    <button className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs">
-                                        Later
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -317,48 +388,49 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                         </div>
                         <div className="p-6">
                             <div className="grid grid-cols-1 gap-3">
-                                <div className="p-3 bg-white rounded-lg border border-gray-200 hover:border-[#1e5091]/30 hover:shadow-sm transition-all">
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="text-sm font-medium text-gray-900">Mathematics</h3>
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                            Grade 10
-                                        </span>
+                                {subjects && subjects.length > 0 ? (
+                                    subjects.map((subject) => {
+                                        // Generate a color based on subject name for the badge
+                                        const colors = ['blue', 'purple', 'green', 'red', 'yellow', 'indigo', 'pink'];
+                                        const colorIndex = subject.name.length % colors.length;
+                                        const color = colors[colorIndex];
+                                        
+                                        return (
+                                            <div key={subject.id} className="p-3 bg-white rounded-lg border border-gray-200 hover:border-[#1e5091]/30 hover:shadow-sm transition-all">
+                                                <div className="flex justify-between items-start">
+                                                    <h3 className="text-sm font-medium text-gray-900">{subject.name}</h3>
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800`}>
+                                                        {subject.classes && subject.classes.length > 0 
+                                                            ? `Grade ${subject.classes[0].grade_level}` 
+                                                            : 'All Grades'}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 text-xs text-gray-600">
+                                                    {subject.classes ? subject.classes.length : 0} classes • {subject.students_count || 0} students
+                                                </p>
+                                                <div className="mt-2 flex justify-end">
+                                                    <Link 
+                                                        href={subject.classes && subject.classes.length > 0 
+                                                            ? route('classes.subjects.materials.index', {
+                                                                class: subject.classes[0].id,
+                                                                subject: subject.id
+                                                            }) 
+                                                            : '#'}
+                                                        className="text-xs text-[#1e5091] hover:text-[#ffb81c]"
+                                                    >
+                                                        View Materials
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-4">
+                                        <BookOpenIcon className="h-10 w-10 text-gray-400 mx-auto" />
+                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No subjects assigned</h3>
+                                        <p className="mt-1 text-xs text-gray-500">You don't have any subjects assigned yet.</p>
                                     </div>
-                                    <p className="mt-1 text-xs text-gray-600">3 classes • 78 students</p>
-                                    <div className="mt-2 flex justify-end">
-                                        <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                            View Materials
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="p-3 bg-white rounded-lg border border-gray-200 hover:border-[#1e5091]/30 hover:shadow-sm transition-all">
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="text-sm font-medium text-gray-900">Physics</h3>
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                                            Grade 11
-                                        </span>
-                                    </div>
-                                    <p className="mt-1 text-xs text-gray-600">2 classes • 52 students</p>
-                                    <div className="mt-2 flex justify-end">
-                                        <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                            View Materials
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="p-3 bg-white rounded-lg border border-gray-200 hover:border-[#1e5091]/30 hover:shadow-sm transition-all">
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="text-sm font-medium text-gray-900">Chemistry</h3>
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                            Grade 10
-                                        </span>
-                                    </div>
-                                    <p className="mt-1 text-xs text-gray-600">1 class • 32 students</p>
-                                    <div className="mt-2 flex justify-end">
-                                        <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                            View Materials
-                                        </Link>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -376,63 +448,75 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                         </div>
                         <div className="p-6">
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0 mr-3">
-                                            <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                                                <ClipboardDocumentCheckIcon className="h-4 w-4" />
+                                {assessments && assessments.length > 0 ? (
+                                    assessments.map((assessment) => {
+                                        // Determine status and style based on due date and submissions
+                                        const now = new Date();
+                                        const dueDate = assessment.due_date ? new Date(assessment.due_date) : null;
+                                        
+                                        let status = 'active';
+                                        let bgColor = 'yellow';
+                                        let statusText = '';
+                                        
+                                        if (dueDate && dueDate < now) {
+                                            status = 'past';
+                                            bgColor = 'gray';
+                                            statusText = 'Past Due';
+                                        } else if (assessment.submissions_count && assessment.submissions_count > 0) {
+                                            status = 'needs_grading';
+                                            bgColor = 'red';
+                                            statusText = `Needs Grading (${assessment.submissions_count})`;
+                                        } else if (assessment.graded_count && assessment.graded_count > 0) {
+                                            status = 'graded';
+                                            bgColor = 'green';
+                                            statusText = 'Graded';
+                                        }
+                                        
+                                        // Format due date
+                                        const formattedDueDate = dueDate 
+                                            ? dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                                            : 'No due date';
+                                        
+                                        return (
+                                            <div key={assessment.id} className={`flex items-center justify-between p-3 bg-${bgColor}-50 rounded-lg border border-${bgColor}-100`}>
+                                                <div className="flex items-start">
+                                                    <div className="flex-shrink-0 mr-3">
+                                                        <div className={`h-8 w-8 rounded-full bg-${bgColor}-100 flex items-center justify-center text-${bgColor}-600`}>
+                                                            <ClipboardDocumentCheckIcon className="h-4 w-4" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-medium text-gray-900">{assessment.title}</h3>
+                                                        <p className="text-xs text-gray-600">
+                                                            {assessment.class?.name || 'All Classes'} • Due: {formattedDueDate}
+                                                        </p>
+                                                        {statusText && (
+                                                            <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-${bgColor}-100 text-${bgColor}-800`}>
+                                                                {statusText}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <Link 
+                                                    href={route('classes.subjects.assessments.show', {
+                                                        class: assessment.class_id,
+                                                        subject: assessment.subject_id,
+                                                        assessment: assessment.id
+                                                    })} 
+                                                    className="text-xs text-[#1e5091] hover:text-[#ffb81c]"
+                                                >
+                                                    {status === 'needs_grading' ? 'Grade' : 'View'}
+                                                </Link>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-medium text-gray-900">Math Quiz - Algebra</h3>
-                                            <p className="text-xs text-gray-600">Grade 10-A • Due: Mar 20</p>
-                                            <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                Needs Grading (12)
-                                            </span>
-                                        </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-4">
+                                        <ClipboardDocumentCheckIcon className="h-10 w-10 text-gray-400 mx-auto" />
+                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No assessments</h3>
+                                        <p className="mt-1 text-xs text-gray-500">You haven't created any assessments yet.</p>
                                     </div>
-                                    <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                        Grade
-                                    </Link>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0 mr-3">
-                                            <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                                                <ClipboardDocumentCheckIcon className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-medium text-gray-900">Physics Lab Report</h3>
-                                            <p className="text-xs text-gray-600">Grade 11-B • Due: Mar 22</p>
-                                            <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                Pending (8)
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                        View
-                                    </Link>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0 mr-3">
-                                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                                <ClipboardDocumentCheckIcon className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-medium text-gray-900">Chemistry Test</h3>
-                                            <p className="text-xs text-gray-600">Grade 10-B • Due: Mar 15</p>
-                                            <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Graded
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Link href="#" className="text-xs text-[#1e5091] hover:text-[#ffb81c]">
-                                        View
-                                    </Link>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -450,32 +534,61 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                         </div>
                         <div className="p-6">
                             <div className="space-y-4">
-                                <div className="border-l-4 border-[#1e5091] pl-3 py-1">
-                                    <h3 className="text-sm font-medium text-gray-900">Staff Meeting</h3>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Staff meeting scheduled for Friday, March 22nd at 2:00 PM in the conference room.
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-2">2 hours ago</p>
-                                </div>
-                                <div className="border-l-4 border-[#ffb81c] pl-3 py-1">
-                                    <h3 className="text-sm font-medium text-gray-900">End of Term Reminder</h3>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Please submit all grades by April 5th for the end of term reports.
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-2">1 day ago</p>
-                                </div>
-                                <div className="border-l-4 border-gray-300 pl-3 py-1">
-                                    <h3 className="text-sm font-medium text-gray-900">Professional Development</h3>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Sign up for the upcoming professional development workshop on modern teaching methods.
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-2">3 days ago</p>
-                                </div>
+                                {announcements && announcements.length > 0 ? (
+                                    announcements.map((announcement) => {
+                                        // Determine border color based on priority or type
+                                        let borderColor = 'gray-300';
+                                        if (announcement.priority === 'high') {
+                                            borderColor = '#1e5091';
+                                        } else if (announcement.priority === 'medium') {
+                                            borderColor = '#ffb81c';
+                                        }
+                                        
+                                        // Format time ago
+                                        const createdAt = new Date(announcement.created_at);
+                                        const now = new Date();
+                                        const diffInHours = Math.floor((now - createdAt) / (1000 * 60 * 60));
+                                        
+                                        let timeAgo = '';
+                                        if (diffInHours < 1) {
+                                            timeAgo = 'Just now';
+                                        } else if (diffInHours < 24) {
+                                            timeAgo = `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+                                        } else {
+                                            const diffInDays = Math.floor(diffInHours / 24);
+                                            timeAgo = `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+                                        }
+                                        
+                                        return (
+                                            <div key={announcement.id} className={`border-l-4 border-${borderColor} pl-3 py-1`}>
+                                                <h3 className="text-sm font-medium text-gray-900">{announcement.title}</h3>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    {announcement.content}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-2">{timeAgo}</p>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-4">
+                                        <BellAlertIcon className="h-10 w-10 text-gray-400 mx-auto" />
+                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No announcements</h3>
+                                        <p className="mt-1 text-xs text-gray-500">There are no announcements at this time.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Create Assignment Modal */}
+            <CreateAssignmentForm 
+                show={showCreateAssignmentModal}
+                onClose={() => setShowCreateAssignmentModal(false)}
+                classes={classes || []}
+                subjects={subjects || []}
+            />
         </AuthenticatedLayout>
     );
 }

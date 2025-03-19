@@ -10,9 +10,16 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\AssignmentController;
+use App\Models\Classes;
+use App\Models\Subject;
+use App\Models\Assessment;
+use App\Models\Announcement;
+use App\Models\Notification;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -159,40 +166,96 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Teacher routes
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'verified'])->group(function () {
+        // Teacher Dashboard
         Route::get('/teacher/dashboard', function () {
             $user = Auth::user();
             
-            // Get classes taught by the teacher
-            $classes = \App\Models\Classes::where('teacher_id', $user->id)->with(['subjects', 'students'])->get();
-            
-            // Get subjects taught by the teacher
-            $subjects = \App\Models\Subject::whereHas('classes', function ($query) use ($user) {
-                $query->where('classes.teacher_id', $user->id);
-            })->get();
-            
-            // Get assessments created by the teacher
-            $assessments = \App\Models\Assessment::where('created_by', $user->id)
-                ->with(['class', 'subject'])
-                ->orderBy('due_date', 'asc')
+            // Get classes taught by this teacher with students and subjects
+            $classes = Classes::where('teacher_id', $user->id)
+                ->with(['students', 'subjects'])
                 ->get();
-            
-            // Get announcements
-            $announcements = \App\Models\Notification::where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->orWhereNull('user_id');
+                
+            // Get subjects taught by this teacher with class info
+            $subjects = Subject::whereHas('classes', function ($query) use ($user) {
+                $query->where('classes.teacher_id', $user->id);
             })
-            ->orderBy('created_at', 'desc')
-            ->take(5)
+            ->with(['classes' => function ($query) use ($user) {
+                $query->where('classes.teacher_id', $user->id);
+            }])
             ->get();
+            
+            // Add student count to each subject
+            foreach ($subjects as $subject) {
+                $studentIds = [];
+                foreach ($subject->classes as $class) {
+                    foreach ($class->students as $student) {
+                        $studentIds[$student->id] = true;
+                    }
+                }
+                $subject->students_count = count($studentIds);
+            }
+            
+            // Get assessments created by this teacher
+            $assessments = Assessment::where('created_by', $user->id)
+                ->with(['class', 'subject'])
+                ->withCount(['submissions as submissions_count' => function ($query) {
+                    $query->where('status', 'submitted')->whereNull('grade');
+                }])
+                ->withCount(['submissions as graded_count' => function ($query) {
+                    $query->whereNotNull('grade');
+                }])
+                ->orderBy('due_date', 'asc')
+                ->take(5)
+                ->get();
+                
+            // Get announcements relevant to this teacher
+            $announcements = Announcement::where(function ($query) use ($user) {
+                    $query->where('target_type', 'all')
+                        ->orWhere('target_type', 'teachers')
+                        ->orWhere(function ($q) use ($user) {
+                            $q->where('target_type', 'specific')
+                                ->whereJsonContains('target_ids', $user->id);
+                        });
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+                
+            // Get today's schedule
+            $today = strtolower(date('l')); // Get current day of week
+            $schedule = [];
+            
+            foreach ($classes as $class) {
+                $todaySubjects = $class->subjects->filter(function ($subject) use ($today) {
+                    $schedule = strtolower($subject->pivot->schedule ?? '');
+                    return str_contains($schedule, $today);
+                });
+                
+                if ($todaySubjects->count() > 0) {
+                    $schedule[] = [
+                        'class' => $class,
+                        'todaySubjects' => $todaySubjects
+                    ];
+                }
+            }
             
             return Inertia::render('Teacher/Dashboard', [
                 'classes' => $classes,
                 'subjects' => $subjects,
                 'assessments' => $assessments,
-                'announcements' => $announcements
+                'announcements' => $announcements,
+                'schedule' => $schedule
             ]);
-        })->name('teacher.dashboard');
+        })->middleware(['auth', 'verified', \App\Http\Middleware\CheckRole::class.':teacher'])->name('teacher.dashboard');
+        
+        // Assignment routes - only accessible to teachers
+        Route::middleware(['auth', 'verified'])->group(function () {
+            Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
+            Route::get('/assignments/{id}', [AssignmentController::class, 'show'])->name('assignments.show');
+            Route::put('/assignments/{id}', [AssignmentController::class, 'update'])->name('assignments.update');
+            Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
+        });
     });
 });
 

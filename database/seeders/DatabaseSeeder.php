@@ -19,34 +19,11 @@ class DatabaseSeeder extends Seeder
         //     UserSeeder::class,
         //     SubjectSeeder::class,
         //     ClassSeeder::class,
-        //     EnrollmentSeeder::class,
-        //     LessonSeeder::class,
-        //     ResourceSeeder::class,
-        //     QuizSeeder::class,
-        //     QuestionSeeder::class,
-        //     AnswerSeeder::class,
-        //     AssignmentSeeder::class,
-        //     SubmissionSeeder::class,
-        //     AttendanceSeeder::class,
-        //     GradeSeeder::class,
-        //     ProgressSeeder::class,
-        //     ReportSeeder::class,
-        //     DeviceSeeder::class,
-        //     SyncLogSeeder::class,
-        //     NotificationSeeder::class,
         // ]);
         
-        // Run only the new seeders
+        // Use our comprehensive system seeder instead
         $this->call([
-            SchoolDistrictSeeder::class,
-            AcademicTermSeeder::class,
-            ParentStudentSeeder::class,
-            ReportCardSeeder::class,
-            StudentPerformanceSeeder::class,
-            ParentCommunicationSeeder::class,
-            GovernmentReportSeeder::class,
-            SchoolResourceSeeder::class,
-            SchoolEventSeeder::class,
+            CompleteSystemSeeder::class,
         ]);
     }
 }
