@@ -69,6 +69,9 @@ class SchoolController extends Controller
                     'grade' => $user->student?->grade_level ?? 'N/A',
                     'performance' => 'Good', // This would come from grades or other metrics
                     'status' => $user->student?->is_active ? 'Active' : 'Inactive',
+                    'student_id' => $user->student?->id, // Add student_id for reference
+                    'birthdate' => $user->student?->date_of_birth,
+                    'gender' => $user->student?->gender,
                 ];
             });
         
@@ -149,6 +152,7 @@ class SchoolController extends Controller
             'name' => $school->name,
             'code' => $school->code,
             'district' => $school->district->name ?? 'N/A',
+            'district_id' => $school->district_id,
             'type' => $school->type,
             'connectivity_status' => $school->connectivity_status,
             'address' => $school->address,
@@ -161,6 +165,7 @@ class SchoolController extends Controller
             'has_smartboards' => $school->has_smartboards,
             'student_count' => $school->student_count,
             'teacher_count' => $school->teacher_count,
+            'school_hours' => $school->school_hours ?? '',
         ];
         
         return Inertia::render('Schools/Show', [
@@ -185,27 +190,82 @@ class SchoolController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'district_id' => 'required|exists:school_districts,id',
-            'type' => 'required|in:Primary,Secondary,Combined',
-            'connectivity_status' => 'required|in:Online,Hybrid,Offline',
+            'type' => 'required|in:primary,secondary,combined',
+            'connectivity_status' => 'required|in:online,offline,hybrid',
             'address' => 'nullable|string',
             'city' => 'nullable|string',
             'province' => 'nullable|string',
+            'postal_code' => 'nullable|string',
             'phone' => 'nullable|string',
             'email' => 'nullable|email',
             'principal_name' => 'nullable|string',
             'internet_provider' => 'nullable|string',
-            'has_smartboards' => 'nullable|boolean',
+            'has_smartboards' => 'boolean',
             'student_count' => 'nullable|integer',
-            'teacher_count' => 'nullable|integer'
+            'teacher_count' => 'nullable|integer',
+            'school_hours' => 'nullable|string',
         ]);
-        
-        // Convert type and connectivity_status to lowercase to match database enum values
-        $validated['type'] = strtolower($validated['type']);
-        $validated['connectivity_status'] = strtolower($validated['connectivity_status']);
         
         $school->update($validated);
         
         return redirect()->back()->with('success', 'School updated successfully!');
+    }
+
+    /**
+     * Get teachers for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTeachers(School $school)
+    {
+        $teachers = User::where('school_id', $school->id)
+            ->where('user_type', 'teacher')
+            ->with('teacher')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'subject' => $user->teacher?->subject_specialty ?? 'N/A',
+                    'status' => $user->teacher?->employment_status ?? 'Active',
+                ];
+            });
+        
+        return response()->json($teachers);
+    }
+
+    /**
+     * Get school data for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getSchool(\App\Models\School $school)
+    {
+        // Format the school data for the frontend
+        $schoolData = [
+            'id' => $school->id,
+            'name' => $school->name,
+            'code' => $school->code,
+            'district' => $school->district->name ?? 'N/A',
+            'type' => $school->type,
+            'connectivity_status' => $school->connectivity_status,
+            'address' => $school->address,
+            'city' => $school->city,
+            'province' => $school->province,
+            'phone' => $school->phone,
+            'email' => $school->email,
+            'principal_name' => $school->principal_name,
+            'internet_provider' => $school->internet_provider,
+            'has_smartboards' => $school->has_smartboards,
+            'student_count' => $school->student_count,
+            'teacher_count' => $school->teacher_count,
+            'school_hours' => $school->school_hours ?? '',
+        ];
+        
+        return response()->json($schoolData);
     }
 
     /**

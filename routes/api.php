@@ -37,3 +37,20 @@ Route::controller(SuperAdminController::class)->group(function () {
 Route::middleware('auth:sanctum')->get('user', function (Request $request) {
     return $request->user();
 });
+
+// School routes (no auth required for testing)
+Route::get('schools/{school}', [\App\Http\Controllers\SchoolController::class, 'getSchool']);
+Route::put('schools/{school}', [\App\Http\Controllers\SchoolController::class, 'updateSchool']);
+Route::get('schools/{school}/admins', [\App\Http\Controllers\AdminController::class, 'getSchoolAdmins']);
+
+// Admin routes (no auth required for testing)
+Route::get('admins/existing-users', [\App\Http\Controllers\AdminController::class, 'searchExistingUsers']);
+Route::post('admins/add-existing', [\App\Http\Controllers\AdminController::class, 'addExistingUserAsAdmin']);
+Route::post('admins/create-new', [\App\Http\Controllers\AdminController::class, 'createNewAdmin']);
+Route::delete('admins/{admin}', [\App\Http\Controllers\AdminController::class, 'deleteAdmin']);
+
+// Search routes (no auth required for testing)
+Route::get('search/users', [\App\Http\Controllers\AdminController::class, 'searchExistingUsers']);
+
+// Login-as routes - MOVED TO CONTROLLER-BASED APPROACH
+// Route::get('login-as/users', [\App\Http\Controllers\Auth\LoginAsController::class, 'getUsers']);

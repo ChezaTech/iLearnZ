@@ -30,22 +30,22 @@ const OverviewTab = ({ stats, schools, districts }) => {
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700">Total Schools</h3>
                     <p className="text-3xl font-bold text-blue-600">{stats.totalSchools}</p>
                     <div className="mt-2 text-sm text-gray-500">Across {stats.totalDistricts} districts</div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700">Total Teachers</h3>
                     <p className="text-3xl font-bold text-green-600">{stats.totalTeachers}</p>
                     <div className="mt-2 text-sm text-gray-500">Active educators</div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700">Total Students</h3>
                     <p className="text-3xl font-bold text-purple-600">{stats.totalStudents}</p>
                     <div className="mt-2 text-sm text-gray-500">Enrolled learners</div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700">Connectivity</h3>
                     <div className="flex justify-between items-center">
                         <div>
@@ -67,7 +67,7 @@ const OverviewTab = ({ stats, schools, districts }) => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700 mb-4">School Types</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -92,7 +92,7 @@ const OverviewTab = ({ stats, schools, districts }) => {
                         </ResponsiveContainer>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700 mb-4">Connectivity Status</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -120,7 +120,7 @@ const OverviewTab = ({ stats, schools, districts }) => {
             </div>
 
             <div className="grid grid-cols-1 gap-6 mb-8">
-                <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-700 mb-4">Top Districts by Number of Schools</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">

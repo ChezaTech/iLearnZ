@@ -11,6 +11,9 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolDetailsController;
 use App\Models\Classes;
 use App\Models\Subject;
 use App\Models\Assessment;
@@ -62,11 +65,36 @@ Route::middleware('auth')->group(function () {
     Route::get('/superadmin/dashboard', [\App\Http\Controllers\SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
     
     // School routes
-    Route::get('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'show'])->name('schools.show');
+    Route::get('/schools/{school}', [SchoolDetailsController::class, 'show'])->name('schools.show');
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
-    Route::put('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'update'])->name('schools.update');
+    Route::put('/schools/{school}', [SchoolDetailsController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
-    
+
+    // Student routes
+    Route::post('/students', [StudentController::class, 'store'])->name('students.store');
+    Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
+    Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+
+    // Teacher routes
+    Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
+    Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
+    Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+
+    // Class routes
+    Route::post('/classes', [ClassController::class, 'store'])->name('classes.store');
+    Route::put('/classes/{class}', [ClassController::class, 'update'])->name('classes.update');
+    Route::delete('/classes/{class}', [ClassController::class, 'destroy'])->name('classes.destroy');
+    Route::post('/classes/{class}/students', [ClassController::class, 'addStudent'])->name('classes.students.add');
+    Route::delete('/classes/{class}/students', [ClassController::class, 'removeStudent'])->name('classes.students.remove');
+
+    // Admin routes
+    Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
+    Route::put('/admins/{admin}', [AdminController::class, 'update'])->name('admins.update');
+    Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
+    Route::get('/admins/existing-users', [AdminController::class, 'getExistingUsers'])->name('admins.existing-users');
+    Route::post('/admins/add-existing', [AdminController::class, 'addExistingUserAsAdmin'])->name('admins.add-existing');
+    Route::post('/admins/create-new', [AdminController::class, 'createNewAdmin'])->name('admins.create-new');
+
     // Book routes
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
     Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
