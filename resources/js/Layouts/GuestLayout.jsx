@@ -26,14 +26,14 @@ export default function GuestLayout({ children }) {
             </div> */}
 
             <h1
-                className="mb-6 text-center text-3xl font-bold"
+                className="mb-1 text-center text-3xl font-bold"
                 style={{ color: colors.primary }}
             >
-                iLearn
+                iLearn DEMO
             </h1>
-
+            <p className="text-center text-gray-600 mb-6">Use the form below to log in, as it is a demo we have provided some sample credentials</p>
             <div
-                className="w-full overflow-hidden px-8 py-8 sm:max-w-md sm:rounded-2xl"
+                className="w-full overflow-hidden px-8 py-8 sm:max-w-5xl sm:rounded-2xl"
                 style={{
                     background: colors.card,
                     boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
