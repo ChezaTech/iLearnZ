@@ -12,6 +12,8 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolDetailsController;
 use App\Models\Classes;
 use App\Models\Subject;
 use App\Models\Assessment;
@@ -63,25 +65,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/superadmin/dashboard', [\App\Http\Controllers\SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
 
     // School routes
-    Route::get('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'show'])->name('schools.show');
+    Route::get('/schools/{school}', [SchoolDetailsController::class, 'show'])->name('schools.show');
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
-    Route::put('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'update'])->name('schools.update');
+    Route::put('/schools/{school}', [SchoolDetailsController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
-
+    
     // District routes
-    Route::post('/districts', [\App\Http\Controllers\DistrictController::class, 'store'])->name('districts.store');
-    Route::put('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'update'])->name('districts.update');
-    Route::delete('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'destroy'])->name('districts.destroy');
+    Route::get('/districts', [DistrictController::class, 'index'])->name('districts.index');
+    Route::get('/districts/data', [DistrictController::class, 'getAll'])->name('districts.data');
+    Route::post('/districts', [DistrictController::class, 'store'])->name('districts.store');
+    Route::get('/districts/{district}', [DistrictController::class, 'show'])->name('districts.show');
+    Route::put('/districts/{district}', [DistrictController::class, 'update'])->name('districts.update');
+    Route::delete('/districts/{district}', [DistrictController::class, 'destroy'])->name('districts.destroy');
 
     // Student routes
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
     Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::post('/students/{student}/reset-password', [StudentController::class, 'resetPassword'])->name('students.reset-password');
+    Route::get('/students/{student}', [StudentController::class, 'show'])->name('students.show');
 
     // Teacher routes
     Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+
+    // Report routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
+    Route::get('/reports/{report}/download', [ReportController::class, 'download'])->name('reports.download');
 
     // Class routes
     Route::post('/classes', [ClassController::class, 'store'])->name('classes.store');

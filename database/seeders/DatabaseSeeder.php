@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         // Use our comprehensive system seeder instead
         $this->call([
             CompleteSystemSeeder::class,
+            DemoUsersSeeder::class, // Add demo users for login-as feature
         ]);
     }
 }

@@ -51,3 +51,6 @@ Route::delete('admins/{admin}', [\App\Http\Controllers\AdminController::class, '
 
 // Search routes (no auth required for testing)
 Route::get('search/users', [\App\Http\Controllers\AdminController::class, 'searchExistingUsers']);
+
+// Login-as routes - MOVED TO CONTROLLER-BASED APPROACH
+// Route::get('login-as/users', [\App\Http\Controllers\Auth\LoginAsController::class, 'getUsers']);

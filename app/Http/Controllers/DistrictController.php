@@ -10,6 +10,20 @@ use Inertia\Inertia;
 class DistrictController extends Controller
 {
     /**
+     * Display a listing of all districts.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+            ->orderBy('name')
+            ->get();
+            
+        return response()->json($districts);
+    }
+
+    /**
      * Store a newly created district in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -127,5 +141,55 @@ class DistrictController extends Controller
         return Inertia::render('Dashboard/SuperAdmin', [
             'initialDistricts' => $districts,
         ]);
+    }
+
+    /**
+     * Display the specified district.
+     *
+     * @param  string|int  $district
+     * @return \Inertia\Response
+     */
+    public function show($district)
+    {
+        // Find the district by name if it's not an ID
+        if (!is_numeric($district)) {
+            $districtModel = SchoolDistrict::where('name', $district)->first();
+            if (!$districtModel) {
+                return redirect()->route('superadmin.dashboard')->with('error', 'District not found');
+            }
+        } else {
+            $districtModel = SchoolDistrict::find($district);
+            if (!$districtModel) {
+                return redirect()->route('superadmin.dashboard')->with('error', 'District not found');
+            }
+        }
+        
+        // Get schools in this district
+        $schools = $districtModel->schools()->get();
+        
+        // Get all districts for dropdown
+        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+            ->orderBy('name')
+            ->get();
+        
+        return Inertia::render('Districts/Show', [
+            'district' => $districtModel,
+            'schools' => $schools,
+            'allDistricts' => $districts
+        ]);
+    }
+
+    /**
+     * Get all districts for API use.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAll()
+    {
+        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+            ->orderBy('name')
+            ->get();
+            
+        return response()->json($districts);
     }
 }

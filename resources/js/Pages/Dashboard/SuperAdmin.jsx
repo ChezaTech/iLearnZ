@@ -5,10 +5,9 @@ import { Head, Link, usePage } from '@inertiajs/react';
 // Import Tab Components
 import OverviewTab from './Components/OverviewTab';
 import SchoolsTab from './Components/SchoolsTab';
-import TeachersTab from './Components/TeachersTab';
-import StudentsTab from './Components/StudentsTab';
+
 import DistrictsTab from './Components/DistrictsTab';
-import ResourcesTab from './Components/ResourcesTab';
+
 import ReportsTab from './Components/ReportsTab';
 
 // No need for axios since we're using data passed directly from the controller
@@ -253,29 +252,12 @@ export default function SuperAdminDashboard({ auth, initialSchools, initialTeach
                                     Schools
                                 </button>
                                 <button 
-                                    className={`px-4 py-3 text-sm font-medium ${activeTab === 'teachers' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                    onClick={() => setActiveTab('teachers')}
-                                >
-                                    Teachers
-                                </button>
-                                <button 
-                                    className={`px-4 py-3 text-sm font-medium ${activeTab === 'students' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                    onClick={() => setActiveTab('students')}
-                                >
-                                    Students
-                                </button>
-                                <button 
                                     className={`px-4 py-3 text-sm font-medium ${activeTab === 'districts' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
                                     onClick={() => setActiveTab('districts')}
                                 >
                                     Districts
                                 </button>
-                                <button 
-                                    className={`px-4 py-3 text-sm font-medium ${activeTab === 'resources' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                    onClick={() => setActiveTab('resources')}
-                                >
-                                    Resources
-                                </button>
+
                                 <button 
                                     className={`px-4 py-3 text-sm font-medium ${activeTab === 'reports' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
                                     onClick={() => setActiveTab('reports')}
@@ -330,50 +312,6 @@ export default function SuperAdminDashboard({ auth, initialSchools, initialTeach
                                     districtRegionFilter={districtRegionFilter}
                                     setDistrictRegionFilter={setDistrictRegionFilter}
                                     districtData={districtData}
-                                />
-                            )}
-
-                            {/* Teachers Tab */}
-                            {activeTab === 'teachers' && (
-                                <TeachersTab 
-                                    teachers={teachers}
-                                    filteredTeachers={filteredTeachers}
-                                    teacherSearch={teacherSearch}
-                                    setTeacherSearch={setTeacherSearch}
-                                    teacherSchoolFilter={teacherSchoolFilter}
-                                    setTeacherSchoolFilter={setTeacherSchoolFilter}
-                                    teacherSubjectFilter={teacherSubjectFilter}
-                                    setTeacherSubjectFilter={setTeacherSubjectFilter}
-                                    schools={schools}
-                                />
-                            )}
-
-                            {/* Students Tab */}
-                            {activeTab === 'students' && (
-                                <StudentsTab 
-                                    students={students}
-                                    filteredStudents={filteredStudents}
-                                    studentSearch={studentSearch}
-                                    setStudentSearch={setStudentSearch}
-                                    studentSchoolFilter={studentSchoolFilter}
-                                    setStudentSchoolFilter={setStudentSchoolFilter}
-                                    studentPerformanceFilter={studentPerformanceFilter}
-                                    setStudentPerformanceFilter={setStudentPerformanceFilter}
-                                    schools={schools}
-                                />
-                            )}
-
-                            {/* Resources Tab */}
-                            {activeTab === 'resources' && (
-                                <ResourcesTab 
-                                    resources={resources}
-                                    filteredResources={filteredResources}
-                                    resourceSearch={resourceSearch}
-                                    setResourceSearch={setResourceSearch}
-                                    resourceTypeFilter={resourceTypeFilter}
-                                    setResourceTypeFilter={setResourceTypeFilter}
-                                    resourceLocationFilter={resourceLocationFilter}
-                                    setResourceLocationFilter={setResourceLocationFilter}
                                 />
                             )}
 

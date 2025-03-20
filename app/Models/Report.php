@@ -16,6 +16,8 @@ class Report extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
+        'type',
         'student_id',
         'class_id',
         'term',
@@ -27,6 +29,10 @@ class Report extends Model
         'subject_scores',
         'is_published',
         'generated_by',
+        'start_date',
+        'end_date',
+        'file_path',
+        'size',
     ];
 
     /**
@@ -39,6 +45,9 @@ class Report extends Model
         'class_rank' => 'integer',
         'subject_scores' => 'json',
         'is_published' => 'boolean',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'size' => 'integer',
     ];
 
     /**
@@ -63,5 +72,35 @@ class Report extends Model
     public function generator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'generated_by');
+    }
+    
+    /**
+     * Check if this is an administrative report.
+     */
+    public function isAdministrativeReport(): bool
+    {
+        $adminReportTypes = [
+            'School Performance Report',
+            'Teacher Effectiveness Report',
+            'Resource Utilization Report',
+            'Student Progress Report',
+            'District Comparison Report'
+        ];
+        
+        return in_array($this->type, $adminReportTypes);
+    }
+    
+    /**
+     * Get the formatted file size.
+     */
+    public function getFormattedSizeAttribute(): string
+    {
+        if ($this->size < 1024) {
+            return $this->size . ' B';
+        } elseif ($this->size < 1048576) {
+            return round($this->size / 1024, 1) . ' KB';
+        } else {
+            return round($this->size / 1048576, 1) . ' MB';
+        }
     }
 }
