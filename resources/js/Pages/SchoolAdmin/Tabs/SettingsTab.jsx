@@ -531,7 +531,7 @@ export default function SettingsTab({ settings = {} }) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* School Settings Form */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg ">
                     <h2 className="text-xl font-semibold mb-4">School Settings</h2>
                     
                     <form onSubmit={handleSubmit}>
@@ -634,7 +634,7 @@ export default function SettingsTab({ settings = {} }) {
                 </div>
                 
                 {/* School Admins Section */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white p-6 rounded-lg ">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold">School Administrators</h2>
                         <div className="flex space-x-2">
@@ -721,7 +721,7 @@ export default function SettingsTab({ settings = {} }) {
             {/* New Admin Form Modal */}
             {showNewAdminForm && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                    <div className="bg-white rounded-lg  p-6 w-full max-w-md">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold">Create New Administrator</h3>
                             <button
@@ -816,7 +816,7 @@ export default function SettingsTab({ settings = {} }) {
             {/* Add Existing User Form Modal */}
             {showExistingUserForm && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                    <div className="bg-white rounded-lg  p-6 w-full max-w-md">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold">Add Existing User as Admin</h3>
                             <button

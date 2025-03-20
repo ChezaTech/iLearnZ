@@ -84,7 +84,12 @@ class AdminController extends Controller
                 ];
             });
             
-        $books = Book::where('school_id', $school->id)->get();
+        // Create a mock school object for the BookController
+        $mockSchool = new School();
+        $mockSchool->id = 1;
+        
+        $bookController = new \App\Http\Controllers\BookController();
+        $books = $bookController->getSchoolBooks($mockSchool);
         
         $settings = [
             'schoolName' => $school->name,
@@ -157,13 +162,12 @@ class AdminController extends Controller
             ['id' => 5, 'name' => 'Grade 5', 'students' => 23, 'teacher' => 'Michael Tembo', 'averageScore' => 85]
         ];
         
-        $books = [
-            ['id' => 1, 'title' => 'Mathematics Textbook Grade 5', 'author' => 'Ministry of Education', 'category' => 'Textbook', 'status' => 'Available', 'copies' => 30],
-            ['id' => 2, 'title' => 'English Grammar Guide', 'author' => 'Oxford Press', 'category' => 'Reference', 'status' => 'Available', 'copies' => 20],
-            ['id' => 3, 'title' => 'Science Encyclopedia', 'author' => 'National Geographic', 'category' => 'Reference', 'status' => 'Available', 'copies' => 15],
-            ['id' => 4, 'title' => 'History of Zambia', 'author' => 'Andrew Roberts', 'category' => 'Textbook', 'status' => 'Available', 'copies' => 25],
-            ['id' => 5, 'title' => 'Computer Basics', 'author' => 'Tech Publishing', 'category' => 'Textbook', 'status' => 'Available', 'copies' => 18]
-        ];
+        // Create a mock school object for the BookController
+        $mockSchool = new School();
+        $mockSchool->id = 1;
+        
+        $bookController = new \App\Http\Controllers\BookController();
+        $books = $bookController->getSchoolBooks($mockSchool);
         
         $settings = [
             'schoolName' => 'Lusaka Primary School',
@@ -272,8 +276,12 @@ class AdminController extends Controller
         // Get recent report cards
         $recentReportCards = []; // Placeholder for report cards
         
-        // Get books
-        $books = []; // Placeholder for books
+        // Create a mock school object for the BookController
+        $mockSchool = new School();
+        $mockSchool->id = 1;
+        
+        $bookController = new \App\Http\Controllers\BookController();
+        $books = $bookController->getSchoolBooks($mockSchool);
         
         // School stats
         $stats = [

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 class SchoolAdminController {
     /**
@@ -7,7 +8,7 @@ class SchoolAdminController {
      */
     static async getCurrentUser() {
         try {
-            const response = await axios.get('/api/user');
+            const response = await axios.get('/user');
             return response.data;
         } catch (error) {
             console.error('Error fetching current user:', error);
@@ -22,7 +23,7 @@ class SchoolAdminController {
      */
     static async getSchool(schoolId) {
         try {
-            const response = await axios.get(`/api/schools/${schoolId}`);
+            const response = await axios.get(`/schools/${schoolId}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching school data:', error);
@@ -37,7 +38,7 @@ class SchoolAdminController {
      */
     static async getSchoolAdmins(schoolId) {
         try {
-            const response = await axios.get(`/api/schools/${schoolId}/admins`);
+            const response = await axios.get(`/school-admin/admins/${schoolId}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching school admins:', error);
@@ -53,7 +54,7 @@ class SchoolAdminController {
      */
     static async searchExistingUsers(searchTerm, schoolId) {
         try {
-            const response = await axios.get(`/api/admins/existing-users?search=${searchTerm}&school_id=${schoolId}`);
+            const response = await axios.get(`/admins/existing-users?search=${searchTerm}&school_id=${schoolId}`);
             return response.data;
         } catch (error) {
             console.error('Error searching users:', error);
@@ -68,7 +69,7 @@ class SchoolAdminController {
      */
     static async addExistingUserAsAdmin(userData) {
         try {
-            const response = await axios.post('/api/admins/add-existing', userData);
+            const response = await axios.post('/admins/add-existing', userData);
             return response.data;
         } catch (error) {
             console.error('Error adding admin:', error);
@@ -83,7 +84,7 @@ class SchoolAdminController {
      */
     static async createNewAdmin(adminData) {
         try {
-            const response = await axios.post('/api/admins/create-new', adminData);
+            const response = await axios.post('/admins/create-new', adminData);
             return response.data;
         } catch (error) {
             console.error('Error creating admin:', error);
@@ -98,7 +99,7 @@ class SchoolAdminController {
      */
     static async deleteAdmin(adminId) {
         try {
-            await axios.delete(`/api/admins/${adminId}`);
+            await axios.delete(`/admins/${adminId}`);
         } catch (error) {
             console.error('Error deleting admin:', error);
             throw error;
@@ -113,12 +114,50 @@ class SchoolAdminController {
      */
     static async updateSchoolSettings(schoolId, schoolData) {
         try {
-            const response = await axios.put(`/api/schools/${schoolId}`, schoolData);
+            const response = await axios.put(`/schools/${schoolId}`, schoolData);
             return response.data;
         } catch (error) {
             console.error('Error updating school settings:', error);
             throw error;
         }
+    }
+
+    /**
+     * Add a new teacher
+     * @param {Object} teacherData - The teacher data
+     * @returns {Promise<Object>} Response data
+     */
+    static async addTeacher(teacherData) {
+        return router.post('/teachers', teacherData);
+    }
+
+    /**
+     * Update an existing teacher
+     * @param {number} teacherId - The teacher ID
+     * @param {Object} teacherData - The updated teacher data
+     * @returns {Promise<Object>} Response data
+     */
+    static async updateTeacher(teacherId, teacherData) {
+        return router.put(`/teachers/${teacherId}`, teacherData);
+    }
+
+    /**
+     * Delete a teacher
+     * @param {number} teacherId - The teacher ID
+     * @returns {Promise<Object>} Response data
+     */
+    static async deleteTeacher(teacherId) {
+        return router.delete(`/teachers/${teacherId}`);
+    }
+
+    /**
+     * Reset teacher password
+     * @param {number} teacherId - The teacher ID
+     * @param {Object} passwordData - The password data
+     * @returns {Promise<Object>} Response data
+     */
+    static async resetTeacherPassword(teacherId, passwordData) {
+        return router.post(`/teachers/${teacherId}/reset-password`, passwordData);
     }
 }
 

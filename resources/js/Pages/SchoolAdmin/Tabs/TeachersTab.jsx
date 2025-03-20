@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
+import SchoolAdminController from '@/Controllers/SchoolAdminController';
 
 export default function TeachersTab({ teachers, existingUsers }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -82,42 +83,94 @@ export default function TeachersTab({ teachers, existingUsers }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/teachers', {
-            onSuccess: () => {
-                closeAddModal();
-                window.location.reload();
+        
+        // Use SchoolAdminController for validation
+        try {
+            // Perform any client-side validation if needed
+            if (createNewUser && (!data.name || !data.email)) {
+                alert('Please fill in all required fields');
+                return;
+            } else if (!createNewUser && !data.existing_user_id) {
+                alert('Please select a user');
+                return;
             }
-        });
+            
+            // Submit the form using Inertia
+            post('/teachers', {
+                onSuccess: () => {
+                    closeAddModal();
+                    window.location.reload();
+                }
+            });
+        } catch (error) {
+            console.error('Error adding teacher:', error);
+        }
     };
 
     const handleUpdate = (e) => {
         e.preventDefault();
-        put(`/teachers/${currentTeacher.id}`, {
-            onSuccess: () => {
-                closeEditModal();
-                window.location.reload();
+        
+        // Use SchoolAdminController for validation
+        try {
+            // Perform any client-side validation if needed
+            if (!data.name || !data.email || !data.subject) {
+                alert('Please fill in all required fields');
+                return;
             }
-        });
+            
+            // Submit the form using Inertia
+            put(`/teachers/${currentTeacher.id}`, {
+                onSuccess: () => {
+                    closeEditModal();
+                    window.location.reload();
+                }
+            });
+        } catch (error) {
+            console.error('Error updating teacher:', error);
+        }
     };
 
     const handlePasswordReset = (e) => {
         e.preventDefault();
-        passwordForm.post(`/teachers/${currentTeacher.id}/reset-password`, {
-            onSuccess: () => {
-                closePasswordModal();
-                window.location.reload();
+        
+        // Use SchoolAdminController for validation
+        try {
+            // Perform any client-side validation if needed
+            if (!passwordForm.data.password || !passwordForm.data.password_confirmation) {
+                alert('Please fill in all required fields');
+                return;
             }
-        });
+            
+            if (passwordForm.data.password !== passwordForm.data.password_confirmation) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Submit the form using Inertia
+            passwordForm.post(`/teachers/${currentTeacher.id}/reset-password`, {
+                onSuccess: () => {
+                    closePasswordModal();
+                    window.location.reload();
+                }
+            });
+        } catch (error) {
+            console.error('Error resetting password:', error);
+        }
     };
 
     const handleDelete = (teacher) => {
         if (confirm(`Are you sure you want to delete ${teacher.name}?`)) {
-            post(`/teachers/${teacher.id}`, {
-                _method: 'DELETE',
-                onSuccess: () => {
-                    window.location.reload();
-                }
-            });
+            try {
+                // Submit the delete request using Inertia
+                post(`/teachers/${teacher.id}`, {
+                    _method: 'DELETE',
+                    onSuccess: () => {
+                        window.location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error deleting teacher:', error);
+            }
         }
     };
 

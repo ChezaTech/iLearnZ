@@ -205,10 +205,10 @@ export default function SchoolAdmin({
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <Tab.Group>
-                        <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
+                        <Tab.List className="flex space-x-1 rounded-xl bg-gray-900/20 p-1">
                             <Tab
                                 className={({ selected }) =>
-                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
                                     selected
                                         ? "bg-white shadow"
@@ -223,7 +223,7 @@ export default function SchoolAdmin({
                             </Tab>
                             <Tab
                                 className={({ selected }) =>
-                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
                                     selected
                                         ? "bg-white shadow"
@@ -238,7 +238,7 @@ export default function SchoolAdmin({
                             </Tab>
                             <Tab
                                 className={({ selected }) =>
-                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
                                     selected
                                         ? "bg-white shadow"
@@ -251,9 +251,9 @@ export default function SchoolAdmin({
                                     Grades
                                 </div>
                             </Tab>
-                            <Tab
+                            {/* <Tab
                                 className={({ selected }) =>
-                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
                                     selected
                                         ? "bg-white shadow"
@@ -265,10 +265,10 @@ export default function SchoolAdmin({
                                     <BookOpenIcon className="h-5 w-5 mr-2" />
                                     Library
                                 </div>
-                            </Tab>
+                            </Tab> */}
                             <Tab
                                 className={({ selected }) =>
-                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
                                     selected
                                         ? "bg-white shadow"
@@ -308,9 +308,9 @@ export default function SchoolAdmin({
                             </Tab.Panel>
 
                             {/* Library Panel */}
-                            <Tab.Panel className="rounded-xl bg-white p-3">
+                            {/* <Tab.Panel className="rounded-xl bg-white p-3">
                                 <LibraryTab books={books} />
-                            </Tab.Panel>
+                            </Tab.Panel> */}
 
                             {/* Settings Panel */}
                             <Tab.Panel className="rounded-xl bg-white p-3">

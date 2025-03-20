@@ -133,6 +133,12 @@ class BookController extends Controller
                 return $book;
             });
 
-        return response()->json($books);
+        // Return JSON for API requests
+        if (request()->expectsJson()) {
+            return response()->json($books);
+        }
+
+        // Return data for web requests
+        return $books;
     }
 }

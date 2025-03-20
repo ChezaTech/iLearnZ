@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    Route::post('/teachers/{teacher}/reset-password', [TeacherController::class, 'resetPassword'])->name('teachers.reset-password');
 
     // Report routes
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -117,9 +118,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
     Route::post('/books/{book}/borrow', [BookController::class, 'borrow'])->name('books.borrow');
     Route::post('/books/{book}/return', [BookController::class, 'return'])->name('books.return');
+    Route::get('/schools/{school}/books', [BookController::class, 'getSchoolBooks'])->name('schools.books');
 
     // API routes
-    Route::get('/api/schools/{school}/books', [BookController::class, 'getSchoolBooks']);
     Route::get('/api/schools/{school}/teachers', [\App\Http\Controllers\SchoolController::class, 'getTeachers']);
     Route::get('/api/classes/{class}/students', [ClassController::class, 'getStudents']);
 
