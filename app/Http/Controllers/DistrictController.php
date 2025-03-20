@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SchoolDistrict;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class DistrictController extends Controller
 {
@@ -35,7 +36,13 @@ class DistrictController extends Controller
         // Create the district
         $district = SchoolDistrict::create($validated);
         
-        return redirect()->back()->with('success', 'District created successfully!');
+        // Get all districts to return to the frontend
+        $districts = SchoolDistrict::all();
+        
+        return redirect()->back()->with([
+            'success' => 'District created successfully!',
+            'initialDistricts' => $districts
+        ]);
     }
 
     /**
@@ -63,7 +70,13 @@ class DistrictController extends Controller
         // Update the district
         $district->update($validated);
         
-        return redirect()->back()->with('success', 'District updated successfully!');
+        // Get all districts to return to the frontend
+        $districts = SchoolDistrict::all();
+        
+        return redirect()->back()->with([
+            'success' => 'District updated successfully!',
+            'initialDistricts' => $districts
+        ]);
     }
 
     /**
@@ -82,6 +95,12 @@ class DistrictController extends Controller
         // Delete the district
         $district->delete();
         
-        return redirect()->back()->with('success', 'District deleted successfully!');
+        // Get all districts to return to the frontend
+        $districts = SchoolDistrict::all();
+        
+        return redirect()->back()->with([
+            'success' => 'District deleted successfully!',
+            'initialDistricts' => $districts
+        ]);
     }
 }

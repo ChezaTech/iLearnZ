@@ -55,7 +55,11 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
         
         post(route('districts.store'), {
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: (response) => {
+                // Update the districts state with the new data if available
+                if (response?.props?.initialDistricts) {
+                    setDistricts(response.props.initialDistricts);
+                }
                 setShowAddModal(false);
                 resetForm();
                 alert('District created successfully!');
@@ -85,11 +89,14 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
         
         put(route('districts.update', districtToEdit.id), {
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: (response) => {
+                // Update the districts state with the new data if available
+                if (response?.props?.initialDistricts) {
+                    setDistricts(response.props.initialDistricts);
+                }
                 setShowEditModal(false);
                 setDistrictToEdit(null);
                 resetForm();
-                alert('District updated successfully!');
             },
             onError: (errors) => {
                 console.error('Validation errors:', errors);
@@ -109,10 +116,13 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
         
         destroy(route('districts.destroy', districtToDelete.id), {
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: (response) => {
+                // Update the districts state with the new data if available
+                if (response?.props?.initialDistricts) {
+                    setDistricts(response.props.initialDistricts);
+                }
                 setShowDeleteModal(false);
                 setDistrictToDelete(null);
-                alert('District deleted successfully!');
             },
             onError: (errors) => {
                 console.error('Error deleting district:', errors);

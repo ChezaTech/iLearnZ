@@ -45,6 +45,13 @@ export default function SuperAdminDashboard({ auth, initialSchools, initialTeach
         }
     }, [props.initialSchools]);
     
+    // Update districts when page props change (after Inertia form submissions)
+    useEffect(() => {
+        if (props.initialDistricts) {
+            setDistricts(props.initialDistricts);
+        }
+    }, [props.initialDistricts]);
+    
     // Calculate stats when component mounts or data changes
     useEffect(() => {
         // Calculate stats based on the data
