@@ -20,7 +20,18 @@ class SuperAdminDashboardController extends Controller
     public function index()
     {
         // Get all school districts
-        $schoolDistricts = SchoolDistrict::all();
+        $schoolDistricts = SchoolDistrict::select('id', 'name', 'code', 'region', 'province')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($district) {
+                return [
+                    'id' => $district->id,
+                    'name' => $district->name,
+                    'code' => $district->code,
+                    'region' => $district->region,
+                    'province' => $district->province,
+                ];
+            });
         
         // Get all schools with district relationship
         $schools = School::with('district')
@@ -82,28 +93,29 @@ class SuperAdminDashboardController extends Controller
         });
         
         // Get all students
-        $students = Student::select(
-            'id', 
-            'name', 
-            'grade'
-        )
-        ->get()
-        ->map(function ($student) use ($schools) {
-            $schoolIndex = rand(0, count($schools) - 1);
-            return [
-                'id' => $student->id,
-                'name' => $student->name,
-                'school' => $schools[$schoolIndex]['name'] ?? 'Unknown School',
-                'grade' => $student->grade ?? rand(1, 12),
-                'performance' => ['Excellent', 'Good', 'Average', 'Poor'][rand(0, 3)],
-                'status' => ['Active', 'Inactive'][rand(0, 1)],
-            ];
-        });
+        $students = Student::with('user')
+            ->select(
+                'students.id', 
+                'students.grade_level',
+                'students.user_id'
+            )
+            ->get()
+            ->map(function ($student) use ($schools) {
+                $schoolIndex = rand(0, count($schools) - 1);
+                return [
+                    'id' => $student->id,
+                    'name' => $student->user ? $student->user->name : 'Unknown Student',
+                    'school' => $schools[$schoolIndex]['name'] ?? 'Unknown School',
+                    'grade' => $student->grade_level ?? rand(1, 12),
+                    'performance' => ['Excellent', 'Good', 'Average', 'Poor'][rand(0, 3)],
+                    'status' => ['Active', 'Inactive'][rand(0, 1)],
+                ];
+            });
         
         // Get all resources
         $resources = Resource::select(
             'id', 
-            'name', 
+            'title', 
             'type'
         )
         ->get()
@@ -111,8 +123,8 @@ class SuperAdminDashboardController extends Controller
             $locations = ['Online', 'School Library', 'District Office', 'Ministry Office'];
             return [
                 'id' => $resource->id,
-                'name' => $resource->name,
-                'type' => $resource->type ?? ['Textbook', 'Digital', 'Equipment', 'Software'][rand(0, 3)],
+                'name' => $resource->title,
+                'type' => $resource->type,
                 'location' => $locations[rand(0, count($locations) - 1)],
                 'status' => ['Available', 'Limited', 'Unavailable'][rand(0, 2)],
             ];

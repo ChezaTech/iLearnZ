@@ -73,7 +73,7 @@ class CompleteSystemSeeder extends Seeder
     private function clearExistingData(): void
     {
         // Clear all data from tables in reverse order of dependencies
-        DB::statement('PRAGMA foreign_keys = OFF;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         
         DB::table('notifications')->truncate();
         DB::table('materials')->truncate();
@@ -92,7 +92,7 @@ class CompleteSystemSeeder extends Seeder
         // Clear school data
         DB::table('schools')->truncate();
         
-        DB::statement('PRAGMA foreign_keys = ON;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
     
     /**

@@ -34,7 +34,7 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'region' => 'required|string|max:255',
-            'province' => 'nullable|string|max:255',
+            'province' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
@@ -43,9 +43,6 @@ class DistrictController extends Controller
         
         // Generate a unique code for the district
         $validated['code'] = strtoupper(substr(str_replace(' ', '', $validated['name']), 0, 3) . '-' . Str::random(5));
-        
-        // Set default province if not provided (using region as default)
-        $validated['province'] = $validated['province'] ?? $validated['region'];
         
         // Create the district
         $district = SchoolDistrict::create($validated);
@@ -84,15 +81,12 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'region' => 'required|string|max:255',
-            'province' => 'nullable|string|max:255',
+            'province' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'district_education_officer' => 'nullable|string|max:255',
         ]);
-        
-        // Set default province if not provided (using region as default)
-        $validated['province'] = $validated['province'] ?? $validated['region'];
         
         // Update the district
         $districtModel->update($validated);
