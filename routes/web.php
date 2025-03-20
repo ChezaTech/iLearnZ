@@ -11,6 +11,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\DistrictController;
 use App\Models\Classes;
 use App\Models\Subject;
 use App\Models\Assessment;
@@ -66,6 +67,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
     Route::put('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
+
+    // District routes
+    Route::post('/districts', [\App\Http\Controllers\DistrictController::class, 'store'])->name('districts.store');
+    Route::put('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'update'])->name('districts.update');
+    Route::delete('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'destroy'])->name('districts.destroy');
 
     // Student routes
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');

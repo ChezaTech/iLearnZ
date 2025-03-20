@@ -14,7 +14,7 @@ const route = (name, params = {}) => {
     return '/';
 };
 
-const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students }) => {
+const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, districtSearch, setDistrictSearch, districtRegionFilter, setDistrictRegionFilter, districtData: externalDistrictData, schools = [], teachers = [], students = [] }) => {
     // State for districts list and modals
     const [districts, setDistricts] = useState(initialDistricts || []);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -32,7 +32,7 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
         region: '',
-        connectivity: 50
+        province: '',
     });
     
     // Handle form input changes
@@ -72,7 +72,7 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
         setData({
             name: district.name || '',
             region: district.region || '',
-            connectivity: district.connectivity || 50
+            province: district.province || '',
         });
         setShowEditModal(true);
     };
@@ -122,7 +122,7 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
     };
     
     // Calculate district data based on fetched data
-    const districtData = districts.map(district => {
+    const districtData = externalDistrictData || districts.map(district => {
         const districtSchools = schools.filter(school => school.district === district.name).length;
         const districtTeachers = teachers.filter(teacher => 
             schools.find(school => school.name === teacher.school && school.district === district.name)
@@ -135,10 +135,10 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
             id: district.id,
             name: district.name,
             region: district.region,
+            province: district.province,
             schools: districtSchools,
             teachers: districtTeachers,
             students: districtStudents,
-            connectivity: district.connectivity
         };
     });
     
@@ -232,19 +232,17 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                                     {errors.region && <div className="text-red-500 text-sm mt-1">{errors.region}</div>}
                                 </div>
                                 <div>
-                                    <label htmlFor="connectivity" className="block text-sm font-medium text-gray-700 mb-1">Connectivity (%)</label>
+                                    <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">Province</label>
                                     <input
-                                        type="number"
-                                        id="connectivity"
-                                        name="connectivity"
-                                        min="0"
-                                        max="100"
+                                        type="text"
+                                        id="province"
+                                        name="province"
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                        value={data.connectivity}
+                                        value={data.province}
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.connectivity && <div className="text-red-500 text-sm mt-1">{errors.connectivity}</div>}
+                                    {errors.province && <div className="text-red-500 text-sm mt-1">{errors.province}</div>}
                                 </div>
                             </div>
                             
@@ -321,19 +319,17 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                                     {errors.region && <div className="text-red-500 text-sm mt-1">{errors.region}</div>}
                                 </div>
                                 <div>
-                                    <label htmlFor="edit-connectivity" className="block text-sm font-medium text-gray-700 mb-1">Connectivity (%)</label>
+                                    <label htmlFor="edit-province" className="block text-sm font-medium text-gray-700 mb-1">Province</label>
                                     <input
-                                        type="number"
-                                        id="edit-connectivity"
-                                        name="connectivity"
-                                        min="0"
-                                        max="100"
+                                        type="text"
+                                        id="edit-province"
+                                        name="province"
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                        value={data.connectivity}
+                                        value={data.province}
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.connectivity && <div className="text-red-500 text-sm mt-1">{errors.connectivity}</div>}
+                                    {errors.province && <div className="text-red-500 text-sm mt-1">{errors.province}</div>}
                                 </div>
                             </div>
                             
@@ -417,10 +413,10 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                             <tr>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schools</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Connectivity</th>
                                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -434,6 +430,9 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                                         <div className="text-sm text-gray-500">{district.region}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm text-gray-500">{district.province}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm text-gray-500">{district.schools}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -442,19 +441,7 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm text-gray-500">{district.students}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            district.connectivity > 75
-                                                ? 'bg-green-100 text-green-800' 
-                                                : district.connectivity > 50
-                                                    ? 'bg-blue-100 text-blue-800' 
-                                                    : district.connectivity > 25
-                                                        ? 'bg-yellow-100 text-yellow-800' 
-                                                        : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {district.connectivity}%
-                                        </span>
-                                    </td>
+                                   
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button className="text-blue-600 hover:text-blue-900 mr-3" onClick={() => handleEditClick(district)}>Edit</button>
                                         <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteClick(district)}>Delete</button>
