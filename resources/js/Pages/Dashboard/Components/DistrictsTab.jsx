@@ -77,6 +77,9 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
     // Open edit modal and populate form with district data
     const handleEditClick = (district) => {
         console.log('Editing district:', district);
+        console.log('District properties:', Object.keys(district));
+        console.log('District JSON:', JSON.stringify(district, null, 2));
+        
         setDistrictToEdit(district);
         setData({
             name: district.name || '',
@@ -92,11 +95,18 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
         
         if (!districtToEdit) return;
         
-        console.log('Updating district with ID:', districtToEdit.id);
-        console.log('Update URL:', route('districts.update', districtToEdit.id));
-        console.log('Form data:', data);
+        // Get the district ID from the table row data attribute
+        const districtRow = document.querySelector(`tr[data-district-id="${districtToEdit.name}"]`);
+        const districtId = districtRow ? districtRow.getAttribute('data-district-id') : null;
         
-        put(route('districts.update', districtToEdit.id), {
+        console.log('Updating district with name:', districtToEdit.name);
+        console.log('District ID from DOM:', districtId);
+        
+        // If we can't find the ID, try to use the name as a fallback
+        const idToUse = districtId || districtToEdit.name;
+        console.log('Using ID for update:', idToUse);
+        
+        put(route('districts.update', idToUse), {
             preserveScroll: true,
             onSuccess: (response) => {
                 console.log('Update success response:', response);
@@ -124,10 +134,18 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
     const handleDelete = () => {
         if (!districtToDelete) return;
         
-        console.log('Deleting district with ID:', districtToDelete.id);
-        console.log('Delete URL:', route('districts.destroy', districtToDelete.id));
+        // Get the district ID from the table row data attribute
+        const districtRow = document.querySelector(`tr[data-district-id="${districtToDelete.name}"]`);
+        const districtId = districtRow ? districtRow.getAttribute('data-district-id') : null;
         
-        destroy(route('districts.destroy', districtToDelete.id), {
+        console.log('Deleting district with name:', districtToDelete.name);
+        console.log('District ID from DOM:', districtId);
+        
+        // If we can't find the ID, try to use the name as a fallback
+        const idToUse = districtId || districtToDelete.name;
+        console.log('Using ID for delete:', idToUse);
+        
+        destroy(route('districts.destroy', idToUse), {
             preserveScroll: true,
             onSuccess: (response) => {
                 console.log('Delete success response:', response);
@@ -147,6 +165,8 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
     
     // Calculate district data based on fetched data
     const districtData = externalDistrictData || districts.map(district => {
+        console.log('District in map:', district);
+        
         const districtSchools = schools.filter(school => school.district === district.name).length;
         const districtTeachers = teachers.filter(teacher => 
             schools.find(school => school.name === teacher.school && school.district === district.name)
@@ -157,6 +177,7 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
         
         return {
             id: district.id,
+            _id: district._id,  // Include both ID formats
             name: district.name,
             region: district.region,
             province: district.province,
@@ -237,6 +258,7 @@ const DistrictsTab = ({ districts: initialDistricts, filteredDistricts, district
                                 {districtData.map((district) => (
                                     <tr
                                         key={district.id}
+                                        data-district-id={district.name}
                                         className="hover:bg-gray-50"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap">

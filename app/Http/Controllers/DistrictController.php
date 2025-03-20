@@ -52,8 +52,21 @@ class DistrictController extends Controller
      * @param  \App\Models\SchoolDistrict  $district
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, SchoolDistrict $district)
+    public function update(Request $request, $district)
     {
+        // Find the district by name if it's not an ID
+        if (!is_numeric($district)) {
+            $districtModel = SchoolDistrict::where('name', $district)->first();
+            if (!$districtModel) {
+                return redirect()->back()->with('error', 'District not found');
+            }
+        } else {
+            $districtModel = SchoolDistrict::find($district);
+            if (!$districtModel) {
+                return redirect()->back()->with('error', 'District not found');
+            }
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'region' => 'required|string|max:255',
@@ -68,7 +81,7 @@ class DistrictController extends Controller
         $validated['province'] = $validated['province'] ?? $validated['region'];
         
         // Update the district
-        $district->update($validated);
+        $districtModel->update($validated);
         
         // Get all districts to return to the frontend
         $districts = SchoolDistrict::all();
@@ -85,22 +98,34 @@ class DistrictController extends Controller
      * @param  \App\Models\SchoolDistrict  $district
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(SchoolDistrict $district)
+    public function destroy($district)
     {
+        // Find the district by name if it's not an ID
+        if (!is_numeric($district)) {
+            $districtModel = SchoolDistrict::where('name', $district)->first();
+            if (!$districtModel) {
+                return redirect()->back()->with('error', 'District not found');
+            }
+        } else {
+            $districtModel = SchoolDistrict::find($district);
+            if (!$districtModel) {
+                return redirect()->back()->with('error', 'District not found');
+            }
+        }
+        
         // Check if the district has any schools
-        if ($district->schools()->count() > 0) {
+        if ($districtModel->schools()->count() > 0) {
             return redirect()->back()->with('error', 'Cannot delete district with associated schools.');
         }
         
         // Delete the district
-        $district->delete();
+        $districtModel->delete();
         
         // Get all districts to return to the frontend
         $districts = SchoolDistrict::all();
         
-        return redirect()->back()->with([
-            'success' => 'District deleted successfully!',
-            'initialDistricts' => $districts
+        return Inertia::render('Dashboard/SuperAdmin', [
+            'initialDistricts' => $districts,
         ]);
     }
 }
