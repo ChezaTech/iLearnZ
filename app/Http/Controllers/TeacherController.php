@@ -39,7 +39,7 @@ class TeacherController extends Controller
         // Get subjects taught by the teacher
         $subjects = Subject::with(['classes'])
             ->whereHas('classes', function($query) use ($user) {
-                $query->where('teacher_id', $user->id);
+                $query->where('class_subject.teacher_id', $user->id);
             })
             ->get()
             ->map(function($subject) {
@@ -57,9 +57,12 @@ class TeacherController extends Controller
             ->where('created_by', $user->id)
             ->get();
             
-        // Get announcements for the teacher's school
-        $announcements = Announcement::where('school_id', $user->school_id)
-            ->orWhere('created_by', $user->id)
+        // Get announcements for the teacher
+        $announcements = Announcement::where(function($query) use ($user) {
+                $query->where('target_type', 'all')
+                    ->orWhere('target_type', 'teachers')
+                    ->orWhere('author_id', $user->id);
+            })
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
