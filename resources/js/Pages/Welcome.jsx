@@ -5,7 +5,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <>
             <Head title="Welcome to iLearn" />
             <div className="bg-white text-gray-800 dark:bg-gray-900 dark:text-white overflow-hidden font-sans selection:bg-blue-500 selection:text-white">
-                <header className="flex items-center justify-between py-6 z-20 relative bg-white px-8 lg:px-16 shadow-md dark:bg-gray-800 sticky top-0">
+                <header className="flex items-center justify-between py-6 sticky top-0 bg-white px-8 lg:px-16 shadow-md dark:bg-gray-800">
                     <div className="flex items-center">
                         <div className="text-3xl font-bold">
                             <span className="text-[#1e5091] inline-block mr-1">
@@ -38,6 +38,24 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </Link>
                         ) : (
                             <>
+                                <Link
+                                    href="/about"
+                                    className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"
+                                >
+                                    About
+                                </Link>
+                                <Link
+                                    href="/pricing"
+                                    className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"
+                                >
+                                    Pricing
+                                </Link>
+                                <Link
+                                    href="/faq"
+                                    className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"
+                                >
+                                    FAQ
+                                </Link>
                                 <Link
                                     href={route("login")}
                                     className="rounded-full px-6 py-2.5 font-medium text-[#1e5091] transition hover:bg-[#1e5091]/10 border border-transparent hover:border-[#1e5091]/20"

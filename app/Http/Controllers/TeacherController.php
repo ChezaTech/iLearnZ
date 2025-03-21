@@ -389,8 +389,8 @@ class TeacherController extends Controller
             ->orderBy('due_date', 'desc')
             ->get();
             
-        return Inertia::render('Teacher/Classes/Assignments', [
-            'class' => $class,
+        return Inertia::render('Teacher/Assignments', [
+            'classData' => $class,
             'subject' => $subject,
             'assignments' => $assignments
         ]);
@@ -441,6 +441,37 @@ class TeacherController extends Controller
         ]);
         
         return redirect()->back()->with('success', 'Assignment created successfully.');
+    }
+    
+    /**
+     * Display the specified assignment.
+     *
+     * @param int $classId
+     * @param int $subjectId
+     * @param int $assignmentId
+     * @return \Inertia\Response
+     */
+    public function showAssignment($classId, $subjectId, $assignmentId)
+    {
+        $class = Classes::findOrFail($classId);
+        $subject = Subject::findOrFail($subjectId);
+        
+        // Check if the authenticated user is the teacher of this class
+        if (Auth::id() !== $class->teacher_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Get the assignment
+        $assignment = Assignment::with(['submissions.student'])
+            ->where('class_id', $classId)
+            ->where('subject_id', $subjectId)
+            ->findOrFail($assignmentId);
+            
+        return Inertia::render('Teacher/AssignmentDetails', [
+            'classData' => $class,
+            'subject' => $subject,
+            'assignment' => $assignment
+        ]);
     }
     
     /**

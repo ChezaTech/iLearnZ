@@ -34,6 +34,18 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/about', function () {
+    return Inertia::render('About');
+});
+
+Route::get('/pricing', function () {
+    return Inertia::render('Pricing');
+});
+
+Route::get('/faq', function () {
+    return Inertia::render('Faq');
+});
+
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
@@ -230,6 +242,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Assignments
         Route::get('/class/{classId}/subject/{subjectId}/assignments', [TeacherController::class, 'assignments'])->name('class.assignments');
         Route::post('/class/{classId}/subject/{subjectId}/assignments', [TeacherController::class, 'createAssignment'])->name('class.assignments.create');
+        Route::get('/class/{classId}/subject/{subjectId}/assignments/{assignmentId}', [TeacherController::class, 'showAssignment'])->name('class.assignments.show');
         
         // Exams
         Route::get('/class/{classId}/subject/{subjectId}/exams', [TeacherController::class, 'exams'])->name('class.exams');
