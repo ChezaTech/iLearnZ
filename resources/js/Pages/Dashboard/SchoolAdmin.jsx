@@ -35,6 +35,7 @@ import TeachersTab from "@/Pages/SchoolAdmin/Tabs/TeachersTab";
 import GradesTab from "@/Pages/SchoolAdmin/Tabs/GradesTab";
 import LibraryTab from "@/Pages/SchoolAdmin/Tabs/LibraryTab";
 import SettingsTab from "@/Pages/SchoolAdmin/Tabs/SettingsTab";
+import AdminsTab from "@/Pages/SchoolAdmin/Tabs/AdminsTab";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -251,7 +252,7 @@ export default function SchoolAdmin({
                                     Grades
                                 </div>
                             </Tab>
-                            {/* <Tab
+                            <Tab
                                 className={({ selected }) =>
                                     `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
                                 ${
@@ -262,10 +263,10 @@ export default function SchoolAdmin({
                                 }
                             >
                                 <div className="flex items-center justify-center">
-                                    <BookOpenIcon className="h-5 w-5 mr-2" />
-                                    Library
+                                    <UserGroupIcon className="h-5 w-5 mr-2" />
+                                    Admins
                                 </div>
-                            </Tab> */}
+                            </Tab>
                             <Tab
                                 className={({ selected }) =>
                                     `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
@@ -307,10 +308,10 @@ export default function SchoolAdmin({
                                 />
                             </Tab.Panel>
 
-                            {/* Library Panel */}
-                            {/* <Tab.Panel className="rounded-xl bg-white p-3">
-                                <LibraryTab books={books} />
-                            </Tab.Panel> */}
+                            {/* Admins Panel */}
+                            <Tab.Panel className="rounded-xl bg-white p-3">
+                                <AdminsTab auth={auth} />
+                            </Tab.Panel>
 
                             {/* Settings Panel */}
                             <Tab.Panel className="rounded-xl bg-white p-3">

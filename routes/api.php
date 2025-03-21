@@ -41,7 +41,10 @@ Route::middleware('auth:sanctum')->get('user', function (Request $request) {
 // School routes (no auth required for testing)
 Route::get('schools/{school}', [\App\Http\Controllers\SchoolController::class, 'getSchool']);
 Route::put('schools/{school}', [\App\Http\Controllers\SchoolController::class, 'updateSchool']);
-Route::get('schools/{school}/admins', [\App\Http\Controllers\AdminController::class, 'getSchoolAdmins']);
+Route::get('schools/{school}/admins', [\App\Http\Controllers\SchoolAdminController::class, 'getSchoolAdmins']);
+Route::post('schools/add-existing-admin', [\App\Http\Controllers\SchoolAdminController::class, 'addExistingUserAsAdmin']);
+Route::post('schools/create-admin', [\App\Http\Controllers\SchoolAdminController::class, 'createNewAdmin']);
+Route::delete('schools/admins/{admin}', [\App\Http\Controllers\SchoolAdminController::class, 'deleteAdmin']);
 
 // Admin routes (no auth required for testing)
 Route::get('admins/existing-users', [\App\Http\Controllers\AdminController::class, 'searchExistingUsers']);
@@ -51,6 +54,7 @@ Route::delete('admins/{admin}', [\App\Http\Controllers\AdminController::class, '
 
 // Search routes (no auth required for testing)
 Route::get('search/users', [\App\Http\Controllers\AdminController::class, 'searchExistingUsers']);
+Route::get('users/search', [\App\Http\Controllers\SchoolAdminController::class, 'searchUsers']);
 
 // Login-as routes - MOVED TO CONTROLLER-BASED APPROACH
 // Route::get('login-as/users', [\App\Http\Controllers\Auth\LoginAsController::class, 'getUsers']);

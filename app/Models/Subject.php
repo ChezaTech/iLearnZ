@@ -95,4 +95,24 @@ class Subject extends Model
     {
         return $this->hasMany(ReadingMaterial::class);
     }
+    
+    /**
+     * Get the students enrolled in classes where this subject is taught.
+     */
+    public function students()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            'class_subject',
+            'subject_id', // Foreign key on class_subject table
+            'id', // Foreign key on users table
+            'id', // Local key on subjects table
+            'class_id' // Local key on pivot table
+        )
+        ->join('enrollments', 'enrollments.class_id', '=', 'class_subject.class_id')
+        ->where('users.user_type', 'student')
+        ->whereColumn('enrollments.student_id', 'users.id')
+        ->select('users.*')
+        ->distinct();
+    }
 }

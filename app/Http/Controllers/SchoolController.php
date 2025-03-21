@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\School;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Classes;
 use App\Models\Book;
+use App\Models\SchoolAdmin;
+use App\Models\District;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SchoolController extends Controller
 {
@@ -324,5 +327,198 @@ class SchoolController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to update school settings', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Get the actual count of teachers for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTeacherCount(School $school)
+    {
+        try {
+            // Count teachers using the relationship
+            $count = $school->teachers()->count();
+            
+            return response()->json([
+                'count' => $count,
+                'message' => 'Teacher count retrieved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'count' => 0,
+                'message' => 'Failed to retrieve teacher count',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get the actual count of students for a specific school.
+     *
+     * @param  \App\Models\School  $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStudentCount(School $school)
+    {
+        try {
+            // Count students using the relationship
+            $count = $school->students()->count();
+            
+            return response()->json([
+                'count' => $count,
+                'message' => 'Student count retrieved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'count' => 0,
+                'message' => 'Failed to retrieve student count',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all districts
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getDistricts()
+    {
+        try {
+            $districts = District::all();
+            return response()->json($districts);
+        } catch (\Exception $e) {
+            return response()->json([], 500);
+        }
+    }
+
+    /**
+     * Get all admins for a school
+     * 
+     * @param School $school
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getSchoolAdmins(School $school)
+    {
+        $admins = $school->admins()->with('user')->get()->map(function($admin) {
+            return [
+                'id' => $admin->id,
+                'name' => $admin->user->name,
+                'email' => $admin->user->email,
+                'admin_role' => $admin->admin_role
+            ];
+        });
+        
+        return response()->json($admins);
+    }
+
+    /**
+     * Add an existing user as an admin
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addExistingUserAsAdmin(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'school_id' => 'required|exists:schools,id',
+            'admin_role' => 'required|string|in:admin,super_admin'
+        ]);
+
+        // Check if user is already an admin for this school
+        $existingAdmin = SchoolAdmin::where('user_id', $request->user_id)
+            ->where('school_id', $request->school_id)
+            ->first();
+
+        if ($existingAdmin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is already an admin for this school'
+            ], 422);
+        }
+
+        // Create new admin
+        $admin = SchoolAdmin::create([
+            'user_id' => $request->user_id,
+            'school_id' => $request->school_id,
+            'admin_role' => $request->admin_role
+        ]);
+
+        // Get user details
+        $user = User::find($request->user_id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Administrator added successfully',
+            'admin' => [
+                'id' => $admin->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'admin_role' => $admin->admin_role
+            ]
+        ]);
+    }
+
+    /**
+     * Create a new user and add as admin
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createNewAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'school_id' => 'required|exists:schools,id',
+            'admin_role' => 'required|string|in:admin,super_admin'
+        ]);
+
+        // Create new user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'school_admin'
+        ]);
+
+        // Create new admin
+        $admin = SchoolAdmin::create([
+            'user_id' => $user->id,
+            'school_id' => $request->school_id,
+            'admin_role' => $request->admin_role
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Administrator created successfully',
+            'admin' => [
+                'id' => $admin->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'admin_role' => $admin->admin_role
+            ]
+        ]);
+    }
+
+    /**
+     * Delete an admin
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAdmin($id)
+    {
+        $admin = SchoolAdmin::findOrFail($id);
+        $admin->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Administrator removed successfully'
+        ]);
     }
 }

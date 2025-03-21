@@ -367,29 +367,6 @@ export default function SubjectsTab({ classData, availableTeachers, books }) {
                                         {subject.schedule || "Not Set"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm font-medium">
-                                        <Link
-                                            href={route(
-                                                "classes.subjects.show",
-                                                [classData.id, subject.id]
-                                            )}
-                                            className="text-blue-600 hover:text-blue-900 mr-2"
-                                            title="View Subject"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <EyeIcon className="h-5 w-5" />
-                                        </Link>
-                                        <button
-                                            onClick={() =>
-                                                openReadingMaterialModal(
-                                                    subject
-                                                )
-                                            }
-                                            className="text-green-600 hover:text-green-900 mr-3"
-                                            title="Add Reading Material"
-                                            disabled={isLoading}
-                                        >
-                                            <DocumentTextIcon className="h-5 w-5" />
-                                        </button>
                                         <button
                                             onClick={() =>
                                                 openEditModal(subject)
