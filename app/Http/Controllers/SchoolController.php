@@ -282,8 +282,6 @@ class SchoolController extends Controller
         $school->delete();
         return redirect()->back()->with('success', 'School deleted successfully!');
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Update the specified school via API.
@@ -518,5 +516,4 @@ class SchoolController extends Controller
             'message' => 'Administrator removed successfully'
         ]);
     }
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 }

@@ -81,8 +81,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
     Route::put('/schools/{school}', [SchoolDetailsController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
-<<<<<<< HEAD
-=======
     Route::get('/schools/{school}/admins', [SchoolDetailsController::class, 'getSchoolAdmins']);
     Route::get('/schools/{school}/teacher-count', [\App\Http\Controllers\SchoolController::class, 'getTeacherCount']);
     Route::get('/schools/{school}/student-count', [\App\Http\Controllers\SchoolController::class, 'getStudentCount']);
@@ -94,7 +92,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'show'])->name('districts.show');
     Route::put('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'update'])->name('districts.update');
     Route::delete('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'destroy'])->name('districts.destroy');
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
     // Student routes
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
@@ -131,9 +128,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/schools/{school}/books', [BookController::class, 'getSchoolBooks'])->name('schools.books');
 
     // API routes
-<<<<<<< HEAD
-    Route::get('/api/schools/{school}/books', [BookController::class, 'getSchoolBooks']);
-=======
     Route::get('/api/schools/{school}/teachers', [\App\Http\Controllers\SchoolController::class, 'getTeachers']);
     Route::get('/api/classes/{class}/students', [ClassController::class, 'getStudents']);
     
@@ -196,7 +190,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/classes/{id}/add-students', [ClassController::class, 'addStudents'])->name('classes.addStudents');
         Route::delete('/classes/{id}/remove-student/{student_id}', [ClassController::class, 'removeStudent'])->name('classes.removeStudent');
     });
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
     // School admin routes
     Route::post('/school-admins', [SchoolDetailsController::class, 'addExistingUserAsAdmin']);

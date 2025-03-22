@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-// Helper function for route generation
-const route = (name, params = {}) => {
-    if (name === 'districts.store') {
-        return '/districts';
-    } else if (name === 'districts.update') {
-        return `/districts/${params}`;
-    } else if (name === 'districts.destroy') {
-        return `/districts/${params}`;
-=======
 import React, { useState, useEffect } from "react";
 import { useForm } from "@inertiajs/react";
 import {
@@ -36,14 +23,10 @@ const route = (name, params = {}) => {
         // Make sure we're handling both object and primitive ID cases
         const id = typeof params === "object" ? params.id : params;
         return `/districts/${id}`;
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     }
     return "/";
 };
 
-<<<<<<< HEAD
-const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students }) => {
-=======
 const DistrictsTab = ({
     districts: initialDistricts,
     filteredDistricts,
@@ -56,7 +39,6 @@ const DistrictsTab = ({
     teachers = [],
     students = [],
 }) => {
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     // State for districts list and modals
     const [districts, setDistricts] = useState(initialDistricts || []);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -73,12 +55,6 @@ const DistrictsTab = ({
     }, [initialDistricts]);
 
     // Use Inertia form handling
-<<<<<<< HEAD
-    const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
-        name: '',
-        region: '',
-        connectivity: 50
-=======
     const {
         data,
         setData,
@@ -92,7 +68,6 @@ const DistrictsTab = ({
         name: "",
         region: "",
         province: "",
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     });
 
     // Handle form input changes
@@ -128,13 +103,6 @@ const DistrictsTab = ({
 
     // Open edit modal and populate form with district data
     const handleEditClick = (district) => {
-<<<<<<< HEAD
-        setDistrictToEdit(district);
-        setData({
-            name: district.name || '',
-            region: district.region || '',
-            connectivity: district.connectivity || 50
-=======
         console.log("Editing district:", district);
         console.log("District properties:", Object.keys(district));
         console.log("District JSON:", JSON.stringify(district, null, 2));
@@ -144,7 +112,6 @@ const DistrictsTab = ({
             name: district.name || "",
             region: district.region ? district.region : "",
             province: district.province ? district.province : "",
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
         });
         setShowEditModal(true);
     };
@@ -154,16 +121,6 @@ const DistrictsTab = ({
         e.preventDefault();
 
         if (!districtToEdit) return;
-<<<<<<< HEAD
-        
-        put(route('districts.update', districtToEdit.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-                setShowEditModal(false);
-                setDistrictToEdit(null);
-                resetForm();
-                alert('District updated successfully!');
-=======
 
         // Get the district ID from the table row data attribute
         const districtRow = document.querySelector(
@@ -194,7 +151,6 @@ const DistrictsTab = ({
                 setDistrictToEdit(null);
                 resetForm();
                 alert("District updated successfully!");
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
             },
             onError: (errors) => {
                 console.error("Validation errors:", errors);
@@ -211,12 +167,6 @@ const DistrictsTab = ({
     // Handle district deletion
     const handleDelete = () => {
         if (!districtToDelete) return;
-<<<<<<< HEAD
-        
-        destroy(route('districts.destroy', districtToDelete.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-=======
 
         // Get the district ID from the table row data attribute
         const districtRow = document.querySelector(
@@ -241,7 +191,6 @@ const DistrictsTab = ({
                 if (response?.props?.initialDistricts) {
                     setDistricts(response.props.initialDistricts);
                 }
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
                 setShowDeleteModal(false);
                 setDistrictToDelete(null);
                 alert('District deleted successfully!');

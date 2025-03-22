@@ -3,9 +3,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-<<<<<<< HEAD
-export default function SchoolAdminDashboard({ auth }) {
-=======
 // Import tab components
 import DashboardTab from "@/Pages/SchoolAdmin/Tabs/DashboardTab";
 import TeachersTab from "@/Pages/SchoolAdmin/Tabs/TeachersTab";
@@ -25,7 +22,6 @@ export default function SchoolAdmin({
     students,
     error,
 }) {
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     const [stats, setStats] = useState({
         totalTeachers: 6,
         totalStudents: 120,
@@ -78,32 +74,6 @@ export default function SchoolAdmin({
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-<<<<<<< HEAD
-                    <div className="space-y-6">
-                        {/* Summary Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                            <div className="bg-blue-50 p-6 rounded-lg shadow-md">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-2">Teachers</h3>
-                                <p className="text-3xl font-bold">{stats.totalTeachers}</p>
-                            </div>
-                            <div className="bg-green-50 p-6 rounded-lg shadow-md">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-2">Students</h3>
-                                <p className="text-3xl font-bold">{stats.totalStudents}</p>
-                            </div>
-                            <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-2">Classes</h3>
-                                <p className="text-3xl font-bold">{stats.totalClasses}</p>
-                            </div>
-                            <div className="bg-purple-50 p-6 rounded-lg shadow-md">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-2">Attendance</h3>
-                                <p className="text-3xl font-bold">{stats.attendanceRate}%</p>
-                            </div>
-                            <div className="bg-red-50 p-6 rounded-lg shadow-md">
-                                <h3 className="text-lg font-semibold text-gray-700 mb-2">Avg. Grade</h3>
-                                <p className="text-3xl font-bold">{stats.averageGrade}</p>
-                            </div>
-                        </div>
-=======
                     <Tab.Group>
                         <Tab.List className="flex space-x-1 rounded-xl bg-gray-900/20 p-1">
                             <Tab
@@ -182,6 +152,7 @@ export default function SchoolAdmin({
                                 </div>
                             </Tab>
                         </Tab.List>
+
                         <Tab.Panels className="mt-2">
                             {/* Dashboard Panel */}
                             <Tab.Panel className="rounded-xl bg-white p-3">
@@ -192,7 +163,6 @@ export default function SchoolAdmin({
                                     recentReportCards={recentReportCards}
                                 />
                             </Tab.Panel>
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
                         {/* Charts */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -241,31 +211,10 @@ export default function SchoolAdmin({
                             </div>
                         </div>
 
-<<<<<<< HEAD
-                        {/* Events and Resources */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div className="bg-white p-6 rounded-lg shadow-md">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold text-gray-700">Upcoming School Events</h3>
-                                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
-                                        Manage Events
-                                    </button>
-                                </div>
-                                <ul className="divide-y divide-gray-200">
-                                    {events.map((event) => (
-                                        <li key={event.id} className="py-3">
-                                            <div className="text-sm font-medium text-gray-900">{event.title}</div>
-                                            <div className="text-sm text-gray-500">{`${event.date} | ${event.type}`}</div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-=======
                             {/* Admins Panel */}
                             <Tab.Panel className="rounded-xl bg-white p-3">
                                 <AdminsTab auth={auth} />
                             </Tab.Panel>
->>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <div className="flex justify-between items-center mb-4">
@@ -283,7 +232,7 @@ export default function SchoolAdmin({
                                     ))}
                                 </ul>
                             </div>
-                        </div>
+                        </Tab.Panels>
 
                         {/* School Resources */}
                         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -302,9 +251,11 @@ export default function SchoolAdmin({
                                 ))}
                             </ul>
                         </div>
-                    </div>
+                    </Tab.Group>
+                  </div>
                 </div>
-            </div>
+            
+            
         </AuthenticatedLayout>
     );
 }
