@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Assignment extends Model
+class Exam extends Model
 {
     use HasFactory;
 
@@ -17,15 +16,15 @@ class Assignment extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'class_id',
-        'subject_id',
         'title',
         'description',
-        'due_date',
-        'total_points',
-        'is_graded',
-        'is_offline_available',
+        'exam_date',
+        'duration',
+        'max_score',
+        'class_id',
+        'subject_id',
         'created_by',
+        'is_active'
     ];
 
     /**
@@ -34,10 +33,10 @@ class Assignment extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'due_date' => 'date',
-        'total_points' => 'integer',
-        'is_graded' => 'boolean',
-        'is_offline_available' => 'boolean',
+        'exam_date' => 'datetime',
+        'duration' => 'integer',
+        'max_score' => 'float',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -48,12 +47,11 @@ class Assignment extends Model
     protected $appends = [
         'average_score',
         'submissions_count',
-        'on_time_submissions_count',
-        'late_submissions_count',
+        'pass_rate',
     ];
 
     /**
-     * Get the class that this assignment belongs to.
+     * Get the class that this exam belongs to.
      */
     public function class(): BelongsTo
     {
@@ -61,7 +59,7 @@ class Assignment extends Model
     }
 
     /**
-     * Get the subject that this assignment belongs to.
+     * Get the subject that this exam belongs to.
      */
     public function subject(): BelongsTo
     {
@@ -69,7 +67,7 @@ class Assignment extends Model
     }
 
     /**
-     * Get the user who created this assignment.
+     * Get the teacher who created this exam.
      */
     public function creator(): BelongsTo
     {
@@ -77,15 +75,15 @@ class Assignment extends Model
     }
 
     /**
-     * Get the submissions for this assignment.
+     * Get the submissions for this exam.
      */
-    public function submissions(): HasMany
+    public function submissions()
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(ExamSubmission::class);
     }
 
     /**
-     * Get the average score for this assignment.
+     * Get the average score for this exam.
      *
      * @return float
      */
@@ -101,7 +99,7 @@ class Assignment extends Model
     }
 
     /**
-     * Get the count of submissions for this assignment.
+     * Get the count of submissions for this exam.
      *
      * @return int
      */
@@ -111,26 +109,23 @@ class Assignment extends Model
     }
 
     /**
-     * Get the count of on-time submissions for this assignment.
+     * Get the pass rate for this exam (percentage of students who scored 60% or higher).
      *
-     * @return int
+     * @return float
      */
-    public function getOnTimeSubmissionsCountAttribute()
+    public function getPassRateAttribute()
     {
-        return $this->submissions()
-            ->where('submitted_at', '<=', $this->due_date)
-            ->count();
-    }
-
-    /**
-     * Get the count of late submissions for this assignment.
-     *
-     * @return int
-     */
-    public function getLateSubmissionsCountAttribute()
-    {
-        return $this->submissions()
-            ->where('submitted_at', '>', $this->due_date)
-            ->count();
+        $submissions = $this->submissions()->whereNotNull('score')->get();
+        
+        if ($submissions->isEmpty()) {
+            return 0;
+        }
+        
+        $passThreshold = $this->max_score * 0.6; // 60% of max score
+        $passCount = $submissions->filter(function ($submission) use ($passThreshold) {
+            return $submission->score >= $passThreshold;
+        })->count();
+        
+        return round(($passCount / $submissions->count()) * 100, 1);
     }
 }

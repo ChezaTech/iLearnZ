@@ -278,4 +278,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(GovernmentReport::class, 'created_by');
     }
+
+    /**
+     * Get the schools associated with the user.
+     */
+    public function schools()
+    {
+        return $this->hasMany(School::class);
+    }
+
+    /**
+     * Get the admin roles for this user.
+     */
+    public function adminSchools()
+    {
+        return $this->hasMany(SchoolAdmin::class);
+    }
 }

@@ -3,7 +3,29 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
+<<<<<<< HEAD
 export default function SchoolAdminDashboard({ auth }) {
+=======
+// Import tab components
+import DashboardTab from "@/Pages/SchoolAdmin/Tabs/DashboardTab";
+import TeachersTab from "@/Pages/SchoolAdmin/Tabs/TeachersTab";
+import GradesTab from "@/Pages/SchoolAdmin/Tabs/GradesTab";
+import LibraryTab from "@/Pages/SchoolAdmin/Tabs/LibraryTab";
+import SettingsTab from "@/Pages/SchoolAdmin/Tabs/SettingsTab";
+import AdminsTab from "@/Pages/SchoolAdmin/Tabs/AdminsTab";
+
+function classNames(...classes) {
+    return classes.filter(Boolean).join(" ");
+}
+
+export default function SchoolAdmin({
+    auth,
+    grades,
+    teachers,
+    students,
+    error,
+}) {
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     const [stats, setStats] = useState({
         totalTeachers: 6,
         totalStudents: 120,
@@ -56,6 +78,7 @@ export default function SchoolAdminDashboard({ auth }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+<<<<<<< HEAD
                     <div className="space-y-6">
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
@@ -80,6 +103,96 @@ export default function SchoolAdminDashboard({ auth }) {
                                 <p className="text-3xl font-bold">{stats.averageGrade}</p>
                             </div>
                         </div>
+=======
+                    <Tab.Group>
+                        <Tab.List className="flex space-x-1 rounded-xl bg-gray-900/20 p-1">
+                            <Tab
+                                className={({ selected }) =>
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
+                                ${
+                                    selected
+                                        ? "bg-white shadow"
+                                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                                }`
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <ChartBarIcon className="h-5 w-5 mr-2" />
+                                    Dashboard
+                                </div>
+                            </Tab>
+                            <Tab
+                                className={({ selected }) =>
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
+                                ${
+                                    selected
+                                        ? "bg-white shadow"
+                                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                                }`
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <UserGroupIcon className="h-5 w-5 mr-2" />
+                                    Teachers
+                                </div>
+                            </Tab>
+                            <Tab
+                                className={({ selected }) =>
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
+                                ${
+                                    selected
+                                        ? "bg-white shadow"
+                                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                                }`
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <AcademicCapIcon className="h-5 w-5 mr-2" />
+                                    Grades
+                                </div>
+                            </Tab>
+                            <Tab
+                                className={({ selected }) =>
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
+                                ${
+                                    selected
+                                        ? "bg-white shadow"
+                                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                                }`
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <UserGroupIcon className="h-5 w-5 mr-2" />
+                                    Admins
+                                </div>
+                            </Tab>
+                            <Tab
+                                className={({ selected }) =>
+                                    `w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-gray-700
+                                ${
+                                    selected
+                                        ? "bg-white shadow"
+                                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                                }`
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <Cog6ToothIcon className="h-5 w-5 mr-2" />
+                                    Settings
+                                </div>
+                            </Tab>
+                        </Tab.List>
+                        <Tab.Panels className="mt-2">
+                            {/* Dashboard Panel */}
+                            <Tab.Panel className="rounded-xl bg-white p-3">
+                                <DashboardTab
+                                    stats={stats}
+                                    events={events}
+                                    resources={resources}
+                                    recentReportCards={recentReportCards}
+                                />
+                            </Tab.Panel>
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
                         {/* Charts */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -128,6 +241,7 @@ export default function SchoolAdminDashboard({ auth }) {
                             </div>
                         </div>
 
+<<<<<<< HEAD
                         {/* Events and Resources */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -146,6 +260,12 @@ export default function SchoolAdminDashboard({ auth }) {
                                     ))}
                                 </ul>
                             </div>
+=======
+                            {/* Admins Panel */}
+                            <Tab.Panel className="rounded-xl bg-white p-3">
+                                <AdminsTab auth={auth} />
+                            </Tab.Panel>
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <div className="flex justify-between items-center mb-4">

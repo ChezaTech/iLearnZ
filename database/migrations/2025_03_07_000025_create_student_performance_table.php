@@ -27,7 +27,7 @@ return new class extends Migration
             $table->timestamps();
             
             // Ensure a student has only one performance record per subject per term
-            $table->unique(['student_id', 'class_id', 'subject_id', 'academic_term_id']);
+            $table->unique(['student_id', 'class_id', 'subject_id', 'academic_term_id'], 'student_perf_unique');
         });
     }
 

@@ -34,6 +34,18 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/about', function () {
+    return Inertia::render('About');
+});
+
+Route::get('/pricing', function () {
+    return Inertia::render('Pricing');
+});
+
+Route::get('/faq', function () {
+    return Inertia::render('Faq');
+});
+
 Route::get('/dashboard', function () {
     $user = Auth::user();
     
@@ -69,6 +81,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/schools', [\App\Http\Controllers\SchoolController::class, 'store'])->name('schools.store');
     Route::put('/schools/{school}', [SchoolDetailsController::class, 'update'])->name('schools.update');
     Route::delete('/schools/{school}', [\App\Http\Controllers\SchoolController::class, 'destroy'])->name('schools.destroy');
+<<<<<<< HEAD
+=======
+    Route::get('/schools/{school}/admins', [SchoolDetailsController::class, 'getSchoolAdmins']);
+    Route::get('/schools/{school}/teacher-count', [\App\Http\Controllers\SchoolController::class, 'getTeacherCount']);
+    Route::get('/schools/{school}/student-count', [\App\Http\Controllers\SchoolController::class, 'getStudentCount']);
+
+    // District routes
+    Route::get('/districts', [\App\Http\Controllers\DistrictController::class, 'index'])->name('districts.index');
+    Route::get('/districts/data', [\App\Http\Controllers\DistrictController::class, 'index']);
+    Route::post('/districts', [\App\Http\Controllers\DistrictController::class, 'store'])->name('districts.store');
+    Route::get('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'show'])->name('districts.show');
+    Route::put('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'update'])->name('districts.update');
+    Route::delete('/districts/{district}', [\App\Http\Controllers\DistrictController::class, 'destroy'])->name('districts.destroy');
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
 
     // Student routes
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
@@ -79,6 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    Route::post('/teachers/{teacher}/reset-password', [TeacherController::class, 'resetPassword'])->name('teachers.reset-password');
 
     // Class routes
     Route::post('/classes', [ClassController::class, 'store'])->name('classes.store');
@@ -101,9 +128,83 @@ Route::middleware('auth')->group(function () {
     Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
     Route::post('/books/{book}/borrow', [BookController::class, 'borrow'])->name('books.borrow');
     Route::post('/books/{book}/return', [BookController::class, 'return'])->name('books.return');
+    Route::get('/schools/{school}/books', [BookController::class, 'getSchoolBooks'])->name('schools.books');
 
     // API routes
+<<<<<<< HEAD
     Route::get('/api/schools/{school}/books', [BookController::class, 'getSchoolBooks']);
+=======
+    Route::get('/api/schools/{school}/teachers', [\App\Http\Controllers\SchoolController::class, 'getTeachers']);
+    Route::get('/api/classes/{class}/students', [ClassController::class, 'getStudents']);
+    
+    // School statistics routes
+    Route::get('/schools/{school}/teacher-count', [\App\Http\Controllers\SchoolController::class, 'getTeacherCount']);
+    Route::get('/schools/{school}/student-count', [\App\Http\Controllers\SchoolController::class, 'getStudentCount']);
+
+    // Add a route for current user
+    Route::get('/api/user', function (Request $request) {
+        return $request->user();
+    })->middleware('auth');
+
+    // School Admin Routes
+    Route::middleware(['auth', 'verified'])->group(function () {
+        // Dashboard
+        Route::get('/school-admin/dashboard', [AdminController::class, 'schoolAdminDashboard'])->name('school-admin.dashboard');
+
+        // Classes/Grades Management
+        Route::resource('classes', ClassController::class);
+
+        // Subject Management for Classes
+        Route::get('/classes/{class}/subjects', [SubjectController::class, 'index'])->name('classes.subjects.index');
+        Route::post('/classes/{class}/subjects', [SubjectController::class, 'store'])->name('classes.subjects.store');
+        Route::get('/classes/{class}/subjects/{subject}', [SubjectController::class, 'show'])->name('classes.subjects.show');
+        Route::put('/classes/{class}/subjects/{subject}', [SubjectController::class, 'update'])->name('classes.subjects.update');
+        Route::delete('/classes/{class}/subjects/{subject}', [SubjectController::class, 'destroy'])->name('classes.subjects.destroy');
+
+        // Material Management for Subjects
+        Route::prefix('classes/{class}/subjects/{subject}/materials')->name('classes.subjects.materials.')->group(function () {
+            Route::get('/', [MaterialController::class, 'index'])->name('index');
+            Route::post('/', [MaterialController::class, 'store'])->name('store');
+            Route::get('/{material}', [MaterialController::class, 'show'])->name('show');
+            Route::post('/{material}', [MaterialController::class, 'update'])->name('update');
+            Route::delete('/{material}', [MaterialController::class, 'destroy'])->name('destroy');
+            Route::post('/batch-delete', [MaterialController::class, 'batchDelete'])->name('batchDelete');
+            
+            // New category management routes
+            Route::get('/categories', [MaterialController::class, 'getCategories'])->name('getCategories');
+            Route::post('/categories', [MaterialController::class, 'storeCategory'])->name('storeCategory');
+        });
+
+        // Assessment Management for Subjects
+        Route::prefix('classes/{class}/subjects/{subject}/assessments')->name('classes.subjects.assessments.')->group(function () {
+            Route::get('/', [AssessmentController::class, 'index'])->name('index');
+            Route::post('/', [AssessmentController::class, 'store'])->name('store');
+            Route::get('/{assessment}', [AssessmentController::class, 'show'])->name('show');
+            Route::put('/{assessment}', [AssessmentController::class, 'update'])->name('update');
+            Route::delete('/{assessment}', [AssessmentController::class, 'destroy'])->name('destroy');
+            Route::post('/{assessment}/submit', [AssessmentController::class, 'submitAssessment'])->name('submit');
+            Route::post('/{assessment}/submissions/{submission}/grade', [AssessmentController::class, 'gradeSubmission'])->name('grade');
+        });
+
+        // Teacher Management
+        Route::resource('teachers', TeacherController::class);
+        Route::post('/teachers/{id}/reset-password', [TeacherController::class, 'resetPassword'])->name('teachers.reset-password');
+
+        // Student Enrollment Management
+        Route::get('/classes/{id}/students', [ClassController::class, 'getStudents'])->name('classes.getStudents');
+        Route::get('/classes/{id}/available-students', [ClassController::class, 'getAvailableStudents'])->name('classes.getAvailableStudents');
+        Route::post('/classes/{id}/add-students', [ClassController::class, 'addStudents'])->name('classes.addStudents');
+        Route::delete('/classes/{id}/remove-student/{student_id}', [ClassController::class, 'removeStudent'])->name('classes.removeStudent');
+    });
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
+
+    // School admin routes
+    Route::post('/school-admins', [SchoolDetailsController::class, 'addExistingUserAsAdmin']);
+    Route::post('/school-admins/create', [SchoolDetailsController::class, 'createNewAdmin']);
+    Route::delete('/school-admins/{id}', [SchoolDetailsController::class, 'deleteAdmin']);
+
+    // User search routes
+    Route::get('/users/search', [\App\Http\Controllers\UserController::class, 'search']);
 
     // Parent routes
     Route::middleware('parent')->group(function () {
@@ -116,96 +217,51 @@ Route::middleware('auth')->group(function () {
     });
 
     // Teacher routes
-    Route::middleware(['auth', 'verified'])->group(function () {
-        // Teacher Dashboard
-        Route::get('/teacher/dashboard', function () {
-            $user = Auth::user();
-            
-            // Get classes taught by this teacher with students and subjects
-            $classes = Classes::where('teacher_id', $user->id)
-                ->with(['students', 'subjects'])
-                ->get();
-                
-            // Get subjects taught by this teacher with class info
-            $subjects = Subject::whereHas('classes', function ($query) use ($user) {
-                $query->where('classes.teacher_id', $user->id);
-            })
-            ->with(['classes' => function ($query) use ($user) {
-                $query->where('classes.teacher_id', $user->id);
-            }])
-            ->get();
-            
-            // Add student count to each subject
-            foreach ($subjects as $subject) {
-                $studentIds = [];
-                foreach ($subject->classes as $class) {
-                    foreach ($class->students as $student) {
-                        $studentIds[$student->id] = true;
-                    }
-                }
-                $subject->students_count = count($studentIds);
-            }
-            
-            // Get assessments created by this teacher
-            $assessments = Assessment::where('created_by', $user->id)
-                ->with(['class', 'subject'])
-                ->withCount(['submissions as submissions_count' => function ($query) {
-                    $query->where('status', 'submitted')->whereNull('grade');
-                }])
-                ->withCount(['submissions as graded_count' => function ($query) {
-                    $query->whereNotNull('grade');
-                }])
-                ->orderBy('due_date', 'asc')
-                ->take(5)
-                ->get();
-                
-            // Get announcements relevant to this teacher
-            $announcements = Announcement::where(function ($query) use ($user) {
-                    $query->where('target_type', 'all')
-                        ->orWhere('target_type', 'teachers')
-                        ->orWhere(function ($q) use ($user) {
-                            $q->where('target_type', 'specific')
-                                ->whereJsonContains('target_ids', $user->id);
-                        });
-                })
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get();
-                
-            // Get today's schedule
-            $today = strtolower(date('l')); // Get current day of week
-            $schedule = [];
-            
-            foreach ($classes as $class) {
-                $todaySubjects = $class->subjects->filter(function ($subject) use ($today) {
-                    $schedule = strtolower($subject->pivot->schedule ?? '');
-                    return str_contains($schedule, $today);
-                });
-                
-                if ($todaySubjects->count() > 0) {
-                    $schedule[] = [
-                        'class' => $class,
-                        'todaySubjects' => $todaySubjects
-                    ];
-                }
-            }
-            
-            return Inertia::render('Teacher/Dashboard', [
-                'classes' => $classes,
-                'subjects' => $subjects,
-                'assessments' => $assessments,
-                'announcements' => $announcements,
-                'schedule' => $schedule
-            ]);
-        })->middleware(['auth', 'verified', \App\Http\Middleware\CheckRole::class.':teacher'])->name('teacher.dashboard');
+    Route::middleware(['auth', 'verified', \App\Http\Middleware\CheckRole::class.':teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
+        
+        // Classes
+        Route::get('/classes', [TeacherController::class, 'classes'])->name('classes');
+        Route::get('/class/{id}', [TeacherController::class, 'classDetails'])->name('class.show');
+        
+        // Class Students
+        Route::get('/class/{id}/students', [TeacherController::class, 'classStudents'])->name('class.students');
+        Route::post('/class/{id}/students', [TeacherController::class, 'addStudentToClass'])->name('class.students.add');
+        Route::delete('/class/{classId}/students/{studentId}', [TeacherController::class, 'removeStudentFromClass'])->name('class.students.remove');
+        
+        // Attendance
+        Route::get('/class/{id}/attendance', [TeacherController::class, 'attendance'])->name('class.attendance');
+        Route::post('/class/{id}/attendance', [TeacherController::class, 'markAttendance'])->name('class.attendance.mark');
+        
+        // Materials
+        Route::get('/class/{classId}/subject/{subjectId}/materials', [TeacherController::class, 'materials'])->name('class.materials');
+        Route::post('/class/{classId}/subject/{subjectId}/materials', [TeacherController::class, 'uploadMaterial'])->name('class.materials.upload');
+        
+        // Assignments
+        Route::get('/class/{classId}/subject/{subjectId}/assignments', [TeacherController::class, 'assignments'])->name('class.assignments');
+        Route::post('/class/{classId}/subject/{subjectId}/assignments', [TeacherController::class, 'createAssignment'])->name('class.assignments.create');
+        Route::get('/class/{classId}/subject/{subjectId}/assignments/{assignmentId}', [TeacherController::class, 'showAssignment'])->name('class.assignments.show');
+        
+        // Exams
+        Route::get('/class/{classId}/subject/{subjectId}/exams', [TeacherController::class, 'exams'])->name('class.exams');
+        Route::post('/class/{classId}/subject/{subjectId}/exams', [TeacherController::class, 'createExam'])->name('class.exams.create');
+        
+        // Whiteboard
+        Route::get('/class/{classId}/whiteboard', [TeacherController::class, 'whiteboard'])->name('class.whiteboard');
+        
+        // Messages
+        Route::get('/messages', [TeacherController::class, 'messages'])->name('messages');
+        
+        // Reports
+        Route::get('/reports', [TeacherController::class, 'reports'])->name('reports');
+        Route::post('/reports/{classId}', [TeacherController::class, 'generateReport'])->name('reports.generate');
         
         // Assignment routes - only accessible to teachers
-        Route::middleware(['auth', 'verified'])->group(function () {
-            Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
-            Route::get('/assignments/{id}', [AssignmentController::class, 'show'])->name('assignments.show');
-            Route::put('/assignments/{id}', [AssignmentController::class, 'update'])->name('assignments.update');
-            Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
-        });
+        Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
+        Route::get('/assignments/{id}', [AssignmentController::class, 'show'])->name('assignments.show');
+        Route::put('/assignments/{id}', [AssignmentController::class, 'update'])->name('assignments.update');
+        Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
     });
 });
 

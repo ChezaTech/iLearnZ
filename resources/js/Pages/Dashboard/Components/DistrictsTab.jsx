@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -9,11 +10,53 @@ const route = (name, params = {}) => {
         return `/districts/${params}`;
     } else if (name === 'districts.destroy') {
         return `/districts/${params}`;
+=======
+import React, { useState, useEffect } from "react";
+import { useForm } from "@inertiajs/react";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from "recharts";
+
+// Helper function for route generation
+const route = (name, params = {}) => {
+    if (name === "districts.store") {
+        return "/districts";
+    } else if (name === "districts.update") {
+        // Make sure we're handling both object and primitive ID cases
+        const id = typeof params === "object" ? params.id : params;
+        return `/districts/${id}`;
+    } else if (name === "districts.destroy") {
+        // Make sure we're handling both object and primitive ID cases
+        const id = typeof params === "object" ? params.id : params;
+        return `/districts/${id}`;
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     }
-    return '/';
+    return "/";
 };
 
+<<<<<<< HEAD
 const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students }) => {
+=======
+const DistrictsTab = ({
+    districts: initialDistricts,
+    filteredDistricts,
+    districtSearch,
+    setDistrictSearch,
+    districtRegionFilter,
+    setDistrictRegionFilter,
+    districtData: externalDistrictData,
+    schools = [],
+    teachers = [],
+    students = [],
+}) => {
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     // State for districts list and modals
     const [districts, setDistricts] = useState(initialDistricts || []);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -21,66 +64,97 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [districtToEdit, setDistrictToEdit] = useState(null);
     const [districtToDelete, setDistrictToDelete] = useState(null);
-    
+
     // Update districts when initialDistricts changes
     useEffect(() => {
+        console.log("Initial districts from props:", initialDistricts);
         setDistricts(initialDistricts || []);
+        console.log("Final District Data:", districtData);
     }, [initialDistricts]);
-    
+
     // Use Inertia form handling
+<<<<<<< HEAD
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
         region: '',
         connectivity: 50
+=======
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+    } = useForm({
+        name: "",
+        region: "",
+        province: "",
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
     });
-    
+
     // Handle form input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setData(prevData => ({
+        setData((prevData) => ({
             ...prevData,
-            [name]: value
+            [name]: value,
         }));
     };
-    
+
     // Reset form data function
     const resetForm = () => {
         reset();
     };
-    
+
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        post(route('districts.store'), {
+
+        post(route("districts.store"), {
             preserveScroll: true,
             onSuccess: () => {
                 setShowAddModal(false);
                 resetForm();
-                alert('District created successfully!');
+                alert("District created successfully!");
             },
             onError: (errors) => {
-                console.error('Validation errors:', errors);
-            }
+                console.error("Validation errors:", errors);
+            },
         });
     };
-    
+
     // Open edit modal and populate form with district data
     const handleEditClick = (district) => {
+<<<<<<< HEAD
         setDistrictToEdit(district);
         setData({
             name: district.name || '',
             region: district.region || '',
             connectivity: district.connectivity || 50
+=======
+        console.log("Editing district:", district);
+        console.log("District properties:", Object.keys(district));
+        console.log("District JSON:", JSON.stringify(district, null, 2));
+
+        setDistrictToEdit(district);
+        setData({
+            name: district.name || "",
+            region: district.region ? district.region : "",
+            province: district.province ? district.province : "",
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
         });
         setShowEditModal(true);
     };
-    
+
     // Handle district update
     const handleUpdate = (e) => {
         e.preventDefault();
-        
+
         if (!districtToEdit) return;
+<<<<<<< HEAD
         
         put(route('districts.update', districtToEdit.id), {
             preserveScroll: true,
@@ -89,61 +163,147 @@ const DistrictsTab = ({ districts: initialDistricts, schools, teachers, students
                 setDistrictToEdit(null);
                 resetForm();
                 alert('District updated successfully!');
+=======
+
+        // Get the district ID from the table row data attribute
+        const districtRow = document.querySelector(
+            `tr[data-district-id="${districtToEdit.name}"]`
+        );
+        const districtId = districtRow
+            ? districtRow.getAttribute("data-district-id")
+            : null;
+
+        console.log("Updating district with name:", districtToEdit.name);
+        console.log("District ID from DOM:", districtId);
+        console.log("Form data being sent:", data);
+
+        // If we can't find the ID, try to use the name as a fallback
+        const idToUse = districtId || districtToEdit.name;
+        console.log("Using ID for update:", idToUse);
+
+        put(route("districts.update", idToUse), {
+            data,
+            preserveScroll: true,
+            onSuccess: (response) => {
+                console.log("Update success response:", response);
+                // Update the districts state with the new data if available
+                if (response?.props?.initialDistricts) {
+                    setDistricts(response.props.initialDistricts);
+                }
+                setShowEditModal(false);
+                setDistrictToEdit(null);
+                resetForm();
+                alert("District updated successfully!");
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
             },
             onError: (errors) => {
-                console.error('Validation errors:', errors);
-            }
+                console.error("Validation errors:", errors);
+            },
         });
     };
-    
+
     // Open delete confirmation modal
     const handleDeleteClick = (district) => {
         setDistrictToDelete(district);
         setShowDeleteModal(true);
     };
-    
+
     // Handle district deletion
     const handleDelete = () => {
         if (!districtToDelete) return;
+<<<<<<< HEAD
         
         destroy(route('districts.destroy', districtToDelete.id), {
             preserveScroll: true,
             onSuccess: () => {
+=======
+
+        // Get the district ID from the table row data attribute
+        const districtRow = document.querySelector(
+            `tr[data-district-id="${districtToDelete.name}"]`
+        );
+        const districtId = districtRow
+            ? districtRow.getAttribute("data-district-id")
+            : null;
+
+        console.log("Deleting district with name:", districtToDelete.name);
+        console.log("District ID from DOM:", districtId);
+
+        // If we can't find the ID, try to use the name as a fallback
+        const idToUse = districtId || districtToDelete.name;
+        console.log("Using ID for delete:", idToUse);
+
+        destroy(route("districts.destroy", idToUse), {
+            preserveScroll: true,
+            onSuccess: (response) => {
+                console.log("Delete success response:", response);
+                // Update the districts state with the new data if available
+                if (response?.props?.initialDistricts) {
+                    setDistricts(response.props.initialDistricts);
+                }
+>>>>>>> a49c1241fe935bdb9a3a5999ac614f3079a87f57
                 setShowDeleteModal(false);
                 setDistrictToDelete(null);
                 alert('District deleted successfully!');
             },
             onError: (errors) => {
-                console.error('Error deleting district:', errors);
-                alert('An error occurred while deleting the district.');
-            }
+                console.error("Error deleting district:", errors);
+                alert("An error occurred while deleting the district.");
+            },
         });
     };
-    
+
+    const computedDistricts = districts.map((district) => ({
+        id: district.id,
+        name: district.name,
+        region: district.region,
+        province: district.province,
+        schools: schools.filter((school) => school.district === district.name)
+            .length,
+        teachers: teachers.filter((teacher) =>
+            schools.find(
+                (school) =>
+                    school.name === teacher.school &&
+                    school.district === district.name
+            )
+        ).length,
+        students: students.filter((student) =>
+            schools.find(
+                (school) =>
+                    school.name === student.school &&
+                    school.district === district.name
+            )
+        ).length,
+    }));
+
     // Calculate district data based on fetched data
-    const districtData = externalDistrictData || districts.map(district => {
-        console.log('District in map:', district);
-        
-        const districtSchools = schools.filter(school => school.district === district.name).length;
-        const districtTeachers = teachers.filter(teacher => 
-            schools.find(school => school.name === teacher.school && school.district === district.name)
-        ).length;
-        const districtStudents = students.filter(student => 
-            schools.find(school => school.name === student.school && school.district === district.name)
-        ).length;
-        
-        return {
-            id: district.id,
-            _id: district._id,  // Include both ID formats
-            name: district.name,
-            region: district.region,
-            province: district.province,
-            schools: districtSchools,
-            teachers: districtTeachers,
-            students: districtStudents,
-        };
-    });
-    
+    const districtData = externalDistrictData
+        ? computedDistricts.map((district) => {
+              const external = externalDistrictData.find(
+                  (ext) => ext.name === district.name
+              );
+              return {
+                  ...district,
+                  // Only override region and province if external has them
+                  region: external?.region || district.region,
+                  province: external?.province || district.province,
+                  // Use external counts only if they exist; otherwise, keep computed counts
+                  schools:
+                      external && external.schools !== undefined
+                          ? external.schools
+                          : district.schools,
+                  teachers:
+                      external && external.teachers !== undefined
+                          ? external.teachers
+                          : district.teachers,
+                  students:
+                      external && external.students !== undefined
+                          ? external.students
+                          : district.students,
+              };
+          })
+        : computedDistricts;
+
     return (
         <>
             <div className="bg-white p-6 rounded-lg mb-6">

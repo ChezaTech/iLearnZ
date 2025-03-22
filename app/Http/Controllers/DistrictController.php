@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SchoolDistrict;
+use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -16,7 +16,7 @@ class DistrictController extends Controller
      */
     public function index()
     {
-        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+        $districts = District::select('id', 'name', 'region', 'province')
             ->orderBy('name')
             ->get();
             
@@ -34,7 +34,7 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'region' => 'required|string|max:255',
-            'province' => 'nullable|string|max:255',
+            'province' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
@@ -44,14 +44,11 @@ class DistrictController extends Controller
         // Generate a unique code for the district
         $validated['code'] = strtoupper(substr(str_replace(' ', '', $validated['name']), 0, 3) . '-' . Str::random(5));
         
-        // Set default province if not provided (using region as default)
-        $validated['province'] = $validated['province'] ?? $validated['region'];
-        
         // Create the district
-        $district = SchoolDistrict::create($validated);
+        $district = District::create($validated);
         
         // Get all districts to return to the frontend
-        $districts = SchoolDistrict::all();
+        $districts = District::all();
         
         return redirect()->back()->with([
             'success' => 'District created successfully!',
@@ -63,19 +60,19 @@ class DistrictController extends Controller
      * Update the specified district in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\SchoolDistrict  $district
+     * @param  \App\Models\District  $district
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $district)
     {
         // Find the district by name if it's not an ID
         if (!is_numeric($district)) {
-            $districtModel = SchoolDistrict::where('name', $district)->first();
+            $districtModel = District::where('name', $district)->first();
             if (!$districtModel) {
                 return redirect()->back()->with('error', 'District not found');
             }
         } else {
-            $districtModel = SchoolDistrict::find($district);
+            $districtModel = District::find($district);
             if (!$districtModel) {
                 return redirect()->back()->with('error', 'District not found');
             }
@@ -84,21 +81,18 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'region' => 'required|string|max:255',
-            'province' => 'nullable|string|max:255',
+            'province' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'district_education_officer' => 'nullable|string|max:255',
         ]);
         
-        // Set default province if not provided (using region as default)
-        $validated['province'] = $validated['province'] ?? $validated['region'];
-        
         // Update the district
         $districtModel->update($validated);
         
         // Get all districts to return to the frontend
-        $districts = SchoolDistrict::all();
+        $districts = District::all();
         
         return redirect()->back()->with([
             'success' => 'District updated successfully!',
@@ -109,19 +103,19 @@ class DistrictController extends Controller
     /**
      * Remove the specified district from storage.
      *
-     * @param  \App\Models\SchoolDistrict  $district
+     * @param  \App\Models\District  $district
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($district)
     {
         // Find the district by name if it's not an ID
         if (!is_numeric($district)) {
-            $districtModel = SchoolDistrict::where('name', $district)->first();
+            $districtModel = District::where('name', $district)->first();
             if (!$districtModel) {
                 return redirect()->back()->with('error', 'District not found');
             }
         } else {
-            $districtModel = SchoolDistrict::find($district);
+            $districtModel = District::find($district);
             if (!$districtModel) {
                 return redirect()->back()->with('error', 'District not found');
             }
@@ -136,7 +130,7 @@ class DistrictController extends Controller
         $districtModel->delete();
         
         // Get all districts to return to the frontend
-        $districts = SchoolDistrict::all();
+        $districts = District::all();
         
         return Inertia::render('Dashboard/SuperAdmin', [
             'initialDistricts' => $districts,
@@ -153,12 +147,12 @@ class DistrictController extends Controller
     {
         // Find the district by name if it's not an ID
         if (!is_numeric($district)) {
-            $districtModel = SchoolDistrict::where('name', $district)->first();
+            $districtModel = District::where('name', $district)->first();
             if (!$districtModel) {
                 return redirect()->route('superadmin.dashboard')->with('error', 'District not found');
             }
         } else {
-            $districtModel = SchoolDistrict::find($district);
+            $districtModel = District::find($district);
             if (!$districtModel) {
                 return redirect()->route('superadmin.dashboard')->with('error', 'District not found');
             }
@@ -168,7 +162,7 @@ class DistrictController extends Controller
         $schools = $districtModel->schools()->get();
         
         // Get all districts for dropdown
-        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+        $districts = District::select('id', 'name', 'region', 'province')
             ->orderBy('name')
             ->get();
         
@@ -186,7 +180,7 @@ class DistrictController extends Controller
      */
     public function getAll()
     {
-        $districts = SchoolDistrict::select('id', 'name', 'region', 'province')
+        $districts = District::select('id', 'name', 'region', 'province')
             ->orderBy('name')
             ->get();
             
