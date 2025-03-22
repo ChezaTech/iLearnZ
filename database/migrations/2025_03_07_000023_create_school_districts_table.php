@@ -11,23 +11,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('school_districts', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->string('region');
-            $table->string('province');
-            $table->text('address')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('district_education_officer')->nullable();
-            $table->timestamps();
-        });
+        // Create school_districts table if it doesn't exist
+        if (!Schema::hasTable('school_districts')) {
+            Schema::create('school_districts', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('code')->nullable();
+                $table->string('region')->nullable();
+                $table->string('province')->nullable();
+                $table->string('contact_person')->nullable();
+                $table->string('contact_email')->nullable();
+                $table->string('contact_phone')->nullable();
+                $table->text('address')->nullable();
+                $table->timestamps();
+            });
+        }
         
-        // Add district_id to schools table
-        Schema::table('schools', function (Blueprint $table) {
-            $table->foreignId('district_id')->nullable()->after('province')->constrained('school_districts')->nullOnDelete();
-        });
+        // Only add district_id to schools table if it doesn't exist
+        if (!Schema::hasColumn('schools', 'district_id')) {
+            Schema::table('schools', function (Blueprint $table) {
+                $table->foreignId('district_id')->nullable()->constrained('school_districts')->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -35,11 +40,15 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('schools', function (Blueprint $table) {
-            $table->dropForeign(['district_id']);
-            $table->dropColumn('district_id');
-        });
+        // Remove foreign key and column from schools table
+        if (Schema::hasColumn('schools', 'district_id')) {
+            Schema::table('schools', function (Blueprint $table) {
+                $table->dropForeign(['district_id']);
+                $table->dropColumn('district_id');
+            });
+        }
         
+        // Drop the school_districts table
         Schema::dropIfExists('school_districts');
     }
 };

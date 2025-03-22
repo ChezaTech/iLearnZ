@@ -116,7 +116,7 @@ class CompleteSystemSeeder extends Seeder
             'has_smartboards' => true,
             'student_count' => 500,
             'teacher_count' => 30,
-            'school_hours' => '08:00-16:00',
+            'school_hours' => 40, // 40 hours per week
         ]);
     }
     
@@ -685,6 +685,9 @@ class CompleteSystemSeeder extends Seeder
                         elseif ($score >= 60) $letterGrade = 'D';
                         else $letterGrade = 'F';
                         
+                        // Get a random teacher from the array
+                        $randomTeacher = $this->getRandomTeacher();
+                        
                         Grade::create([
                             'student_id' => $student->id,
                             'subject_id' => $subjectId,
@@ -694,7 +697,7 @@ class CompleteSystemSeeder extends Seeder
                             'letter_grade' => $letterGrade,
                             'comments' => 'Regular term grade',
                             'academic_year' => '2024-2025',
-                            'recorded_by' => 1, // First teacher
+                            'recorded_by' => $randomTeacher->id,
                         ]);
                     }
                 }
@@ -878,5 +881,31 @@ class CompleteSystemSeeder extends Seeder
                 'expires_at' => now()->addDays(10),
             ]);
         }
+    }
+    
+    /**
+     * Get a random teacher from the database.
+     */
+    private function getRandomTeacher()
+    {
+        // Get a teacher from the database
+        $teacher = User::where('user_type', 'teacher')->first();
+        
+        // If no teacher exists, create one
+        if (!$teacher) {
+            $teacher = User::create([
+                'name' => 'Default Teacher',
+                'email' => 'default.teacher@ilearnz.edu',
+                'password' => Hash::make('password'),
+                'user_type' => 'teacher',
+                'phone_number' => '+260 97 9999999',
+                'profile_photo' => null,
+                'role_id' => 3,
+                'email_verified_at' => now(),
+                'school_id' => 1,
+            ]);
+        }
+        
+        return $teacher;
     }
 }

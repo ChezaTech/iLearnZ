@@ -871,5 +871,282 @@ class TeacherController extends Controller
         ];
     }
 
-    // ... rest of the code remains the same ...
+    /**
+     * Display student details.
+     *
+     * @param int $studentId
+     * @return \Inertia\Response
+     */
+    public function studentDetails($studentId)
+    {
+        // In a real application, we would fetch the student from the database
+        // For now, we'll use our dummy data
+        $dummyData = $this->getDummyData();
+        
+        // Find the student in our dummy data
+        $student = null;
+        foreach ($dummyData['classes'] as $class) {
+            foreach ($class['students'] as $classStudent) {
+                if ($classStudent['id'] == $studentId) {
+                    $student = $classStudent;
+                    $student['class'] = [
+                        'id' => $class['id'],
+                        'name' => $class['name'],
+                        'grade_level' => $class['grade_level'],
+                        'section' => $class['section']
+                    ];
+                    break 2;
+                }
+            }
+        }
+        
+        if (!$student) {
+            abort(404, 'Student not found');
+        }
+        
+        return Inertia::render('Teacher/StudentDetails', [
+            'student' => $student,
+            'attendance' => $dummyData['attendance'],
+            'assessments' => $dummyData['assessments']
+        ]);
+    }
+    
+    /**
+     * Display subject details.
+     *
+     * @param int $subjectId
+     * @return \Inertia\Response
+     */
+    public function subjectDetails($subjectId)
+    {
+        // In a real application, we would fetch the subject from the database
+        // For now, we'll use our dummy data
+        $dummyData = $this->getDummyData();
+        
+        // Find the subject in our dummy data
+        $subject = null;
+        foreach ($dummyData['subjects'] as $dummySubject) {
+            if ($dummySubject['id'] == $subjectId) {
+                $subject = $dummySubject;
+                break;
+            }
+        }
+        
+        if (!$subject) {
+            abort(404, 'Subject not found');
+        }
+        
+        // Get related data
+        $relatedLessons = array_filter($dummyData['lessons'], function($lesson) use ($subjectId) {
+            return $lesson['subject_id'] == $subjectId;
+        });
+        
+        $relatedQuizzes = array_filter($dummyData['quizzes'], function($quiz) use ($subjectId) {
+            return $quiz['subject_id'] == $subjectId;
+        });
+        
+        return Inertia::render('Teacher/SubjectDetails', [
+            'subject' => $subject,
+            'lessons' => array_values($relatedLessons),
+            'quizzes' => array_values($relatedQuizzes)
+        ]);
+    }
+    
+    /**
+     * Display teacher calendar.
+     *
+     * @return \Inertia\Response
+     */
+    public function calendar()
+    {
+        $dummyData = $this->getDummyData();
+        
+        // Prepare calendar events from schedule, lessons, and assessments
+        $events = [];
+        
+        // Add schedule events
+        foreach ($dummyData['schedule'] as $scheduleItem) {
+            foreach ($scheduleItem['todaySubjects'] as $subject) {
+                // Parse schedule to get time
+                $scheduleInfo = $subject['pivot']['schedule'] ?? '';
+                preg_match('/(\w+)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/', $scheduleInfo, $matches);
+                
+                if (count($matches) >= 4) {
+                    $day = $matches[1];
+                    $startTime = $matches[2];
+                    $endTime = $matches[3];
+                    
+                    $events[] = [
+                        'id' => 'schedule_' . $scheduleItem['id'] . '_' . $subject['id'],
+                        'title' => $subject['name'] . ' - ' . $scheduleItem['name'],
+                        'start' => $this->getNextDayTime($day, $startTime),
+                        'end' => $this->getNextDayTime($day, $endTime),
+                        'type' => 'class',
+                        'color' => '#1e5091'
+                    ];
+                }
+            }
+        }
+        
+        // Add assessment events
+        foreach ($dummyData['assessments'] as $assessment) {
+            $events[] = [
+                'id' => 'assessment_' . $assessment['id'],
+                'title' => $assessment['title'],
+                'start' => $assessment['due_date'],
+                'allDay' => true,
+                'type' => 'assessment',
+                'color' => '#ffb81c'
+            ];
+        }
+        
+        // Add lesson events
+        foreach ($dummyData['lessons'] as $lesson) {
+            $events[] = [
+                'id' => 'lesson_' . $lesson['id'],
+                'title' => $lesson['title'],
+                'start' => $lesson['scheduled_date'],
+                'allDay' => true,
+                'type' => 'lesson',
+                'color' => '#4CAF50'
+            ];
+        }
+        
+        return Inertia::render('Teacher/Calendar', [
+            'events' => $events
+        ]);
+    }
+    
+    /**
+     * Display notifications.
+     *
+     * @return \Inertia\Response
+     */
+    public function notifications()
+    {
+        // In a real application, we would fetch notifications from the database
+        // For now, we'll use dummy data
+        $notifications = [
+            [
+                'id' => 1,
+                'title' => 'New Assessment Added',
+                'content' => 'A new assessment "Mid-Term Exam" has been added to Grade 10-A Mathematics.',
+                'type' => 'assessment',
+                'read' => false,
+                'created_at' => now()->subHours(2),
+                'actions' => [
+                    [
+                        'label' => 'View Assessment',
+                        'url' => route('teacher.dashboard')
+                    ]
+                ]
+            ],
+            [
+                'id' => 2,
+                'title' => 'Student Joined Class',
+                'content' => 'John Smith has joined Grade 10-A Mathematics.',
+                'type' => 'class',
+                'read' => false,
+                'created_at' => now()->subHours(5),
+                'actions' => [
+                    [
+                        'label' => 'View Student',
+                        'url' => route('teacher.studentDetails', 1)
+                    ]
+                ]
+            ],
+            [
+                'id' => 3,
+                'title' => 'School Announcement',
+                'content' => 'Parent-teacher meeting scheduled for next Friday at 3:00 PM.',
+                'type' => 'announcement',
+                'read' => true,
+                'created_at' => now()->subDays(1),
+                'actions' => [
+                    [
+                        'label' => 'Add to Calendar',
+                        'url' => route('teacher.calendar')
+                    ]
+                ]
+            ],
+            [
+                'id' => 4,
+                'title' => 'Lesson Plan Approved',
+                'content' => 'Your lesson plan for "Algebraic Expressions" has been approved by the head of department.',
+                'type' => 'approval',
+                'read' => true,
+                'created_at' => now()->subDays(2),
+                'actions' => null
+            ],
+            [
+                'id' => 5,
+                'title' => 'Assignment Due Soon',
+                'content' => 'The assignment "Geometry Basics" for Grade 10-A is due in 2 days.',
+                'type' => 'assessment',
+                'read' => false,
+                'created_at' => now()->subHours(12),
+                'actions' => [
+                    [
+                        'label' => 'View Assignment',
+                        'url' => route('teacher.dashboard')
+                    ]
+                ]
+            ]
+        ];
+
+        return Inertia::render('Teacher/Notifications', [
+            'notifications' => $notifications
+        ]);
+    }
+
+    /**
+     * Display the join class page.
+     *
+     * @return \Inertia\Response
+     */
+    public function joinClass()
+    {
+        return Inertia::render('Teacher/JoinClass');
+    }
+    
+    /**
+     * Helper function to get the next occurrence of a day with a specific time.
+     *
+     * @param string $day
+     * @param string $time
+     * @return string
+     */
+    private function getNextDayTime($day, $time)
+    {
+        $days = [
+            'Monday' => 1,
+            'Tuesday' => 2,
+            'Wednesday' => 3,
+            'Thursday' => 4,
+            'Friday' => 5,
+            'Saturday' => 6,
+            'Sunday' => 0
+        ];
+        
+        $dayNumber = $days[$day] ?? 1; // Default to Monday if day not found
+        
+        $date = new \DateTime();
+        $currentDayNumber = (int)$date->format('w');
+        
+        // Calculate days to add to get to the next occurrence of the specified day
+        $daysToAdd = ($dayNumber - $currentDayNumber + 7) % 7;
+        
+        // If today is the specified day, don't add days
+        if ($daysToAdd === 0) {
+            $daysToAdd = 7; // Go to next week
+        }
+        
+        $date->add(new \DateInterval("P{$daysToAdd}D"));
+        $date->setTime(
+            (int)substr($time, 0, strpos($time, ':')),
+            (int)substr($time, strpos($time, ':') + 1)
+        );
+        
+        return $date->format('Y-m-d\TH:i:s');
+    }
 }

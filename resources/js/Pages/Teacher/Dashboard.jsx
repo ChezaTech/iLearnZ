@@ -75,27 +75,27 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
 
                     {/* Quick Action Buttons */}
                     <div className="mt-6 flex flex-wrap gap-3">
-                        <button 
+                        <Link 
+                            href={route('teacher.calendar')}
                             className="inline-flex items-center px-4 py-2 bg-[#1e5091] text-white rounded-lg text-sm font-medium hover:bg-[#1e5091]/90 transition-all"
-                            onClick={() => setShowCreateAssignmentModal(true)}
-                        >
-                            <DocumentPlusIcon className="h-5 w-5 mr-2" />
-                            Create Assignment
-                        </button>
-                        <button 
-                            className="inline-flex items-center px-4 py-2 bg-[#ffb81c] text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#ffb81c]/90 transition-all"
-                            onClick={() => setShowScheduleModal(!showScheduleModal)}
                         >
                             <CalendarIcon className="h-5 w-5 mr-2" />
-                            {showScheduleModal ? 'Hide Schedule' : 'View Schedule'}
-                        </button>
-                        <button 
-                            className="inline-flex items-center px-4 py-2 bg-white border border-[#1e5091]/20 text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#1e5091]/5 transition-all"
-                            onClick={() => setShowStudentManagement(!showStudentManagement)}
+                            View Calendar
+                        </Link>
+                        <Link 
+                            href={route('teacher.notifications')}
+                            className="inline-flex items-center px-4 py-2 bg-[#ffb81c] text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#ffb81c]/90 transition-all"
                         >
-                            <ClipboardDocumentCheckIcon className="h-5 w-5 mr-2" />
-                            {showStudentManagement ? 'Hide Students' : 'Manage Students'}
-                        </button>
+                            <BellAlertIcon className="h-5 w-5 mr-2" />
+                            Notifications
+                        </Link>
+                        <Link 
+                            href={route('teacher.join.class')}
+                            className="inline-flex items-center px-4 py-2 bg-white border border-[#1e5091]/20 text-[#1e5091] rounded-lg text-sm font-medium hover:bg-[#1e5091]/5 transition-all"
+                        >
+                            <UserGroupIcon className="h-5 w-5 mr-2" />
+                            Join Class
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                                                     </p>
                                                 </div>
                                                 <Link
-                                                    href={route('classes.show', classItem.id)}
+                                                    href={route('teacher.class.show', classItem.id)}
                                                     className="px-3 py-1 bg-[#1e5091]/10 text-[#1e5091] rounded-lg text-sm hover:bg-[#1e5091]/20 transition-all"
                                                 >
                                                     Details
@@ -265,8 +265,11 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                                                                 )}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap text-sm">
-                                                                <Link href="#" className="text-[#1e5091] hover:text-[#ffb81c]">
-                                                                    View
+                                                                <Link 
+                                                                    href={route('teacher.student.details', student.id)}
+                                                                    className="text-[#1e5091] hover:text-[#ffb81c]"
+                                                                >
+                                                                    View Details
                                                                 </Link>
                                                             </td>
                                                         </tr>
@@ -410,15 +413,10 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                                                 </p>
                                                 <div className="mt-2 flex justify-end">
                                                     <Link 
-                                                        href={subject.classes && subject.classes.length > 0 
-                                                            ? route('classes.subjects.materials.index', {
-                                                                class: subject.classes[0].id,
-                                                                subject: subject.id
-                                                            }) 
-                                                            : '#'}
+                                                        href={route('teacher.subject.details', subject.id)}
                                                         className="text-xs text-[#1e5091] hover:text-[#ffb81c]"
                                                     >
-                                                        View Materials
+                                                        View Subject
                                                     </Link>
                                                 </div>
                                             </div>
@@ -498,11 +496,7 @@ export default function TeacherDashboard({ auth, classes, subjects, assessments,
                                                     </div>
                                                 </div>
                                                 <Link 
-                                                    href={route('classes.subjects.assessments.show', {
-                                                        class: assessment.class_id,
-                                                        subject: assessment.subject_id,
-                                                        assessment: assessment.id
-                                                    })} 
+                                                    href={route('teacher.subject.details', assessment.subject_id)}
                                                     className="text-xs text-[#1e5091] hover:text-[#ffb81c]"
                                                 >
                                                     {status === 'needs_grading' ? 'Grade' : 'View'}

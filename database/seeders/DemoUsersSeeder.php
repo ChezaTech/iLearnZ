@@ -57,7 +57,7 @@ class DemoUsersSeeder extends Seeder
             'has_smartboards' => true,
             'student_count' => 500,
             'teacher_count' => 30,
-            'school_hours' => '8:00 AM - 3:00 PM',
+            'school_hours' => 35, // 35 hours per week
         ]);
 
         // Create demo users for each role

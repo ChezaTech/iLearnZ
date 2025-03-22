@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('schools', function (Blueprint $table) {
-            $table->string('school_hours')->nullable()->after('teacher_count');
-        });
+        // Check if the column doesn't already exist
+        if (!Schema::hasColumn('schools', 'school_hours')) {
+            Schema::table('schools', function (Blueprint $table) {
+                $table->string('school_hours')->nullable()->after('teacher_count');
+            });
+        }
     }
 
     /**
@@ -21,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('schools', function (Blueprint $table) {
-            $table->dropColumn('school_hours');
-        });
+        if (Schema::hasColumn('schools', 'school_hours')) {
+            Schema::table('schools', function (Blueprint $table) {
+                $table->dropColumn('school_hours');
+            });
+        }
     }
 };
