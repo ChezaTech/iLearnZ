@@ -8,6 +8,19 @@ export default defineConfig({
             input: 'resources/js/app.jsx',
             refresh: true,
         }),
-        react(),
+        react({
+            // Add this configuration to fix the preamble issue
+            babel: {
+                plugins: [
+                    'babel-plugin-macros',
+                    ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
+                ],
+            },
+        }),
     ],
+    resolve: {
+        alias: {
+            '@': '/resources/js',
+        },
+    },
 });

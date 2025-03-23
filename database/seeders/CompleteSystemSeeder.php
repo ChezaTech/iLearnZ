@@ -72,27 +72,28 @@ class CompleteSystemSeeder extends Seeder
      */
     private function clearExistingData(): void
     {
-        // Clear all data from tables in reverse order of dependencies
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // For SQLite, we need to handle foreign keys differently
+        DB::statement('PRAGMA foreign_keys = OFF');
         
-        DB::table('notifications')->truncate();
-        DB::table('materials')->truncate();
-        DB::table('assessment_submissions')->truncate();
-        DB::table('assessments')->truncate();
-        DB::table('grades')->truncate();
-        DB::table('parent_student')->truncate();
-        DB::table('enrollments')->truncate();
-        DB::table('class_subject')->truncate();
-        DB::table('classes')->truncate();
-        DB::table('subjects')->truncate();
+        // Clear all data from tables in reverse order of dependencies
+        DB::table('notifications')->delete();
+        DB::table('materials')->delete();
+        DB::table('assessment_submissions')->delete();
+        DB::table('assessments')->delete();
+        DB::table('grades')->delete();
+        DB::table('parent_student')->delete();
+        DB::table('enrollments')->delete();
+        DB::table('class_subject')->delete();
+        DB::table('classes')->delete();
+        DB::table('subjects')->delete();
         
         // Clear users except for any existing super admins
         DB::table('users')->where('user_type', '!=', 'super_admin')->delete();
         
         // Clear school data
-        DB::table('schools')->truncate();
+        DB::table('schools')->delete();
         
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('PRAGMA foreign_keys = ON');
     }
     
     /**
