@@ -11,29 +11,43 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schools', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->text('address');
-            $table->string('city');
-            $table->string('province');
-            $table->string('postal_code')->nullable();
-            $table->string('phone');
-            $table->string('email')->nullable();
-            $table->string('principal_name')->nullable();
-            $table->enum('type', ['primary', 'secondary', 'combined']);
-            $table->enum('connectivity_status', ['online', 'offline', 'hybrid'])->default('offline');
-            $table->string('internet_provider')->nullable();
-            $table->boolean('has_smartboards')->default(false);
-            $table->integer('student_count')->default(0);
-            $table->integer('teacher_count')->default(0);
-            $table->timestamps();
-        });
-
-        // Add foreign key constraint to users table
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreign('school_id')->references('id')->on('schools')->onDelete('set null');
+        Schema::table('schools', function (Blueprint $table) {
+            // Check if columns don't exist before adding them
+            if (!Schema::hasColumn('schools', 'city')) {
+                $table->string('city')->nullable();
+            }
+            if (!Schema::hasColumn('schools', 'province')) {
+                $table->string('province')->nullable();
+            }
+            if (!Schema::hasColumn('schools', 'postal_code')) {
+                $table->string('postal_code')->nullable();
+            }
+            if (!Schema::hasColumn('schools', 'connectivity_status')) {
+                $table->enum('connectivity_status', ['online', 'offline', 'hybrid'])->default('offline');
+            }
+            if (!Schema::hasColumn('schools', 'internet_provider')) {
+                $table->string('internet_provider')->nullable();
+            }
+            if (!Schema::hasColumn('schools', 'has_smartboards')) {
+                $table->boolean('has_smartboards')->default(false);
+            }
+            if (!Schema::hasColumn('schools', 'student_count')) {
+                $table->integer('student_count')->default(0);
+            }
+            if (!Schema::hasColumn('schools', 'teacher_count')) {
+                $table->integer('teacher_count')->default(0);
+            }
+            
+            // Modify existing columns if needed
+            if (Schema::hasColumn('schools', 'type')) {
+                $table->dropColumn('type');
+            }
+            $table->enum('type', ['primary', 'secondary', 'combined'])->nullable();
+            
+            // Make sure address is text instead of string
+            if (Schema::hasColumn('schools', 'address')) {
+                $table->text('address')->change();
+            }
         });
     }
 
@@ -42,10 +56,25 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['school_id']);
+        Schema::table('schools', function (Blueprint $table) {
+            // Drop the columns that were added
+            $table->dropColumn([
+                'city',
+                'province',
+                'postal_code',
+                'connectivity_status',
+                'internet_provider',
+                'has_smartboards',
+                'student_count',
+                'teacher_count'
+            ]);
+            
+            // Revert type column
+            $table->dropColumn('type');
+            $table->enum('type', ['public', 'private', 'charter'])->default('public');
+            
+            // Revert address to string
+            $table->string('address')->change();
         });
-        
-        Schema::dropIfExists('schools');
     }
 };

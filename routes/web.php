@@ -214,6 +214,13 @@ Route::middleware('auth')->group(function () {
         // Dashboard
         Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
         
+        // New routes for enhanced dashboard functionality
+        Route::get('/student/{studentId}', [TeacherController::class, 'studentDetails'])->name('student.details');
+        Route::get('/subject/{subjectId}', [TeacherController::class, 'subjectDetails'])->name('subject.details');
+        Route::get('/calendar', [TeacherController::class, 'calendar'])->name('calendar');
+        Route::get('/notifications', [TeacherController::class, 'notifications'])->name('notifications');
+        Route::get('/join-class', [TeacherController::class, 'joinClass'])->name('join.class');
+        
         // Classes
         Route::get('/classes', [TeacherController::class, 'classes'])->name('classes');
         Route::get('/class/{id}', [TeacherController::class, 'classDetails'])->name('class.show');

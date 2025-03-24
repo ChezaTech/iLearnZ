@@ -17,10 +17,10 @@ export default function Pricing() {
                 "Basic reporting",
                 "Student portal",
                 "Parent portal",
-                "Email support"
+                "Email support",
             ],
             cta: "Get Started",
-            popular: false
+            popular: false,
         },
         {
             name: "Standard",
@@ -35,10 +35,10 @@ export default function Pricing() {
                 "Resource library",
                 "Assessment tools",
                 "Priority email support",
-                "Phone support"
+                "Phone support",
             ],
             cta: "Get Started",
-            popular: true
+            popular: true,
         },
         {
             name: "Premium",
@@ -54,22 +54,24 @@ export default function Pricing() {
                 "Assessment tools",
                 "API access",
                 "24/7 priority support",
-                "Dedicated account manager"
+                "Dedicated account manager",
             ],
             cta: "Contact Sales",
-            popular: false
-        }
+            popular: false,
+        },
     ];
 
     return (
         <>
-            <Head title="Pricing - iLearnZ" />
+            <Head title="Pricing - iLearn" />
             <div className="bg-white text-gray-800 dark:bg-gray-900 dark:text-white overflow-hidden font-sans">
                 {/* Header/Navigation */}
                 <header className="flex items-center justify-between py-6 z-20 sticky top-0 bg-white px-8 lg:px-16 shadow-md dark:bg-gray-800">
                     <div className="flex items-center">
                         <Link href="/" className="text-3xl font-bold">
-                            <span className="text-[#1e5091] inline-block mr-1">i</span>
+                            <span className="text-[#1e5091] inline-block mr-1">
+                                i
+                            </span>
                             <span className="text-[#1e5091]">L</span>
                             <span className="text-[#1e5091]">e</span>
                             <span className="text-[#ffb81c]">a</span>
@@ -115,17 +117,21 @@ export default function Pricing() {
                     {/* Hero Section */}
                     <div className="bg-[#1e5091] text-white py-16 relative overflow-hidden">
                         <div className="container mx-auto px-6 text-center relative z-10">
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</h1>
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                                Simple, Transparent Pricing
+                            </h1>
                             <p className="text-xl text-white/80 max-w-2xl mx-auto">
-                                Choose the plan that's right for your school and start transforming your educational experience today.
+                                Choose the plan that's right for your school and
+                                start transforming your educational experience
+                                today.
                             </p>
-                            
+
                             {/* Billing toggle */}
                             <div className="mt-8 inline-flex items-center bg-white/10 p-1 rounded-full">
                                 <button
                                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                                        billingPeriod === "monthly" 
-                                            ? "bg-white text-[#1e5091]" 
+                                        billingPeriod === "monthly"
+                                            ? "bg-white text-[#1e5091]"
                                             : "text-white hover:bg-white/20"
                                     }`}
                                     onClick={() => setBillingPeriod("monthly")}
@@ -134,17 +140,20 @@ export default function Pricing() {
                                 </button>
                                 <button
                                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                                        billingPeriod === "yearly" 
-                                            ? "bg-white text-[#1e5091]" 
+                                        billingPeriod === "yearly"
+                                            ? "bg-white text-[#1e5091]"
                                             : "text-white hover:bg-white/20"
                                     }`}
                                     onClick={() => setBillingPeriod("yearly")}
                                 >
-                                    Yearly <span className="text-[#ffb81c]">Save 17%</span>
+                                    Yearly{" "}
+                                    <span className="text-[#ffb81c]">
+                                        Save 17%
+                                    </span>
                                 </button>
                             </div>
                         </div>
-                        
+
                         {/* Decorative elements */}
                         <div className="absolute top-10 right-10 w-20 h-20 bg-[#ffb81c]/20 rounded-full"></div>
                         <div className="absolute bottom-10 left-10 w-16 h-16 bg-[#ffb81c]/30 rounded-full"></div>
@@ -154,11 +163,11 @@ export default function Pricing() {
                     <div className="container mx-auto px-6 py-16">
                         <div className="grid md:grid-cols-3 gap-8">
                             {plans.map((plan, index) => (
-                                <div 
-                                    key={index} 
+                                <div
+                                    key={index}
                                     className={`rounded-2xl overflow-hidden border ${
-                                        plan.popular 
-                                            ? "border-[#ffb81c] shadow-lg shadow-[#ffb81c]/10" 
+                                        plan.popular
+                                            ? "border-[#ffb81c] shadow-lg shadow-[#ffb81c]/10"
                                             : "border-gray-200 shadow-md"
                                     } transition-transform hover:scale-105`}
                                 >
@@ -168,28 +177,55 @@ export default function Pricing() {
                                         </div>
                                     )}
                                     <div className="p-8">
-                                        <h3 className="text-2xl font-bold text-[#1e5091]">{plan.name}</h3>
-                                        <p className="text-gray-600 mt-2 mb-6">{plan.description}</p>
+                                        <h3 className="text-2xl font-bold text-[#1e5091]">
+                                            {plan.name}
+                                        </h3>
+                                        <p className="text-gray-600 mt-2 mb-6">
+                                            {plan.description}
+                                        </p>
                                         <div className="mb-6">
                                             <span className="text-4xl font-bold text-[#1e5091]">
-                                                ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                                                $
+                                                {billingPeriod === "monthly"
+                                                    ? plan.monthlyPrice
+                                                    : plan.yearlyPrice}
                                             </span>
-                                            <span className="text-gray-600">/{billingPeriod === "monthly" ? "month" : "year"}</span>
+                                            <span className="text-gray-600">
+                                                /
+                                                {billingPeriod === "monthly"
+                                                    ? "month"
+                                                    : "year"}
+                                            </span>
                                         </div>
                                         <ul className="space-y-3 mb-8">
                                             {plan.features.map((feature, i) => (
-                                                <li key={i} className="flex items-start">
-                                                    <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                                <li
+                                                    key={i}
+                                                    className="flex items-start"
+                                                >
+                                                    <svg
+                                                        className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M5 13l4 4L19 7"
+                                                        ></path>
                                                     </svg>
-                                                    <span className="text-gray-700">{feature}</span>
+                                                    <span className="text-gray-700">
+                                                        {feature}
+                                                    </span>
                                                 </li>
                                             ))}
                                         </ul>
-                                        <button 
+                                        <button
                                             className={`w-full py-3 rounded-full font-medium ${
-                                                plan.popular 
-                                                    ? "bg-[#ffb81c] text-[#1e5091] hover:bg-[#ffb81c]/90" 
+                                                plan.popular
+                                                    ? "bg-[#ffb81c] text-[#1e5091] hover:bg-[#ffb81c]/90"
                                                     : "bg-[#1e5091] text-white hover:bg-[#1e5091]/90"
                                             } transition`}
                                         >
@@ -206,36 +242,92 @@ export default function Pricing() {
                         <div className="container mx-auto px-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                                 <div>
-                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">iLearnZ</h3>
-                                    <p className="mb-4">Transforming education across Africa through innovative technology.</p>
+                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">
+                                        iLearn
+                                    </h3>
+                                    <p className="mb-4">
+                                        Transforming education across Africa
+                                        through innovative technology.
+                                    </p>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">Quick Links</h3>
+                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">
+                                        Quick Links
+                                    </h3>
                                     <ul className="space-y-2">
-                                        <li><Link href="/" className="hover:text-[#1e5091]">Home</Link></li>
-                                        <li><Link href="/about" className="hover:text-[#1e5091]">About Us</Link></li>
-                                        <li><Link href="/pricing" className="hover:text-[#1e5091]">Pricing</Link></li>
-                                        <li><Link href="/faq" className="hover:text-[#1e5091]">FAQ</Link></li>
+                                        <li>
+                                            <Link
+                                                href="/"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                Home
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/about"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                About Us
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/pricing"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                Pricing
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/faq"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                FAQ
+                                            </Link>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">Legal</h3>
+                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">
+                                        Legal
+                                    </h3>
                                     <ul className="space-y-2">
-                                        <li><a href="#" className="hover:text-[#1e5091]">Privacy Policy</a></li>
-                                        <li><a href="#" className="hover:text-[#1e5091]">Terms of Service</a></li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                Privacy Policy
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-[#1e5091]"
+                                            >
+                                                Terms of Service
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">Contact</h3>
+                                    <h3 className="text-lg font-bold text-[#1e5091] mb-4">
+                                        Contact
+                                    </h3>
                                     <ul className="space-y-2">
                                         <li>123 Education Street</li>
                                         <li>Lusaka, Zambia</li>
-                                        <li>contact@ilearnz.com</li>
+                                        <li>contact@iLearn.com</li>
                                     </ul>
                                 </div>
                             </div>
                             <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-                                <p>&copy; {new Date().getFullYear()} iLearnZ. All rights reserved.</p>
+                                <p>
+                                    &copy; {new Date().getFullYear()} iLearn.
+                                    All rights reserved.
+                                </p>
                             </div>
                         </div>
                     </footer>

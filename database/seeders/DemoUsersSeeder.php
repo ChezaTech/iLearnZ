@@ -57,7 +57,7 @@ class DemoUsersSeeder extends Seeder
             'has_smartboards' => true,
             'student_count' => 500,
             'teacher_count' => 30,
-            'school_hours' => '8:00 AM - 3:00 PM',
+            'school_hours' => 35, // 35 hours per week
         ]);
 
         // Create demo users for each role
@@ -82,51 +82,51 @@ class DemoUsersSeeder extends Seeder
             'admin' => [
                 [
                     'name' => 'John Admin',
-                    'email' => 'admin@ilearnz.edu',
+                    'email' => 'admin@iLearn.edu',
                 ],
                 [
                     'name' => 'Sarah Admin',
-                    'email' => 'sarah.admin@ilearnz.edu',
+                    'email' => 'sarah.admin@iLearn.edu',
                 ],
             ],
             'school_admin' => [
                 [
                     'name' => 'Michael Principal',
-                    'email' => 'principal@ilearnz.edu',
+                    'email' => 'principal@iLearn.edu',
                 ],
                 [
                     'name' => 'Lisa Principal',
-                    'email' => 'lisa.principal@ilearnz.edu',
+                    'email' => 'lisa.principal@iLearn.edu',
                 ],
             ],
             'teacher' => [
                 [
                     'name' => 'David Teacher',
-                    'email' => 'teacher@ilearnz.edu',
+                    'email' => 'teacher@iLearn.edu',
                 ],
                 [
                     'name' => 'Emily Teacher',
-                    'email' => 'emily.teacher@ilearnz.edu',
+                    'email' => 'emily.teacher@iLearn.edu',
                 ],
             ],
             'student' => [
                 [
                     'name' => 'Alex Student',
-                    'email' => 'student@ilearnz.edu',
+                    'email' => 'student@iLearn.edu',
                 ],
                 [
                     'name' => 'Bella Student',
-                    'email' => 'bella.student@ilearnz.edu',
+                    'email' => 'bella.student@iLearn.edu',
                 ],
             ],
             'parent' => [
                 [
                     'name' => 'Frank Parent',
-                    'email' => 'parent@ilearnz.edu',
+                    'email' => 'parent@iLearn.edu',
                 ],
                 [
                     'name' => 'Grace Parent',
-                    'email' => 'grace.parent@ilearnz.edu',
+                    'email' => 'grace.parent@iLearn.edu',
                 ],
             ],
         ];
